@@ -1,0 +1,1378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Campus Verse — Source Code Bundle (First 10 + Last 10 Pages)</title>
+<style>
+  @page { size: A4; margin: 12mm 10mm; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; color: #000; }
+  .cover { padding: 40mm 20mm; page-break-after: always; }
+  .cover h1 { font-size: 22pt; margin: 0 0 8mm 0; }
+  .cover h2 { font-size: 13pt; font-weight: normal; margin: 0 0 12mm 0; color: #444; }
+  .cover table { width: 100%; border-collapse: collapse; margin-top: 8mm; font-size: 10.5pt; }
+  .cover td { padding: 3mm 4mm; border: 1px solid #999; vertical-align: top; }
+  .cover td:first-child { width: 40%; font-weight: 600; background: #f3f3f3; }
+  .note { margin-top: 10mm; font-size: 9.5pt; color: #333; line-height: 1.5; }
+  .page { page-break-after: always; font-family: 'Menlo', 'Courier New', monospace; font-size: 8.5pt; line-height: 1.25; }
+  .page:last-child { page-break-after: auto; }
+  .page header, .page footer { display: flex; justify-content: space-between; font-family: system-ui, sans-serif; font-size: 8.5pt; color: #555; border-bottom: 1px solid #999; padding-bottom: 1.5mm; margin-bottom: 2mm; }
+  .page footer { border-top: 1px solid #999; border-bottom: none; margin-top: 2mm; padding-top: 1.5mm; padding-bottom: 0; }
+  .content { white-space: pre; }
+  .line { display: flex; }
+  .ln { display: inline-block; min-width: 9mm; padding-right: 2mm; color: #888; text-align: right; user-select: none; }
+  .src { flex: 1; white-space: pre; }
+  .hdr { font-weight: bold; background: #f0f0f0; padding: 1mm 2mm; margin: 1.5mm 0 1mm 0; border-left: 3px solid #000; }
+  .section-break { page-break-before: always; padding: 40mm 20mm; font-family: system-ui; }
+  .section-break h2 { font-size: 18pt; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <h1>Campus Verse</h1>
+  <h2>Multi-Tenant ERP Platform for Educational Institutions<br>Source Code Bundle for Copyright Application (Form XIV)</h2>
+  <table>
+    <tr><td>Title of work</td><td>Campus Verse — Multi-Tenant ERP Platform for Educational Institutions</td></tr>
+    <tr><td>Nature of work</td><td>Computer Software / Literary Work (Source Code)</td></tr>
+    <tr><td>Primary languages</td><td>TypeScript, JavaScript (with HTML &amp; CSS for web frontends)</td></tr>
+    <tr><td>Total source files</td><td>1005 (.ts / .tsx / .js / .jsx)</td></tr>
+    <tr><td>Total source lines</td><td>3,17,159</td></tr>
+    <tr><td>Total pages (full code, 55 lines/page)</td><td>5,785</td></tr>
+    <tr><td>Pages submitted</td><td>First 10 pages + Last 10 pages (= 20 pages total)</td></tr>
+    <tr><td>Generated on</td><td>2026-05-20</td></tr>
+  </table>
+  <div class="note">
+    <strong>Filing instructions:</strong>
+    <ol>
+      <li>Open this HTML file in Chrome or Safari.</li>
+      <li>Use <em>File &rarr; Print &rarr; Save as PDF</em> (paper size: A4, margins: default, scale: 100%).</li>
+      <li>Print three identical copies. The author must sign every page in each set.</li>
+      <li>Submit alongside the completed Statement of Particulars (Form XIV) and Statement of Further Particulars.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section-break">
+  <h2>Part A — First 10 Pages of Source Code</h2>
+  <p>Pages 1 to 10 of 5,785 total pages.</p>
+</section>
+
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 1 of 5785</span>
+  </header>
+  <div class="content"><div class="hdr">========== FILE: packages/shared/src/constants/exam.ts (137 lines) ==========</div>
+<div class="line"><span class="ln">   1</span><span class="src">/**</span></div>
+<div class="line"><span class="ln">   2</span><span class="src"> * Exam &amp; Report Card constants</span></div>
+<div class="line"><span class="ln">   3</span><span class="src"> *</span></div>
+<div class="line"><span class="ln">   4</span><span class="src"> * Defines:</span></div>
+<div class="line"><span class="ln">   5</span><span class="src"> * - Exam types Indian schools recognise (unit test, mid-term, half-yearly, etc.)</span></div>
+<div class="line"><span class="ln">   6</span><span class="src"> * - Board presets that auto-load grading scales + co-scholastic settings</span></div>
+<div class="line"><span class="ln">   7</span><span class="src"> * - Default grading-scale bands per board</span></div>
+<div class="line"><span class="ln">   8</span><span class="src"> * - Default co-scholastic areas (CBSE preset)</span></div>
+<div class="line"><span class="ln">   9</span><span class="src"> *</span></div>
+<div class="line"><span class="ln">  10</span><span class="src"> * The tenant's exam settings record stores their effective values; these</span></div>
+<div class="line"><span class="ln">  11</span><span class="src"> * constants only seed the defaults the user can later customise.</span></div>
+<div class="line"><span class="ln">  12</span><span class="src"> */</span></div>
+<div class="line"><span class="ln">  13</span><span class="src"></span></div>
+<div class="line"><span class="ln">  14</span><span class="src">export const EXAM_TYPES = [</span></div>
+<div class="line"><span class="ln">  15</span><span class="src">  'unit_test',</span></div>
+<div class="line"><span class="ln">  16</span><span class="src">  'mid_term',</span></div>
+<div class="line"><span class="ln">  17</span><span class="src">  'half_yearly',</span></div>
+<div class="line"><span class="ln">  18</span><span class="src">  'annual',</span></div>
+<div class="line"><span class="ln">  19</span><span class="src">  'final',</span></div>
+<div class="line"><span class="ln">  20</span><span class="src">  'custom',</span></div>
+<div class="line"><span class="ln">  21</span><span class="src">] as const;</span></div>
+<div class="line"><span class="ln">  22</span><span class="src"></span></div>
+<div class="line"><span class="ln">  23</span><span class="src">export type ExamType = (typeof EXAM_TYPES)[number];</span></div>
+<div class="line"><span class="ln">  24</span><span class="src"></span></div>
+<div class="line"><span class="ln">  25</span><span class="src">export const EXAM_TYPE_LABELS: Record&lt;ExamType, string&gt; = {</span></div>
+<div class="line"><span class="ln">  26</span><span class="src">  unit_test: 'Unit Test',</span></div>
+<div class="line"><span class="ln">  27</span><span class="src">  mid_term: 'Mid-Term Exam',</span></div>
+<div class="line"><span class="ln">  28</span><span class="src">  half_yearly: 'Half-Yearly Exam',</span></div>
+<div class="line"><span class="ln">  29</span><span class="src">  annual: 'Annual Exam',</span></div>
+<div class="line"><span class="ln">  30</span><span class="src">  final: 'Final Exam',</span></div>
+<div class="line"><span class="ln">  31</span><span class="src">  custom: 'Custom',</span></div>
+<div class="line"><span class="ln">  32</span><span class="src">};</span></div>
+<div class="line"><span class="ln">  33</span><span class="src"></span></div>
+<div class="line"><span class="ln">  34</span><span class="src">export const EXAM_STATUSES = [</span></div>
+<div class="line"><span class="ln">  35</span><span class="src">  'draft',</span></div>
+<div class="line"><span class="ln">  36</span><span class="src">  'scheduled',</span></div>
+<div class="line"><span class="ln">  37</span><span class="src">  'ongoing',</span></div>
+<div class="line"><span class="ln">  38</span><span class="src">  'completed',</span></div>
+<div class="line"><span class="ln">  39</span><span class="src">  'results_published',</span></div>
+<div class="line"><span class="ln">  40</span><span class="src">  'cancelled',</span></div>
+<div class="line"><span class="ln">  41</span><span class="src">] as const;</span></div>
+<div class="line"><span class="ln">  42</span><span class="src"></span></div>
+<div class="line"><span class="ln">  43</span><span class="src">export type ExamStatus = (typeof EXAM_STATUSES)[number];</span></div>
+<div class="line"><span class="ln">  44</span><span class="src"></span></div>
+<div class="line"><span class="ln">  45</span><span class="src">export const BOARD_PRESETS = ['cbse', 'icse', 'custom'] as const;</span></div>
+<div class="line"><span class="ln">  46</span><span class="src">export type BoardPreset = (typeof BOARD_PRESETS)[number];</span></div>
+<div class="line"><span class="ln">  47</span><span class="src"></span></div>
+<div class="line"><span class="ln">  48</span><span class="src">export interface GradingScaleBand {</span></div>
+<div class="line"><span class="ln">  49</span><span class="src">  /** Inclusive lower bound, percentage 0–100. */</span></div>
+<div class="line"><span class="ln">  50</span><span class="src">  minPercent: number;</span></div>
+<div class="line"><span class="ln">  51</span><span class="src">  /** Inclusive upper bound, percentage 0–100. */</span></div>
+<div class="line"><span class="ln">  52</span><span class="src">  maxPercent: number;</span></div>
+<div class="line"><span class="ln">  53</span><span class="src">  /** Letter/symbol shown to users (e.g. 'A1', 'B+', 'Pass'). */</span></div>
+<div class="line"><span class="ln">  54</span><span class="src">  grade: string;</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 2 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  55</span><span class="src">  /** Optional grade points (10-point system for CBSE etc.). */</span></div>
+<div class="line"><span class="ln">  56</span><span class="src">  points?: number;</span></div>
+<div class="line"><span class="ln">  57</span><span class="src">  /** Optional descriptor surfaced on report cards. */</span></div>
+<div class="line"><span class="ln">  58</span><span class="src">  remark?: string;</span></div>
+<div class="line"><span class="ln">  59</span><span class="src">}</span></div>
+<div class="line"><span class="ln">  60</span><span class="src"></span></div>
+<div class="line"><span class="ln">  61</span><span class="src">/**</span></div>
+<div class="line"><span class="ln">  62</span><span class="src"> * CBSE 9-point grading scale.</span></div>
+<div class="line"><span class="ln">  63</span><span class="src"> * https://www.cbse.gov.in — A1 (10) to E2 (failure).</span></div>
+<div class="line"><span class="ln">  64</span><span class="src"> */</span></div>
+<div class="line"><span class="ln">  65</span><span class="src">export const CBSE_GRADING_SCALE: GradingScaleBand[] = [</span></div>
+<div class="line"><span class="ln">  66</span><span class="src">  { minPercent: 91, maxPercent: 100, grade: 'A1', points: 10, remark: 'Outstanding' },</span></div>
+<div class="line"><span class="ln">  67</span><span class="src">  { minPercent: 81, maxPercent: 90, grade: 'A2', points: 9, remark: 'Excellent' },</span></div>
+<div class="line"><span class="ln">  68</span><span class="src">  { minPercent: 71, maxPercent: 80, grade: 'B1', points: 8, remark: 'Very Good' },</span></div>
+<div class="line"><span class="ln">  69</span><span class="src">  { minPercent: 61, maxPercent: 70, grade: 'B2', points: 7, remark: 'Good' },</span></div>
+<div class="line"><span class="ln">  70</span><span class="src">  { minPercent: 51, maxPercent: 60, grade: 'C1', points: 6, remark: 'Above Average' },</span></div>
+<div class="line"><span class="ln">  71</span><span class="src">  { minPercent: 41, maxPercent: 50, grade: 'C2', points: 5, remark: 'Average' },</span></div>
+<div class="line"><span class="ln">  72</span><span class="src">  { minPercent: 33, maxPercent: 40, grade: 'D', points: 4, remark: 'Pass' },</span></div>
+<div class="line"><span class="ln">  73</span><span class="src">  { minPercent: 21, maxPercent: 32, grade: 'E1', points: 0, remark: 'Needs Improvement' },</span></div>
+<div class="line"><span class="ln">  74</span><span class="src">  { minPercent: 0, maxPercent: 20, grade: 'E2', points: 0, remark: 'Unsatisfactory' },</span></div>
+<div class="line"><span class="ln">  75</span><span class="src">];</span></div>
+<div class="line"><span class="ln">  76</span><span class="src"></span></div>
+<div class="line"><span class="ln">  77</span><span class="src">/**</span></div>
+<div class="line"><span class="ln">  78</span><span class="src"> * Generic ICSE / percentage-style scale (broad bands, schools typically tune).</span></div>
+<div class="line"><span class="ln">  79</span><span class="src"> */</span></div>
+<div class="line"><span class="ln">  80</span><span class="src">export const ICSE_GRADING_SCALE: GradingScaleBand[] = [</span></div>
+<div class="line"><span class="ln">  81</span><span class="src">  { minPercent: 90, maxPercent: 100, grade: 'A', points: 5, remark: 'Distinction' },</span></div>
+<div class="line"><span class="ln">  82</span><span class="src">  { minPercent: 75, maxPercent: 89, grade: 'B', points: 4, remark: 'First Class' },</span></div>
+<div class="line"><span class="ln">  83</span><span class="src">  { minPercent: 60, maxPercent: 74, grade: 'C', points: 3, remark: 'Second Class' },</span></div>
+<div class="line"><span class="ln">  84</span><span class="src">  { minPercent: 40, maxPercent: 59, grade: 'D', points: 2, remark: 'Pass' },</span></div>
+<div class="line"><span class="ln">  85</span><span class="src">  { minPercent: 0, maxPercent: 39, grade: 'E', points: 0, remark: 'Fail' },</span></div>
+<div class="line"><span class="ln">  86</span><span class="src">];</span></div>
+<div class="line"><span class="ln">  87</span><span class="src"></span></div>
+<div class="line"><span class="ln">  88</span><span class="src">export const DEFAULT_CO_SCHOLASTIC_AREAS: string[] = [</span></div>
+<div class="line"><span class="ln">  89</span><span class="src">  'Work Education',</span></div>
+<div class="line"><span class="ln">  90</span><span class="src">  'Art Education',</span></div>
+<div class="line"><span class="ln">  91</span><span class="src">  'Health &amp; Physical Education',</span></div>
+<div class="line"><span class="ln">  92</span><span class="src">  'Discipline',</span></div>
+<div class="line"><span class="ln">  93</span><span class="src">  'Attitude &amp; Values',</span></div>
+<div class="line"><span class="ln">  94</span><span class="src">];</span></div>
+<div class="line"><span class="ln">  95</span><span class="src"></span></div>
+<div class="line"><span class="ln">  96</span><span class="src">/**</span></div>
+<div class="line"><span class="ln">  97</span><span class="src"> * Letter grades used for co-scholastic assessment (CBSE preset).</span></div>
+<div class="line"><span class="ln">  98</span><span class="src"> * Schools can override in settings.</span></div>
+<div class="line"><span class="ln">  99</span><span class="src"> */</span></div>
+<div class="line"><span class="ln"> 100</span><span class="src">export const DEFAULT_CO_SCHOLASTIC_GRADES = ['A', 'B', 'C', 'D'] as const;</span></div>
+<div class="line"><span class="ln"> 101</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 102</span><span class="src">export interface BoardPresetConfig {</span></div>
+<div class="line"><span class="ln"> 103</span><span class="src">  gradingScale: GradingScaleBand[];</span></div>
+<div class="line"><span class="ln"> 104</span><span class="src">  coScholasticEnabled: boolean;</span></div>
+<div class="line"><span class="ln"> 105</span><span class="src">  coScholasticAreas: string[];</span></div>
+<div class="line"><span class="ln"> 106</span><span class="src">  passMarkPercent: number;</span></div>
+<div class="line"><span class="ln"> 107</span><span class="src">}</span></div>
+<div class="line"><span class="ln"> 108</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 109</span><span class="src">export const BOARD_PRESET_CONFIG: Record&lt;Exclude&lt;BoardPreset, 'custom'&gt;, BoardPresetConfig&gt; = {</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 3 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln"> 110</span><span class="src">  cbse: {</span></div>
+<div class="line"><span class="ln"> 111</span><span class="src">    gradingScale: CBSE_GRADING_SCALE,</span></div>
+<div class="line"><span class="ln"> 112</span><span class="src">    coScholasticEnabled: true,</span></div>
+<div class="line"><span class="ln"> 113</span><span class="src">    coScholasticAreas: DEFAULT_CO_SCHOLASTIC_AREAS,</span></div>
+<div class="line"><span class="ln"> 114</span><span class="src">    passMarkPercent: 33,</span></div>
+<div class="line"><span class="ln"> 115</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 116</span><span class="src">  icse: {</span></div>
+<div class="line"><span class="ln"> 117</span><span class="src">    gradingScale: ICSE_GRADING_SCALE,</span></div>
+<div class="line"><span class="ln"> 118</span><span class="src">    coScholasticEnabled: false,</span></div>
+<div class="line"><span class="ln"> 119</span><span class="src">    coScholasticAreas: [],</span></div>
+<div class="line"><span class="ln"> 120</span><span class="src">    passMarkPercent: 40,</span></div>
+<div class="line"><span class="ln"> 121</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 122</span><span class="src">};</span></div>
+<div class="line"><span class="ln"> 123</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 124</span><span class="src">/**</span></div>
+<div class="line"><span class="ln"> 125</span><span class="src"> * Look up the grade band a percentage falls into. Returns null if no band</span></div>
+<div class="line"><span class="ln"> 126</span><span class="src"> * matches (caller should treat as ungraded / configure scale).</span></div>
+<div class="line"><span class="ln"> 127</span><span class="src"> */</span></div>
+<div class="line"><span class="ln"> 128</span><span class="src">export function gradeForPercent(</span></div>
+<div class="line"><span class="ln"> 129</span><span class="src">  percent: number,</span></div>
+<div class="line"><span class="ln"> 130</span><span class="src">  scale: GradingScaleBand[]</span></div>
+<div class="line"><span class="ln"> 131</span><span class="src">): GradingScaleBand | null {</span></div>
+<div class="line"><span class="ln"> 132</span><span class="src">  for (const band of scale) {</span></div>
+<div class="line"><span class="ln"> 133</span><span class="src">    if (percent &gt;= band.minPercent &amp;&amp; percent &lt;= band.maxPercent) return band;</span></div>
+<div class="line"><span class="ln"> 134</span><span class="src">  }</span></div>
+<div class="line"><span class="ln"> 135</span><span class="src">  return null;</span></div>
+<div class="line"><span class="ln"> 136</span><span class="src">}</span></div>
+<div class="line"><span class="ln"> 137</span><span class="src"></span></div>
+<div class="line"><span class="ln"></span><span class="src"></span></div>
+<div class="hdr">========== FILE: packages/shared/src/constants/index.ts (7 lines) ==========</div>
+<div class="line"><span class="ln">   1</span><span class="src">export * from './roles';</span></div>
+<div class="line"><span class="ln">   2</span><span class="src">export * from './permissions';</span></div>
+<div class="line"><span class="ln">   3</span><span class="src">export * from './status';</span></div>
+<div class="line"><span class="ln">   4</span><span class="src">export * from './modules';</span></div>
+<div class="line"><span class="ln">   5</span><span class="src">export * from './setup-tasks';</span></div>
+<div class="line"><span class="ln">   6</span><span class="src">export * from './exam';</span></div>
+<div class="line"><span class="ln">   7</span><span class="src"></span></div>
+<div class="line"><span class="ln"></span><span class="src"></span></div>
+<div class="hdr">========== FILE: packages/shared/src/constants/modules.ts (302 lines) ==========</div>
+<div class="line"><span class="ln">   1</span><span class="src">/**</span></div>
+<div class="line"><span class="ln">   2</span><span class="src"> * Available modules in CampusVerse platform</span></div>
+<div class="line"><span class="ln">   3</span><span class="src"> * Core modules are always enabled, optional modules can be selected during registration</span></div>
+<div class="line"><span class="ln">   4</span><span class="src"> */</span></div>
+<div class="line"><span class="ln">   5</span><span class="src"></span></div>
+<div class="line"><span class="ln">   6</span><span class="src">export const MODULES = {</span></div>
+<div class="line"><span class="ln">   7</span><span class="src">  // Core modules - always enabled</span></div>
+<div class="line"><span class="ln">   8</span><span class="src">  core: {</span></div>
+<div class="line"><span class="ln">   9</span><span class="src">    code: 'core',</span></div>
+<div class="line"><span class="ln">  10</span><span class="src">    name: 'Core',</span></div>
+<div class="line"><span class="ln">  11</span><span class="src">    description:</span></div>
+<div class="line"><span class="ln">  12</span><span class="src">      'Essential organization management including branches, users, roles, and academic structure',</span></div>
+<div class="line"><span class="ln">  13</span><span class="src">    features: [</span></div>
+<div class="line"><span class="ln">  14</span><span class="src">      'organization',</span></div>
+<div class="line"><span class="ln">  15</span><span class="src">      'branches',</span></div>
+<div class="line"><span class="ln">  16</span><span class="src">      'users',</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 4 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  17</span><span class="src">      'roles',</span></div>
+<div class="line"><span class="ln">  18</span><span class="src">      'classes',</span></div>
+<div class="line"><span class="ln">  19</span><span class="src">      'subjects',</span></div>
+<div class="line"><span class="ln">  20</span><span class="src">      'sections',</span></div>
+<div class="line"><span class="ln">  21</span><span class="src">      'academicBatches',</span></div>
+<div class="line"><span class="ln">  22</span><span class="src">    ],</span></div>
+<div class="line"><span class="ln">  23</span><span class="src">    required: true,</span></div>
+<div class="line"><span class="ln">  24</span><span class="src">    icon: 'Building2',</span></div>
+<div class="line"><span class="ln">  25</span><span class="src">  },</span></div>
+<div class="line"><span class="ln">  26</span><span class="src"></span></div>
+<div class="line"><span class="ln">  27</span><span class="src">  // Optional modules</span></div>
+<div class="line"><span class="ln">  28</span><span class="src">  admissions: {</span></div>
+<div class="line"><span class="ln">  29</span><span class="src">    code: 'admissions',</span></div>
+<div class="line"><span class="ln">  30</span><span class="src">    name: 'Admissions',</span></div>
+<div class="line"><span class="ln">  31</span><span class="src">    description: 'Student admission leads, applications, and enrollment management',</span></div>
+<div class="line"><span class="ln">  32</span><span class="src">    features: ['leads', 'applications', 'enrollment'],</span></div>
+<div class="line"><span class="ln">  33</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln">  34</span><span class="src">    icon: 'UserPlus',</span></div>
+<div class="line"><span class="ln">  35</span><span class="src">  },</span></div>
+<div class="line"><span class="ln">  36</span><span class="src"></span></div>
+<div class="line"><span class="ln">  37</span><span class="src">  students: {</span></div>
+<div class="line"><span class="ln">  38</span><span class="src">    code: 'students',</span></div>
+<div class="line"><span class="ln">  39</span><span class="src">    name: 'Students',</span></div>
+<div class="line"><span class="ln">  40</span><span class="src">    description: 'Student records, profiles, and academic management',</span></div>
+<div class="line"><span class="ln">  41</span><span class="src">    features: ['list', 'details', 'enrollment', 'promotion'],</span></div>
+<div class="line"><span class="ln">  42</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln">  43</span><span class="src">    icon: 'GraduationCap',</span></div>
+<div class="line"><span class="ln">  44</span><span class="src">  },</span></div>
+<div class="line"><span class="ln">  45</span><span class="src"></span></div>
+<div class="line"><span class="ln">  46</span><span class="src">  finance: {</span></div>
+<div class="line"><span class="ln">  47</span><span class="src">    code: 'finance',</span></div>
+<div class="line"><span class="ln">  48</span><span class="src">    name: 'Finance',</span></div>
+<div class="line"><span class="ln">  49</span><span class="src">    description: 'Fee collection, fee structures, concessions, and financial reports',</span></div>
+<div class="line"><span class="ln">  50</span><span class="src">    features: ['feeCounter', 'feeStructures', 'collections', 'dues', 'concessions', 'reports'],</span></div>
+<div class="line"><span class="ln">  51</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln">  52</span><span class="src">    icon: 'Wallet',</span></div>
+<div class="line"><span class="ln">  53</span><span class="src">  },</span></div>
+<div class="line"><span class="ln">  54</span><span class="src"></span></div>
+<div class="line"><span class="ln">  55</span><span class="src">  hr: {</span></div>
+<div class="line"><span class="ln">  56</span><span class="src">    code: 'hr',</span></div>
+<div class="line"><span class="ln">  57</span><span class="src">    name: 'HR &amp; Staff',</span></div>
+<div class="line"><span class="ln">  58</span><span class="src">    description: 'Staff management, payroll, leaves, and workload tracking',</span></div>
+<div class="line"><span class="ln">  59</span><span class="src">    features: ['staff', 'attendance', 'leaves', 'workload'],</span></div>
+<div class="line"><span class="ln">  60</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln">  61</span><span class="src">    icon: 'Users',</span></div>
+<div class="line"><span class="ln">  62</span><span class="src">  },</span></div>
+<div class="line"><span class="ln">  63</span><span class="src"></span></div>
+<div class="line"><span class="ln">  64</span><span class="src">  attendance: {</span></div>
+<div class="line"><span class="ln">  65</span><span class="src">    code: 'attendance',</span></div>
+<div class="line"><span class="ln">  66</span><span class="src">    name: 'Attendance',</span></div>
+<div class="line"><span class="ln">  67</span><span class="src">    description: 'Student attendance marking, tracking, and reports',</span></div>
+<div class="line"><span class="ln">  68</span><span class="src">    features: ['mark', 'view', 'reports'],</span></div>
+<div class="line"><span class="ln">  69</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln">  70</span><span class="src">    icon: 'ClipboardCheck',</span></div>
+<div class="line"><span class="ln">  71</span><span class="src">  },</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 5 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  72</span><span class="src"></span></div>
+<div class="line"><span class="ln">  73</span><span class="src">  communications: {</span></div>
+<div class="line"><span class="ln">  74</span><span class="src">    code: 'communications',</span></div>
+<div class="line"><span class="ln">  75</span><span class="src">    name: 'Communications',</span></div>
+<div class="line"><span class="ln">  76</span><span class="src">    description: 'SMS notifications, announcements, and academic calendar',</span></div>
+<div class="line"><span class="ln">  77</span><span class="src">    features: ['sms', 'announcements', 'calendar'],</span></div>
+<div class="line"><span class="ln">  78</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln">  79</span><span class="src">    icon: 'MessageSquare',</span></div>
+<div class="line"><span class="ln">  80</span><span class="src">  },</span></div>
+<div class="line"><span class="ln">  81</span><span class="src"></span></div>
+<div class="line"><span class="ln">  82</span><span class="src">  certificates: {</span></div>
+<div class="line"><span class="ln">  83</span><span class="src">    code: 'certificates',</span></div>
+<div class="line"><span class="ln">  84</span><span class="src">    name: 'Certificates',</span></div>
+<div class="line"><span class="ln">  85</span><span class="src">    description: 'Certificate templates and generation for students',</span></div>
+<div class="line"><span class="ln">  86</span><span class="src">    features: ['templates', 'generation'],</span></div>
+<div class="line"><span class="ln">  87</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln">  88</span><span class="src">    icon: 'Award',</span></div>
+<div class="line"><span class="ln">  89</span><span class="src">  },</span></div>
+<div class="line"><span class="ln">  90</span><span class="src"></span></div>
+<div class="line"><span class="ln">  91</span><span class="src">  health: {</span></div>
+<div class="line"><span class="ln">  92</span><span class="src">    code: 'health',</span></div>
+<div class="line"><span class="ln">  93</span><span class="src">    name: 'Health',</span></div>
+<div class="line"><span class="ln">  94</span><span class="src">    description:</span></div>
+<div class="line"><span class="ln">  95</span><span class="src">      'Health records, checkups, vaccinations, and medical visits for students and staff',</span></div>
+<div class="line"><span class="ln">  96</span><span class="src">    features: ['records', 'checkups', 'vaccinations', 'visits', 'reports'],</span></div>
+<div class="line"><span class="ln">  97</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln">  98</span><span class="src">    icon: 'Heart',</span></div>
+<div class="line"><span class="ln">  99</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 100</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 101</span><span class="src">  teaching: {</span></div>
+<div class="line"><span class="ln"> 102</span><span class="src">    code: 'teaching',</span></div>
+<div class="line"><span class="ln"> 103</span><span class="src">    name: 'Teaching',</span></div>
+<div class="line"><span class="ln"> 104</span><span class="src">    description: 'Teacher workspace with timetable, lesson plans, assignments, and gradebook',</span></div>
+<div class="line"><span class="ln"> 105</span><span class="src">    features: ['myClasses', 'timetable', 'lessonPlans', 'assignments', 'grades', 'liveClasses'],</span></div>
+<div class="line"><span class="ln"> 106</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln"> 107</span><span class="src">    icon: 'BookOpen',</span></div>
+<div class="line"><span class="ln"> 108</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 109</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 110</span><span class="src">  careerConnect: {</span></div>
+<div class="line"><span class="ln"> 111</span><span class="src">    code: 'careerConnect',</span></div>
+<div class="line"><span class="ln"> 112</span><span class="src">    name: 'Career Connect',</span></div>
+<div class="line"><span class="ln"> 113</span><span class="src">    description:</span></div>
+<div class="line"><span class="ln"> 114</span><span class="src">      'Placement drives, job board, career counseling, alumni network, and student career profiles',</span></div>
+<div class="line"><span class="ln"> 115</span><span class="src">    features: [</span></div>
+<div class="line"><span class="ln"> 116</span><span class="src">      'companies',</span></div>
+<div class="line"><span class="ln"> 117</span><span class="src">      'drives',</span></div>
+<div class="line"><span class="ln"> 118</span><span class="src">      'jobBoard',</span></div>
+<div class="line"><span class="ln"> 119</span><span class="src">      'studentProfiles',</span></div>
+<div class="line"><span class="ln"> 120</span><span class="src">      'counseling',</span></div>
+<div class="line"><span class="ln"> 121</span><span class="src">      'resources',</span></div>
+<div class="line"><span class="ln"> 122</span><span class="src">      'alumni',</span></div>
+<div class="line"><span class="ln"> 123</span><span class="src">      'mentorship',</span></div>
+<div class="line"><span class="ln"> 124</span><span class="src">      'events',</span></div>
+<div class="line"><span class="ln"> 125</span><span class="src">      'reports',</span></div>
+<div class="line"><span class="ln"> 126</span><span class="src">      'settings',</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 6 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln"> 127</span><span class="src">    ],</span></div>
+<div class="line"><span class="ln"> 128</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln"> 129</span><span class="src">    icon: 'Briefcase',</span></div>
+<div class="line"><span class="ln"> 130</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 131</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 132</span><span class="src">  courses: {</span></div>
+<div class="line"><span class="ln"> 133</span><span class="src">    code: 'courses',</span></div>
+<div class="line"><span class="ln"> 134</span><span class="src">    name: 'Courses &amp; Online Teaching',</span></div>
+<div class="line"><span class="ln"> 135</span><span class="src">    description:</span></div>
+<div class="line"><span class="ln"> 136</span><span class="src">      'Course management, video lessons, quizzes, student enrollment, and progress tracking',</span></div>
+<div class="line"><span class="ln"> 137</span><span class="src">    features: ['courses', 'lessons', 'quizzes', 'enrollments', 'progress', 'reports', 'settings'],</span></div>
+<div class="line"><span class="ln"> 138</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln"> 139</span><span class="src">    icon: 'BookOpen',</span></div>
+<div class="line"><span class="ln"> 140</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 141</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 142</span><span class="src">  hostel: {</span></div>
+<div class="line"><span class="ln"> 143</span><span class="src">    code: 'hostel',</span></div>
+<div class="line"><span class="ln"> 144</span><span class="src">    name: 'Hostel',</span></div>
+<div class="line"><span class="ln"> 145</span><span class="src">    description: 'Hostel management with room allocation, vacancy tracking, and occupancy reports',</span></div>
+<div class="line"><span class="ln"> 146</span><span class="src">    features: ['hostels', 'rooms', 'allocations', 'reports', 'settings'],</span></div>
+<div class="line"><span class="ln"> 147</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln"> 148</span><span class="src">    icon: 'Hotel',</span></div>
+<div class="line"><span class="ln"> 149</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 150</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 151</span><span class="src">  campusFeed: {</span></div>
+<div class="line"><span class="ln"> 152</span><span class="src">    code: 'campusFeed',</span></div>
+<div class="line"><span class="ln"> 153</span><span class="src">    name: 'Campus Feed',</span></div>
+<div class="line"><span class="ln"> 154</span><span class="src">    description:</span></div>
+<div class="line"><span class="ln"> 155</span><span class="src">      'Social feed for campus-wide posts, likes, comments, media sharing, and moderation',</span></div>
+<div class="line"><span class="ln"> 156</span><span class="src">    features: ['posts'],</span></div>
+<div class="line"><span class="ln"> 157</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln"> 158</span><span class="src">    icon: 'Newspaper',</span></div>
+<div class="line"><span class="ln"> 159</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 160</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 161</span><span class="src">  inventory: {</span></div>
+<div class="line"><span class="ln"> 162</span><span class="src">    code: 'inventory',</span></div>
+<div class="line"><span class="ln"> 163</span><span class="src">    name: 'Inventory',</span></div>
+<div class="line"><span class="ln"> 164</span><span class="src">    description:</span></div>
+<div class="line"><span class="ln"> 165</span><span class="src">      'Asset tracking, stock management, procurement, and issue/return of institutional assets',</span></div>
+<div class="line"><span class="ln"> 166</span><span class="src">    features: ['assets', 'categories', 'procurement', 'issue', 'reports', 'settings'],</span></div>
+<div class="line"><span class="ln"> 167</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln"> 168</span><span class="src">    icon: 'Package',</span></div>
+<div class="line"><span class="ln"> 169</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 170</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 171</span><span class="src">  expense: {</span></div>
+<div class="line"><span class="ln"> 172</span><span class="src">    code: 'expense',</span></div>
+<div class="line"><span class="ln"> 173</span><span class="src">    name: 'Expense Management',</span></div>
+<div class="line"><span class="ln"> 174</span><span class="src">    description:</span></div>
+<div class="line"><span class="ln"> 175</span><span class="src">      'Expense requests, approvals, reimbursements, budget tracking, and expense reports',</span></div>
+<div class="line"><span class="ln"> 176</span><span class="src">    features: ['requests', 'approvals', 'reimbursements', 'budgets', 'reports', 'settings'],</span></div>
+<div class="line"><span class="ln"> 177</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln"> 178</span><span class="src">    icon: 'Receipt',</span></div>
+<div class="line"><span class="ln"> 179</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 180</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 181</span><span class="src">  feedback: {</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 7 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln"> 182</span><span class="src">    code: 'feedback',</span></div>
+<div class="line"><span class="ln"> 183</span><span class="src">    name: 'Concerns &amp; Feedback',</span></div>
+<div class="line"><span class="ln"> 184</span><span class="src">    description:</span></div>
+<div class="line"><span class="ln"> 185</span><span class="src">      'Grievance submission, ticket tracking, resolution workflow, and satisfaction surveys',</span></div>
+<div class="line"><span class="ln"> 186</span><span class="src">    features: ['tickets', 'reports'],</span></div>
+<div class="line"><span class="ln"> 187</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln"> 188</span><span class="src">    icon: 'MessageCircleWarning',</span></div>
+<div class="line"><span class="ln"> 189</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 190</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 191</span><span class="src">  visitor: {</span></div>
+<div class="line"><span class="ln"> 192</span><span class="src">    code: 'visitor',</span></div>
+<div class="line"><span class="ln"> 193</span><span class="src">    name: 'Visitor Management',</span></div>
+<div class="line"><span class="ln"> 194</span><span class="src">    description: 'Visitor registration, check-in/out, digital passes, and visitor logs',</span></div>
+<div class="line"><span class="ln"> 195</span><span class="src">    features: ['visitors', 'passes', 'logs', 'dashboard', 'settings'],</span></div>
+<div class="line"><span class="ln"> 196</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln"> 197</span><span class="src">    icon: 'UserCheck',</span></div>
+<div class="line"><span class="ln"> 198</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 199</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 200</span><span class="src">  transport: {</span></div>
+<div class="line"><span class="ln"> 201</span><span class="src">    code: 'transport',</span></div>
+<div class="line"><span class="ln"> 202</span><span class="src">    name: 'Transport',</span></div>
+<div class="line"><span class="ln"> 203</span><span class="src">    description:</span></div>
+<div class="line"><span class="ln"> 204</span><span class="src">      'School bus fleet management with Google Maps routes, stops, per-stop or flat pricing, and student enrollment',</span></div>
+<div class="line"><span class="ln"> 205</span><span class="src">    features: ['buses', 'stops', 'enrollments', 'reports', 'settings'],</span></div>
+<div class="line"><span class="ln"> 206</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln"> 207</span><span class="src">    icon: 'Bus',</span></div>
+<div class="line"><span class="ln"> 208</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 209</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 210</span><span class="src">  exams: {</span></div>
+<div class="line"><span class="ln"> 211</span><span class="src">    code: 'exams',</span></div>
+<div class="line"><span class="ln"> 212</span><span class="src">    name: 'Exams &amp; Report Cards',</span></div>
+<div class="line"><span class="ln"> 213</span><span class="src">    description:</span></div>
+<div class="line"><span class="ln"> 214</span><span class="src">      'Term-scoped exams, paper scheduling per section, marks entry, grading scales, PDF report cards, hall tickets, result-publish notifications, and year-end promotion.',</span></div>
+<div class="line"><span class="ln"> 215</span><span class="src">    features: [</span></div>
+<div class="line"><span class="ln"> 216</span><span class="src">      'config',</span></div>
+<div class="line"><span class="ln"> 217</span><span class="src">      'exams',</span></div>
+<div class="line"><span class="ln"> 218</span><span class="src">      'schedules',</span></div>
+<div class="line"><span class="ln"> 219</span><span class="src">      'marks',</span></div>
+<div class="line"><span class="ln"> 220</span><span class="src">      'results',</span></div>
+<div class="line"><span class="ln"> 221</span><span class="src">      'reportCards',</span></div>
+<div class="line"><span class="ln"> 222</span><span class="src">      'hallTickets',</span></div>
+<div class="line"><span class="ln"> 223</span><span class="src">      'promotion',</span></div>
+<div class="line"><span class="ln"> 224</span><span class="src">    ],</span></div>
+<div class="line"><span class="ln"> 225</span><span class="src">    required: false,</span></div>
+<div class="line"><span class="ln"> 226</span><span class="src">    icon: 'ClipboardList',</span></div>
+<div class="line"><span class="ln"> 227</span><span class="src">  },</span></div>
+<div class="line"><span class="ln"> 228</span><span class="src">} as const;</span></div>
+<div class="line"><span class="ln"> 229</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 230</span><span class="src">// Module codes</span></div>
+<div class="line"><span class="ln"> 231</span><span class="src">export const MODULE_CODES = Object.keys(MODULES) as ModuleCode[];</span></div>
+<div class="line"><span class="ln"> 232</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 233</span><span class="src">// Core module codes (always enabled)</span></div>
+<div class="line"><span class="ln"> 234</span><span class="src">export const CORE_MODULES: ModuleCode[] = ['core'];</span></div>
+<div class="line"><span class="ln"> 235</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 236</span><span class="src">// Optional module codes</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 8 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln"> 237</span><span class="src">export const OPTIONAL_MODULES: ModuleCode[] = MODULE_CODES.filter(</span></div>
+<div class="line"><span class="ln"> 238</span><span class="src">  (code) =&gt; !MODULES[code].required</span></div>
+<div class="line"><span class="ln"> 239</span><span class="src">);</span></div>
+<div class="line"><span class="ln"> 240</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 241</span><span class="src">// Default modules for new signups (core + commonly requested)</span></div>
+<div class="line"><span class="ln"> 242</span><span class="src">export const DEFAULT_REQUESTED_MODULES: ModuleCode[] = [</span></div>
+<div class="line"><span class="ln"> 243</span><span class="src">  'core',</span></div>
+<div class="line"><span class="ln"> 244</span><span class="src">  'students',</span></div>
+<div class="line"><span class="ln"> 245</span><span class="src">  'attendance',</span></div>
+<div class="line"><span class="ln"> 246</span><span class="src">  'teaching',</span></div>
+<div class="line"><span class="ln"> 247</span><span class="src">];</span></div>
+<div class="line"><span class="ln"> 248</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 249</span><span class="src">// Types</span></div>
+<div class="line"><span class="ln"> 250</span><span class="src">export type ModuleCode = keyof typeof MODULES;</span></div>
+<div class="line"><span class="ln"> 251</span><span class="src">export type Module = (typeof MODULES)[ModuleCode];</span></div>
+<div class="line"><span class="ln"> 252</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 253</span><span class="src">// Helper functions</span></div>
+<div class="line"><span class="ln"> 254</span><span class="src">export function isValidModuleCode(code: string): code is ModuleCode {</span></div>
+<div class="line"><span class="ln"> 255</span><span class="src">  return code in MODULES;</span></div>
+<div class="line"><span class="ln"> 256</span><span class="src">}</span></div>
+<div class="line"><span class="ln"> 257</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 258</span><span class="src">export function getModuleByCode(code: ModuleCode): Module {</span></div>
+<div class="line"><span class="ln"> 259</span><span class="src">  return MODULES[code];</span></div>
+<div class="line"><span class="ln"> 260</span><span class="src">}</span></div>
+<div class="line"><span class="ln"> 261</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 262</span><span class="src">export function getCoreModules(): Module[] {</span></div>
+<div class="line"><span class="ln"> 263</span><span class="src">  return CORE_MODULES.map((code) =&gt; MODULES[code]);</span></div>
+<div class="line"><span class="ln"> 264</span><span class="src">}</span></div>
+<div class="line"><span class="ln"> 265</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 266</span><span class="src">export function getOptionalModules(): Module[] {</span></div>
+<div class="line"><span class="ln"> 267</span><span class="src">  return OPTIONAL_MODULES.map((code) =&gt; MODULES[code]);</span></div>
+<div class="line"><span class="ln"> 268</span><span class="src">}</span></div>
+<div class="line"><span class="ln"> 269</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 270</span><span class="src">export function getAllModules(): Module[] {</span></div>
+<div class="line"><span class="ln"> 271</span><span class="src">  return MODULE_CODES.map((code) =&gt; MODULES[code]);</span></div>
+<div class="line"><span class="ln"> 272</span><span class="src">}</span></div>
+<div class="line"><span class="ln"> 273</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 274</span><span class="src">// Validate requested modules (must include core)</span></div>
+<div class="line"><span class="ln"> 275</span><span class="src">export function validateRequestedModules(modules: string[]): { valid: boolean; errors: string[] } {</span></div>
+<div class="line"><span class="ln"> 276</span><span class="src">  const errors: string[] = [];</span></div>
+<div class="line"><span class="ln"> 277</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 278</span><span class="src">  // Check for invalid module codes</span></div>
+<div class="line"><span class="ln"> 279</span><span class="src">  for (const module of modules) {</span></div>
+<div class="line"><span class="ln"> 280</span><span class="src">    if (!isValidModuleCode(module)) {</span></div>
+<div class="line"><span class="ln"> 281</span><span class="src">      errors.push(`Invalid module code: ${module}`);</span></div>
+<div class="line"><span class="ln"> 282</span><span class="src">    }</span></div>
+<div class="line"><span class="ln"> 283</span><span class="src">  }</span></div>
+<div class="line"><span class="ln"> 284</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 285</span><span class="src">  // Core must be included</span></div>
+<div class="line"><span class="ln"> 286</span><span class="src">  if (!modules.includes('core')) {</span></div>
+<div class="line"><span class="ln"> 287</span><span class="src">    errors.push('Core module is required');</span></div>
+<div class="line"><span class="ln"> 288</span><span class="src">  }</span></div>
+<div class="line"><span class="ln"> 289</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 290</span><span class="src">  return {</span></div>
+<div class="line"><span class="ln"> 291</span><span class="src">    valid: errors.length === 0,</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 9 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln"> 292</span><span class="src">    errors,</span></div>
+<div class="line"><span class="ln"> 293</span><span class="src">  };</span></div>
+<div class="line"><span class="ln"> 294</span><span class="src">}</span></div>
+<div class="line"><span class="ln"> 295</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 296</span><span class="src">// Ensure core modules are included</span></div>
+<div class="line"><span class="ln"> 297</span><span class="src">export function ensureCoreModules(modules: string[]): ModuleCode[] {</span></div>
+<div class="line"><span class="ln"> 298</span><span class="src">  const moduleSet = new Set(modules.filter(isValidModuleCode));</span></div>
+<div class="line"><span class="ln"> 299</span><span class="src">  CORE_MODULES.forEach((core) =&gt; moduleSet.add(core));</span></div>
+<div class="line"><span class="ln"> 300</span><span class="src">  return Array.from(moduleSet);</span></div>
+<div class="line"><span class="ln"> 301</span><span class="src">}</span></div>
+<div class="line"><span class="ln"> 302</span><span class="src"></span></div>
+<div class="line"><span class="ln"></span><span class="src"></span></div>
+<div class="hdr">========== FILE: packages/shared/src/constants/permissions.ts (824 lines) ==========</div>
+<div class="line"><span class="ln">   1</span><span class="src">/**</span></div>
+<div class="line"><span class="ln">   2</span><span class="src"> * Full permissions - all actions for all modules</span></div>
+<div class="line"><span class="ln">   3</span><span class="src"> * Used by: ORG_OWNER, ORG_MODERATOR</span></div>
+<div class="line"><span class="ln">   4</span><span class="src"> */</span></div>
+<div class="line"><span class="ln">   5</span><span class="src">export const PERMISSIONS = {</span></div>
+<div class="line"><span class="ln">   6</span><span class="src">  // Organization</span></div>
+<div class="line"><span class="ln">   7</span><span class="src">  'organization.branches': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">   8</span><span class="src">  'organization.users': ['view', 'create', 'edit', 'delete', 'reset-password'],</span></div>
+<div class="line"><span class="ln">   9</span><span class="src">  'organization.roles': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  10</span><span class="src">  'organization.settings': ['view', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  11</span><span class="src">  'organization.infrastructure': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  12</span><span class="src"></span></div>
+<div class="line"><span class="ln">  13</span><span class="src">  // Students</span></div>
+<div class="line"><span class="ln">  14</span><span class="src">  'students.list': ['view', 'create', 'edit', 'delete', 'bulk-upload', 'export'],</span></div>
+<div class="line"><span class="ln">  15</span><span class="src">  'students.details': ['view', 'edit'],</span></div>
+<div class="line"><span class="ln">  16</span><span class="src">  'students.enrollment': ['view', 'create', 'edit'],</span></div>
+<div class="line"><span class="ln">  17</span><span class="src">  'students.promotion': ['view', 'create'],</span></div>
+<div class="line"><span class="ln">  18</span><span class="src">  'students.reports': ['view', 'export'],</span></div>
+<div class="line"><span class="ln">  19</span><span class="src"></span></div>
+<div class="line"><span class="ln">  20</span><span class="src">  // Admissions</span></div>
+<div class="line"><span class="ln">  21</span><span class="src">  'admissions.leads': ['view', 'create', 'edit', 'delete', 'assign', 'convert'],</span></div>
+<div class="line"><span class="ln">  22</span><span class="src">  'admissions.applications': ['view', 'create', 'edit', 'approve', 'reject', 'enroll'],</span></div>
+<div class="line"><span class="ln">  23</span><span class="src">  'admissions.settings': ['view', 'edit'],</span></div>
+<div class="line"><span class="ln">  24</span><span class="src">  'admissions.reports': ['view', 'export'],</span></div>
+<div class="line"><span class="ln">  25</span><span class="src"></span></div>
+<div class="line"><span class="ln">  26</span><span class="src">  // Finance</span></div>
+<div class="line"><span class="ln">  27</span><span class="src">  'finance.feeCounter': ['view', 'collect', 'cancel', 'refund'],</span></div>
+<div class="line"><span class="ln">  28</span><span class="src">  'finance.feeStructures': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  29</span><span class="src">  'finance.collections': ['view', 'export'],</span></div>
+<div class="line"><span class="ln">  30</span><span class="src">  'finance.dues': ['view', 'export'],</span></div>
+<div class="line"><span class="ln">  31</span><span class="src">  'finance.concessions': ['view', 'create', 'approve', 'reject'],</span></div>
+<div class="line"><span class="ln">  32</span><span class="src">  'finance.reports': ['view', 'export'],</span></div>
+<div class="line"><span class="ln">  33</span><span class="src">  'finance.settings': ['view', 'edit'],</span></div>
+<div class="line"><span class="ln">  34</span><span class="src">  'finance.structures': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  35</span><span class="src">  'finance.assignments': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  36</span><span class="src">  'finance.transactions': ['view', 'create', 'edit'],</span></div>
+<div class="line"><span class="ln">  37</span><span class="src">  'finance.wallets': ['view', 'create', 'edit'],</span></div>
+<div class="line"><span class="ln">  38</span><span class="src">  'finance.approvals': ['view', 'edit'],</span></div>
+<div class="line"><span class="ln">  39</span><span class="src"></span></div>
+<div class="line"><span class="ln">  40</span><span class="src">  // Attendance</span></div>
+<div class="line"><span class="ln">  41</span><span class="src">  'attendance.mark': ['view', 'create', 'edit'],</span></div>
+<div class="line"><span class="ln">  42</span><span class="src">  'attendance.view': ['view'],</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 10 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  43</span><span class="src">  'attendance.reports': ['view', 'export'],</span></div>
+<div class="line"><span class="ln">  44</span><span class="src">  'attendance.settings': ['view', 'edit'],</span></div>
+<div class="line"><span class="ln">  45</span><span class="src"></span></div>
+<div class="line"><span class="ln">  46</span><span class="src">  // HR</span></div>
+<div class="line"><span class="ln">  47</span><span class="src">  'hr.staff': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  48</span><span class="src">  'hr.attendance': ['view', 'create', 'edit'],</span></div>
+<div class="line"><span class="ln">  49</span><span class="src">  'hr.leaves': ['view', 'create', 'approve', 'reject'],</span></div>
+<div class="line"><span class="ln">  50</span><span class="src">  'hr.workload': ['view', 'create', 'edit'],</span></div>
+<div class="line"><span class="ln">  51</span><span class="src">  'hr.payroll': ['view', 'create', 'edit', 'finalize'],</span></div>
+<div class="line"><span class="ln">  52</span><span class="src">  'hr.payslips': ['view'],</span></div>
+<div class="line"><span class="ln">  53</span><span class="src">  'hr.settings': ['view', 'edit'],</span></div>
+<div class="line"><span class="ln">  54</span><span class="src"></span></div>
+<div class="line"><span class="ln">  55</span><span class="src">  // Health</span></div>
+<div class="line"><span class="ln">  56</span><span class="src">  'health.records': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  57</span><span class="src">  'health.checkups': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  58</span><span class="src">  'health.vaccinations': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  59</span><span class="src">  'health.visits': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  60</span><span class="src">  'health.reports': ['view', 'export'],</span></div>
+<div class="line"><span class="ln">  61</span><span class="src">  'health.settings': ['view', 'edit'],</span></div>
+<div class="line"><span class="ln">  62</span><span class="src"></span></div>
+<div class="line"><span class="ln">  63</span><span class="src">  // Certificates</span></div>
+<div class="line"><span class="ln">  64</span><span class="src">  'certificates.types': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  65</span><span class="src">  'certificates.requests': ['view', 'create', 'edit', 'delete', 'approve', 'reject'],</span></div>
+<div class="line"><span class="ln">  66</span><span class="src">  'certificates.idcards': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  67</span><span class="src">  'certificates.settings': ['view', 'edit'],</span></div>
+<div class="line"><span class="ln">  68</span><span class="src"></span></div>
+<div class="line"><span class="ln">  69</span><span class="src">  // Communications</span></div>
+<div class="line"><span class="ln">  70</span><span class="src">  'communications.sms': ['view', 'send'],</span></div>
+<div class="line"><span class="ln">  71</span><span class="src">  'communications.announcements': ['view', 'create', 'edit', 'delete', 'publish'],</span></div>
+<div class="line"><span class="ln">  72</span><span class="src">  'communications.calendar': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  73</span><span class="src">  'communications.settings': ['view', 'edit'],</span></div>
+<div class="line"><span class="ln">  74</span><span class="src">  'communications.reports': ['view', 'export'],</span></div>
+<div class="line"><span class="ln">  75</span><span class="src"></span></div>
+<div class="line"><span class="ln">  76</span><span class="src">  // Teaching</span></div>
+<div class="line"><span class="ln">  77</span><span class="src">  'teaching.myClasses': ['view'],</span></div>
+<div class="line"><span class="ln">  78</span><span class="src">  'teaching.myStudents': ['view'],</span></div>
+<div class="line"><span class="ln">  79</span><span class="src">  'teaching.timetable': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  80</span><span class="src">  'teaching.lessonPlans': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  81</span><span class="src">  'teaching.assignments': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  82</span><span class="src">  'teaching.grades': ['view', 'create', 'edit'],</span></div>
+<div class="line"><span class="ln">  83</span><span class="src">  'teaching.liveClasses': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  84</span><span class="src"></span></div>
+<div class="line"><span class="ln">  85</span><span class="src">  // Career Connect</span></div>
+<div class="line"><span class="ln">  86</span><span class="src">  'careerConnect.companies': ['view', 'create', 'edit', 'delete'],</span></div>
+<div class="line"><span class="ln">  87</span><span class="src">  'careerConnect.drives': ['view', 'create', 'edit', 'delete', 'manage_results'],</span></div>
+<div class="line"><span class="ln">  88</span><span class="src">  'careerConnect.jobBoard': ['view', 'create', 'edit', 'delete', 'apply', 'manage_applications'],</span></div>
+<div class="line"><span class="ln">  89</span><span class="src">  'careerConnect.studentProfiles': ['view', 'create', 'edit', 'delete', 'export'],</span></div>
+<div class="line"><span class="ln">  90</span><span class="src">  'careerConnect.counseling': ['view', 'create', 'edit', 'delete', 'conduct'],</span></div>
+<div class="line"><span class="ln">  91</span><span class="src">  'careerConnect.resources': ['view', 'create', 'edit', 'delete', 'publish'],</span></div>
+<div class="line"><span class="ln">  92</span><span class="src">  'careerConnect.alumni': ['view', 'create', 'edit', 'delete', 'verify'],</span></div>
+<div class="line"><span class="ln">  93</span><span class="src">  'careerConnect.mentorship': ['view', 'create', 'edit', 'delete', 'participate'],</span></div>
+<div class="line"><span class="ln">  94</span><span class="src">  'careerConnect.events': ['view', 'create', 'edit', 'delete', 'register'],</span></div>
+<div class="line"><span class="ln">  95</span><span class="src">  'careerConnect.reports': ['view', 'export'],</span></div>
+<div class="line"><span class="ln">  96</span><span class="src">  'careerConnect.settings': ['view', 'edit'],</span></div>
+<div class="line"><span class="ln">  97</span><span class="src"></span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="section-break">
+  <h2>Part B — Last 10 Pages of Source Code</h2>
+  <p>Pages 5,776 to 5,785 of 5,785 total pages.</p>
+</section>
+
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 5776 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  77</span><span class="src">  const ordered: HierarchyLevel[] = [...hierarchy.levels].sort((a, b) =&gt; a.order - b.order);</span></div>
+<div class="line"><span class="ln">  78</span><span class="src">  const nonLeaf = ordered.filter((l) =&gt; !l.isLeaf);</span></div>
+<div class="line"><span class="ln">  79</span><span class="src"></span></div>
+<div class="line"><span class="ln">  80</span><span class="src">  // Default mapping: pick whatever legacy field best matches the level key.</span></div>
+<div class="line"><span class="ln">  81</span><span class="src">  return nonLeaf.map((level) =&gt; {</span></div>
+<div class="line"><span class="ln">  82</span><span class="src">    const key = level.key.toLowerCase();</span></div>
+<div class="line"><span class="ln">  83</span><span class="src"></span></div>
+<div class="line"><span class="ln">  84</span><span class="src">    // Direct key matches first.</span></div>
+<div class="line"><span class="ln">  85</span><span class="src">    if (key === 'grade' &amp;&amp; cls.grade?.name) {</span></div>
+<div class="line"><span class="ln">  86</span><span class="src">      return {</span></div>
+<div class="line"><span class="ln">  87</span><span class="src">        levelKey: level.key,</span></div>
+<div class="line"><span class="ln">  88</span><span class="src">        name: cls.grade.name,</span></div>
+<div class="line"><span class="ln">  89</span><span class="src">        code: cls.grade.code || cls.grade.name,</span></div>
+<div class="line"><span class="ln">  90</span><span class="src">        order: cls.grade.order,</span></div>
+<div class="line"><span class="ln">  91</span><span class="src">      };</span></div>
+<div class="line"><span class="ln">  92</span><span class="src">    }</span></div>
+<div class="line"><span class="ln">  93</span><span class="src">    if (key === 'stream' &amp;&amp; cls.stream?.name) {</span></div>
+<div class="line"><span class="ln">  94</span><span class="src">      return {</span></div>
+<div class="line"><span class="ln">  95</span><span class="src">        levelKey: level.key,</span></div>
+<div class="line"><span class="ln">  96</span><span class="src">        name: cls.stream.name,</span></div>
+<div class="line"><span class="ln">  97</span><span class="src">        code: cls.stream.code || cls.stream.name,</span></div>
+<div class="line"><span class="ln">  98</span><span class="src">      };</span></div>
+<div class="line"><span class="ln">  99</span><span class="src">    }</span></div>
+<div class="line"><span class="ln"> 100</span><span class="src">    if (key === 'department' &amp;&amp; cls.department?.name) {</span></div>
+<div class="line"><span class="ln"> 101</span><span class="src">      return {</span></div>
+<div class="line"><span class="ln"> 102</span><span class="src">        levelKey: level.key,</span></div>
+<div class="line"><span class="ln"> 103</span><span class="src">        name: cls.department.name,</span></div>
+<div class="line"><span class="ln"> 104</span><span class="src">        code: cls.department.code || cls.department.name,</span></div>
+<div class="line"><span class="ln"> 105</span><span class="src">      };</span></div>
+<div class="line"><span class="ln"> 106</span><span class="src">    }</span></div>
+<div class="line"><span class="ln"> 107</span><span class="src">    if (key === 'year' &amp;&amp; cls.year?.name) {</span></div>
+<div class="line"><span class="ln"> 108</span><span class="src">      return {</span></div>
+<div class="line"><span class="ln"> 109</span><span class="src">        levelKey: level.key,</span></div>
+<div class="line"><span class="ln"> 110</span><span class="src">        name: cls.year.name,</span></div>
+<div class="line"><span class="ln"> 111</span><span class="src">        code: String(cls.year.number ?? cls.year.name),</span></div>
+<div class="line"><span class="ln"> 112</span><span class="src">        order: cls.year.number,</span></div>
+<div class="line"><span class="ln"> 113</span><span class="src">      };</span></div>
+<div class="line"><span class="ln"> 114</span><span class="src">    }</span></div>
+<div class="line"><span class="ln"> 115</span><span class="src">    if (key === 'batch' &amp;&amp; cls.batch?.name) {</span></div>
+<div class="line"><span class="ln"> 116</span><span class="src">      return {</span></div>
+<div class="line"><span class="ln"> 117</span><span class="src">        levelKey: level.key,</span></div>
+<div class="line"><span class="ln"> 118</span><span class="src">        name: cls.batch.name,</span></div>
+<div class="line"><span class="ln"> 119</span><span class="src">        code: cls.batch.code || cls.batch.name,</span></div>
+<div class="line"><span class="ln"> 120</span><span class="src">      };</span></div>
+<div class="line"><span class="ln"> 121</span><span class="src">    }</span></div>
+<div class="line"><span class="ln"> 122</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 123</span><span class="src">    // Fallback: pick the most-specific available sub-object for this institutionType.</span></div>
+<div class="line"><span class="ln"> 124</span><span class="src">    if (institutionType === 'school' &amp;&amp; cls.grade?.name) {</span></div>
+<div class="line"><span class="ln"> 125</span><span class="src">      return {</span></div>
+<div class="line"><span class="ln"> 126</span><span class="src">        levelKey: level.key,</span></div>
+<div class="line"><span class="ln"> 127</span><span class="src">        name: cls.grade.name,</span></div>
+<div class="line"><span class="ln"> 128</span><span class="src">        code: cls.grade.code || cls.grade.name,</span></div>
+<div class="line"><span class="ln"> 129</span><span class="src">      };</span></div>
+<div class="line"><span class="ln"> 130</span><span class="src">    }</span></div>
+<div class="line"><span class="ln"> 131</span><span class="src">    if (institutionType === 'college' &amp;&amp; cls.stream?.name) {</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 5777 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln"> 132</span><span class="src">      return {</span></div>
+<div class="line"><span class="ln"> 133</span><span class="src">        levelKey: level.key,</span></div>
+<div class="line"><span class="ln"> 134</span><span class="src">        name: cls.stream.name,</span></div>
+<div class="line"><span class="ln"> 135</span><span class="src">        code: cls.stream.code || cls.stream.name,</span></div>
+<div class="line"><span class="ln"> 136</span><span class="src">      };</span></div>
+<div class="line"><span class="ln"> 137</span><span class="src">    }</span></div>
+<div class="line"><span class="ln"> 138</span><span class="src">    if (institutionType === 'university' &amp;&amp; cls.department?.name) {</span></div>
+<div class="line"><span class="ln"> 139</span><span class="src">      return {</span></div>
+<div class="line"><span class="ln"> 140</span><span class="src">        levelKey: level.key,</span></div>
+<div class="line"><span class="ln"> 141</span><span class="src">        name: cls.department.name,</span></div>
+<div class="line"><span class="ln"> 142</span><span class="src">        code: cls.department.code || cls.department.name,</span></div>
+<div class="line"><span class="ln"> 143</span><span class="src">      };</span></div>
+<div class="line"><span class="ln"> 144</span><span class="src">    }</span></div>
+<div class="line"><span class="ln"> 145</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 146</span><span class="src">    return {</span></div>
+<div class="line"><span class="ln"> 147</span><span class="src">      levelKey: level.key,</span></div>
+<div class="line"><span class="ln"> 148</span><span class="src">      name: cls.displayName || level.label || level.key,</span></div>
+<div class="line"><span class="ln"> 149</span><span class="src">      code: cls.displayName || level.key,</span></div>
+<div class="line"><span class="ln"> 150</span><span class="src">    };</span></div>
+<div class="line"><span class="ln"> 151</span><span class="src">  });</span></div>
+<div class="line"><span class="ln"> 152</span><span class="src">}</span></div>
+<div class="line"><span class="ln"> 153</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 154</span><span class="src">(async () =&gt; {</span></div>
+<div class="line"><span class="ln"> 155</span><span class="src">  const client = new MongoClient(URI);</span></div>
+<div class="line"><span class="ln"> 156</span><span class="src">  await client.connect();</span></div>
+<div class="line"><span class="ln"> 157</span><span class="src">  const db = client.db();</span></div>
+<div class="line"><span class="ln"> 158</span><span class="src">  console.log(`Connected to ${db.databaseName}\n`);</span></div>
+<div class="line"><span class="ln"> 159</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 160</span><span class="src">  const cursor = db.collection('classes').find({});</span></div>
+<div class="line"><span class="ln"> 161</span><span class="src">  let total = 0;</span></div>
+<div class="line"><span class="ln"> 162</span><span class="src">  let migrated = 0;</span></div>
+<div class="line"><span class="ln"> 163</span><span class="src">  let skipped = 0;</span></div>
+<div class="line"><span class="ln"> 164</span><span class="src">  let cleanedOnly = 0;</span></div>
+<div class="line"><span class="ln"> 165</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 166</span><span class="src">  while (await cursor.hasNext()) {</span></div>
+<div class="line"><span class="ln"> 167</span><span class="src">    const cls = (await cursor.next()) as unknown as LegacyClassDoc | null;</span></div>
+<div class="line"><span class="ln"> 168</span><span class="src">    if (!cls) continue;</span></div>
+<div class="line"><span class="ln"> 169</span><span class="src">    total++;</span></div>
+<div class="line"><span class="ln"> 170</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 171</span><span class="src">    const hasPath = Array.isArray(cls.path) &amp;&amp; cls.path.length &gt; 0;</span></div>
+<div class="line"><span class="ln"> 172</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 173</span><span class="src">    if (hasPath) {</span></div>
+<div class="line"><span class="ln"> 174</span><span class="src">      // Already migrated — just strip legacy fields if present.</span></div>
+<div class="line"><span class="ln"> 175</span><span class="src">      const unset = collectLegacyFieldsToUnset(cls);</span></div>
+<div class="line"><span class="ln"> 176</span><span class="src">      if (Object.keys(unset).length &gt; 0) {</span></div>
+<div class="line"><span class="ln"> 177</span><span class="src">        await db</span></div>
+<div class="line"><span class="ln"> 178</span><span class="src">          .collection('classes')</span></div>
+<div class="line"><span class="ln"> 179</span><span class="src">          .updateOne({ _id: cls._id }, { $unset: unset, $set: { updatedAt: new Date() } });</span></div>
+<div class="line"><span class="ln"> 180</span><span class="src">        cleanedOnly++;</span></div>
+<div class="line"><span class="ln"> 181</span><span class="src">      } else {</span></div>
+<div class="line"><span class="ln"> 182</span><span class="src">        skipped++;</span></div>
+<div class="line"><span class="ln"> 183</span><span class="src">      }</span></div>
+<div class="line"><span class="ln"> 184</span><span class="src">      continue;</span></div>
+<div class="line"><span class="ln"> 185</span><span class="src">    }</span></div>
+<div class="line"><span class="ln"> 186</span><span class="src"></span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 5778 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln"> 187</span><span class="src">    const { hierarchy, institutionType } = await resolveBranchHierarchy(</span></div>
+<div class="line"><span class="ln"> 188</span><span class="src">      db,</span></div>
+<div class="line"><span class="ln"> 189</span><span class="src">      cls.tenantId,</span></div>
+<div class="line"><span class="ln"> 190</span><span class="src">      cls.branchId,</span></div>
+<div class="line"><span class="ln"> 191</span><span class="src">      cls.institutionType</span></div>
+<div class="line"><span class="ln"> 192</span><span class="src">    );</span></div>
+<div class="line"><span class="ln"> 193</span><span class="src">    const path = derivePathFromLegacy(cls, hierarchy, institutionType);</span></div>
+<div class="line"><span class="ln"> 194</span><span class="src">    const displayName = path.map((p) =&gt; p.name).join(' · ') || cls.displayName || 'Untitled';</span></div>
+<div class="line"><span class="ln"> 195</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 196</span><span class="src">    const unset = collectLegacyFieldsToUnset(cls);</span></div>
+<div class="line"><span class="ln"> 197</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 198</span><span class="src">    await db.collection('classes').updateOne(</span></div>
+<div class="line"><span class="ln"> 199</span><span class="src">      { _id: cls._id },</span></div>
+<div class="line"><span class="ln"> 200</span><span class="src">      {</span></div>
+<div class="line"><span class="ln"> 201</span><span class="src">        $set: { path, displayName, updatedAt: new Date() },</span></div>
+<div class="line"><span class="ln"> 202</span><span class="src">        ...(Object.keys(unset).length ? { $unset: unset } : {}),</span></div>
+<div class="line"><span class="ln"> 203</span><span class="src">      }</span></div>
+<div class="line"><span class="ln"> 204</span><span class="src">    );</span></div>
+<div class="line"><span class="ln"> 205</span><span class="src">    migrated++;</span></div>
+<div class="line"><span class="ln"> 206</span><span class="src">    console.log(`  ✓ ${cls._id.toString()} → "${displayName}" (${path.length} levels)`);</span></div>
+<div class="line"><span class="ln"> 207</span><span class="src">  }</span></div>
+<div class="line"><span class="ln"> 208</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 209</span><span class="src">  console.log(</span></div>
+<div class="line"><span class="ln"> 210</span><span class="src">    `\nDone. total=${total} migrated=${migrated} cleaned=${cleanedOnly} skipped=${skipped}`</span></div>
+<div class="line"><span class="ln"> 211</span><span class="src">  );</span></div>
+<div class="line"><span class="ln"> 212</span><span class="src">  await client.close();</span></div>
+<div class="line"><span class="ln"> 213</span><span class="src">})().catch((err) =&gt; {</span></div>
+<div class="line"><span class="ln"> 214</span><span class="src">  console.error(err);</span></div>
+<div class="line"><span class="ln"> 215</span><span class="src">  process.exit(1);</span></div>
+<div class="line"><span class="ln"> 216</span><span class="src">});</span></div>
+<div class="line"><span class="ln"> 217</span><span class="src"></span></div>
+<div class="line"><span class="ln"> 218</span><span class="src">function collectLegacyFieldsToUnset(cls: LegacyClassDoc): Record&lt;string, ''&gt; {</span></div>
+<div class="line"><span class="ln"> 219</span><span class="src">  const unset: Record&lt;string, ''&gt; = {};</span></div>
+<div class="line"><span class="ln"> 220</span><span class="src">  for (const k of ['institutionType', 'grade', 'stream', 'department', 'year', 'batch'] as const) {</span></div>
+<div class="line"><span class="ln"> 221</span><span class="src">    if (cls[k] !== undefined) unset[k] = '';</span></div>
+<div class="line"><span class="ln"> 222</span><span class="src">  }</span></div>
+<div class="line"><span class="ln"> 223</span><span class="src">  return unset;</span></div>
+<div class="line"><span class="ln"> 224</span><span class="src">}</span></div>
+<div class="line"><span class="ln"> 225</span><span class="src"></span></div>
+<div class="line"><span class="ln"></span><span class="src"></span></div>
+<div class="hdr">========== FILE: infrastructure/scripts/migrate-fee-structures-to-grades.js (102 lines) ==========</div>
+<div class="line"><span class="ln">   1</span><span class="src">/* eslint-disable no-undef */</span></div>
+<div class="line"><span class="ln">   2</span><span class="src">/**</span></div>
+<div class="line"><span class="ln">   3</span><span class="src"> * Migration: backfill `applicableTo.gradeCodes` on existing fee_structures</span></div>
+<div class="line"><span class="ln">   4</span><span class="src"> * documents from their legacy `applicableTo.classIds`. After this runs,</span></div>
+<div class="line"><span class="ln">   5</span><span class="src"> * structures match students by stable grade code (survives across batches)</span></div>
+<div class="line"><span class="ln">   6</span><span class="src"> * instead of by per-batch class _id.</span></div>
+<div class="line"><span class="ln">   7</span><span class="src"> *</span></div>
+<div class="line"><span class="ln">   8</span><span class="src"> * Idempotent: skips structures that already have gradeCodes set.</span></div>
+<div class="line"><span class="ln">   9</span><span class="src"> *</span></div>
+<div class="line"><span class="ln">  10</span><span class="src"> * Usage:</span></div>
+<div class="line"><span class="ln">  11</span><span class="src"> *   mongosh &lt;connection-string&gt; migrate-fee-structures-to-grades.js</span></div>
+<div class="line"><span class="ln">  12</span><span class="src"> *</span></div>
+<div class="line"><span class="ln">  13</span><span class="src"> * Recommended workflow:</span></div>
+<div class="line"><span class="ln">  14</span><span class="src"> *   1. Deploy backend changes that introduce gradeCodes.</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 5779 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  15</span><span class="src"> *   2. Run this script.</span></div>
+<div class="line"><span class="ln">  16</span><span class="src"> *   3. From the Fee Structures page, click "Re-sync" on any structure that</span></div>
+<div class="line"><span class="ln">  17</span><span class="src"> *      still shows "0 assigned" — this picks up students that the original</span></div>
+<div class="line"><span class="ln">  18</span><span class="src"> *      classId-based auto-assign missed (the bug this migration is fixing).</span></div>
+<div class="line"><span class="ln">  19</span><span class="src"> */</span></div>
+<div class="line"><span class="ln">  20</span><span class="src"></span></div>
+<div class="line"><span class="ln">  21</span><span class="src">function gradeCodeFor(c) {</span></div>
+<div class="line"><span class="ln">  22</span><span class="src">  const type = c.institutionType || 'school';</span></div>
+<div class="line"><span class="ln">  23</span><span class="src">  if (type === 'school') {</span></div>
+<div class="line"><span class="ln">  24</span><span class="src">    const code = (c.grade &amp;&amp; (c.grade.code || c.grade.name)) || null;</span></div>
+<div class="line"><span class="ln">  25</span><span class="src">    return code ? 'school:' + code : null;</span></div>
+<div class="line"><span class="ln">  26</span><span class="src">  }</span></div>
+<div class="line"><span class="ln">  27</span><span class="src">  if (type === 'college') {</span></div>
+<div class="line"><span class="ln">  28</span><span class="src">    const code = (c.stream &amp;&amp; (c.stream.code || c.stream.name)) || null;</span></div>
+<div class="line"><span class="ln">  29</span><span class="src">    if (!code) return null;</span></div>
+<div class="line"><span class="ln">  30</span><span class="src">    const year = c.stream &amp;&amp; c.stream.year ? ':' + c.stream.year : '';</span></div>
+<div class="line"><span class="ln">  31</span><span class="src">    return 'college:' + code + year;</span></div>
+<div class="line"><span class="ln">  32</span><span class="src">  }</span></div>
+<div class="line"><span class="ln">  33</span><span class="src">  if (type === 'university') {</span></div>
+<div class="line"><span class="ln">  34</span><span class="src">    const code = (c.department &amp;&amp; (c.department.code || c.department.name)) || null;</span></div>
+<div class="line"><span class="ln">  35</span><span class="src">    if (!code) return null;</span></div>
+<div class="line"><span class="ln">  36</span><span class="src">    const yearNum =</span></div>
+<div class="line"><span class="ln">  37</span><span class="src">      c.year &amp;&amp; c.year.number !== undefined</span></div>
+<div class="line"><span class="ln">  38</span><span class="src">        ? ':' + c.year.number</span></div>
+<div class="line"><span class="ln">  39</span><span class="src">        : c.year &amp;&amp; c.year.name</span></div>
+<div class="line"><span class="ln">  40</span><span class="src">          ? ':' + c.year.name</span></div>
+<div class="line"><span class="ln">  41</span><span class="src">          : '';</span></div>
+<div class="line"><span class="ln">  42</span><span class="src">    return 'university:' + code + yearNum;</span></div>
+<div class="line"><span class="ln">  43</span><span class="src">  }</span></div>
+<div class="line"><span class="ln">  44</span><span class="src">  return null;</span></div>
+<div class="line"><span class="ln">  45</span><span class="src">}</span></div>
+<div class="line"><span class="ln">  46</span><span class="src"></span></div>
+<div class="line"><span class="ln">  47</span><span class="src">let migrated = 0;</span></div>
+<div class="line"><span class="ln">  48</span><span class="src">let skipped = 0;</span></div>
+<div class="line"><span class="ln">  49</span><span class="src">let failed = 0;</span></div>
+<div class="line"><span class="ln">  50</span><span class="src"></span></div>
+<div class="line"><span class="ln">  51</span><span class="src">const cursor = db.fee_structures.find({});</span></div>
+<div class="line"><span class="ln">  52</span><span class="src">while (cursor.hasNext()) {</span></div>
+<div class="line"><span class="ln">  53</span><span class="src">  const s = cursor.next();</span></div>
+<div class="line"><span class="ln">  54</span><span class="src">  const existing = (s.applicableTo &amp;&amp; s.applicableTo.gradeCodes) || [];</span></div>
+<div class="line"><span class="ln">  55</span><span class="src">  if (existing.length &gt; 0) {</span></div>
+<div class="line"><span class="ln">  56</span><span class="src">    skipped += 1;</span></div>
+<div class="line"><span class="ln">  57</span><span class="src">    continue;</span></div>
+<div class="line"><span class="ln">  58</span><span class="src">  }</span></div>
+<div class="line"><span class="ln">  59</span><span class="src"></span></div>
+<div class="line"><span class="ln">  60</span><span class="src">  const classIds = (s.applicableTo &amp;&amp; s.applicableTo.classIds) || [];</span></div>
+<div class="line"><span class="ln">  61</span><span class="src">  if (classIds.length === 0) {</span></div>
+<div class="line"><span class="ln">  62</span><span class="src">    // Org-wide structure (no class targeting). Nothing to backfill.</span></div>
+<div class="line"><span class="ln">  63</span><span class="src">    skipped += 1;</span></div>
+<div class="line"><span class="ln">  64</span><span class="src">    continue;</span></div>
+<div class="line"><span class="ln">  65</span><span class="src">  }</span></div>
+<div class="line"><span class="ln">  66</span><span class="src"></span></div>
+<div class="line"><span class="ln">  67</span><span class="src">  const classes = db.classes.find({ _id: { $in: classIds } }).toArray();</span></div>
+<div class="line"><span class="ln">  68</span><span class="src">  const codes = Array.from(new Set(classes.map((c) =&gt; gradeCodeFor(c)).filter((g) =&gt; g !== null)));</span></div>
+<div class="line"><span class="ln">  69</span><span class="src"></span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 5780 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  70</span><span class="src">  if (codes.length === 0) {</span></div>
+<div class="line"><span class="ln">  71</span><span class="src">    print(</span></div>
+<div class="line"><span class="ln">  72</span><span class="src">      'Skipped ' +</span></div>
+<div class="line"><span class="ln">  73</span><span class="src">        s._id +</span></div>
+<div class="line"><span class="ln">  74</span><span class="src">        ' (' +</span></div>
+<div class="line"><span class="ln">  75</span><span class="src">        s.code +</span></div>
+<div class="line"><span class="ln">  76</span><span class="src">        '): could not derive any grade codes from ' +</span></div>
+<div class="line"><span class="ln">  77</span><span class="src">        classIds.length +</span></div>
+<div class="line"><span class="ln">  78</span><span class="src">        ' classIds'</span></div>
+<div class="line"><span class="ln">  79</span><span class="src">    );</span></div>
+<div class="line"><span class="ln">  80</span><span class="src">    failed += 1;</span></div>
+<div class="line"><span class="ln">  81</span><span class="src">    continue;</span></div>
+<div class="line"><span class="ln">  82</span><span class="src">  }</span></div>
+<div class="line"><span class="ln">  83</span><span class="src"></span></div>
+<div class="line"><span class="ln">  84</span><span class="src">  db.fee_structures.updateOne(</span></div>
+<div class="line"><span class="ln">  85</span><span class="src">    { _id: s._id },</span></div>
+<div class="line"><span class="ln">  86</span><span class="src">    { $set: { 'applicableTo.gradeCodes': codes, updatedAt: new Date() } }</span></div>
+<div class="line"><span class="ln">  87</span><span class="src">  );</span></div>
+<div class="line"><span class="ln">  88</span><span class="src">  print('Migrated ' + s._id + ' (' + s.code + ') → ' + codes.join(', '));</span></div>
+<div class="line"><span class="ln">  89</span><span class="src">  migrated += 1;</span></div>
+<div class="line"><span class="ln">  90</span><span class="src">}</span></div>
+<div class="line"><span class="ln">  91</span><span class="src"></span></div>
+<div class="line"><span class="ln">  92</span><span class="src">print('---');</span></div>
+<div class="line"><span class="ln">  93</span><span class="src">print('Migration complete.');</span></div>
+<div class="line"><span class="ln">  94</span><span class="src">print('Migrated:    ' + migrated);</span></div>
+<div class="line"><span class="ln">  95</span><span class="src">print('Skipped:     ' + skipped);</span></div>
+<div class="line"><span class="ln">  96</span><span class="src">print('Failed:      ' + failed);</span></div>
+<div class="line"><span class="ln">  97</span><span class="src">print('');</span></div>
+<div class="line"><span class="ln">  98</span><span class="src">print(</span></div>
+<div class="line"><span class="ln">  99</span><span class="src">  'Next: open /finance/fee-structures and click Re-sync on any structure ' +</span></div>
+<div class="line"><span class="ln"> 100</span><span class="src">    'still showing "0 assigned" to backfill missing assignments.'</span></div>
+<div class="line"><span class="ln"> 101</span><span class="src">);</span></div>
+<div class="line"><span class="ln"> 102</span><span class="src"></span></div>
+<div class="line"><span class="ln"></span><span class="src"></span></div>
+<div class="hdr">========== FILE: infrastructure/scripts/migrate-fee-types.js (32 lines) ==========</div>
+<div class="line"><span class="ln">   1</span><span class="src">/* eslint-disable no-undef */</span></div>
+<div class="line"><span class="ln">   2</span><span class="src">/**</span></div>
+<div class="line"><span class="ln">   3</span><span class="src"> * Migration: Add type/category fields to existing fee data.</span></div>
+<div class="line"><span class="ln">   4</span><span class="src"> * Run once after deploying hostel fee integration.</span></div>
+<div class="line"><span class="ln">   5</span><span class="src"> *</span></div>
+<div class="line"><span class="ln">   6</span><span class="src"> * Usage:</span></div>
+<div class="line"><span class="ln">   7</span><span class="src"> *   mongosh &lt;connection-string&gt; migrate-fee-types.js</span></div>
+<div class="line"><span class="ln">   8</span><span class="src"> */</span></div>
+<div class="line"><span class="ln">   9</span><span class="src"></span></div>
+<div class="line"><span class="ln">  10</span><span class="src">// Set type='tuition' on all existing fee assignments that don't have a type</span></div>
+<div class="line"><span class="ln">  11</span><span class="src">const assignmentResult = db.fee_assignments.updateMany(</span></div>
+<div class="line"><span class="ln">  12</span><span class="src">  { type: { $exists: false } },</span></div>
+<div class="line"><span class="ln">  13</span><span class="src">  { $set: { type: 'tuition' } }</span></div>
+<div class="line"><span class="ln">  14</span><span class="src">);</span></div>
+<div class="line"><span class="ln">  15</span><span class="src">print(`Fee assignments updated: ${assignmentResult.modifiedCount}`);</span></div>
+<div class="line"><span class="ln">  16</span><span class="src"></span></div>
+<div class="line"><span class="ln">  17</span><span class="src">// Set category='tuition' on all existing fee structures that don't have a category</span></div>
+<div class="line"><span class="ln">  18</span><span class="src">const structureResult = db.fee_structures.updateMany(</span></div>
+<div class="line"><span class="ln">  19</span><span class="src">  { category: { $exists: false } },</span></div>
+<div class="line"><span class="ln">  20</span><span class="src">  { $set: { category: 'tuition' } }</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 5781 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  21</span><span class="src">);</span></div>
+<div class="line"><span class="ln">  22</span><span class="src">print(`Fee structures updated: ${structureResult.modifiedCount}`);</span></div>
+<div class="line"><span class="ln">  23</span><span class="src"></span></div>
+<div class="line"><span class="ln">  24</span><span class="src">// Create compound index for the new uniqueness check</span></div>
+<div class="line"><span class="ln">  25</span><span class="src">db.fee_assignments.createIndex(</span></div>
+<div class="line"><span class="ln">  26</span><span class="src">  { tenantId: 1, studentId: 1, academicBatchId: 1, feeStructureId: 1 },</span></div>
+<div class="line"><span class="ln">  27</span><span class="src">  { name: 'unique_student_batch_structure' }</span></div>
+<div class="line"><span class="ln">  28</span><span class="src">);</span></div>
+<div class="line"><span class="ln">  29</span><span class="src">print('Index created: unique_student_batch_structure');</span></div>
+<div class="line"><span class="ln">  30</span><span class="src"></span></div>
+<div class="line"><span class="ln">  31</span><span class="src">print('Migration complete.');</span></div>
+<div class="line"><span class="ln">  32</span><span class="src"></span></div>
+<div class="line"><span class="ln"></span><span class="src"></span></div>
+<div class="hdr">========== FILE: infrastructure/scripts/migrate-subjects-to-sections.ts (98 lines) ==========</div>
+<div class="line"><span class="ln">   1</span><span class="src">/* eslint-disable no-console */</span></div>
+<div class="line"><span class="ln">   2</span><span class="src">/**</span></div>
+<div class="line"><span class="ln">   3</span><span class="src"> * Migrate `classes.subjects[]` → `sections.subjects[]`.</span></div>
+<div class="line"><span class="ln">   4</span><span class="src"> *</span></div>
+<div class="line"><span class="ln">   5</span><span class="src"> * Subjects (with their teacher + periodsPerWeek) used to live on each class</span></div>
+<div class="line"><span class="ln">   6</span><span class="src"> * doc, which meant every section under that class implicitly inherited the</span></div>
+<div class="line"><span class="ln">   7</span><span class="src"> * same set and the same teacher. Subjects are now per-section so each section</span></div>
+<div class="line"><span class="ln">   8</span><span class="src"> * can have its own teacher.</span></div>
+<div class="line"><span class="ln">   9</span><span class="src"> *</span></div>
+<div class="line"><span class="ln">  10</span><span class="src"> * For every class that has a non-empty `subjects[]`:</span></div>
+<div class="line"><span class="ln">  11</span><span class="src"> *   1. Copy the array onto every section under that class. If a section</span></div>
+<div class="line"><span class="ln">  12</span><span class="src"> *      already has a subjects[] (re-run safety), merge by subjectId — section</span></div>
+<div class="line"><span class="ln">  13</span><span class="src"> *      entries win on conflict.</span></div>
+<div class="line"><span class="ln">  14</span><span class="src"> *   2. Unset `subjects` on the class doc.</span></div>
+<div class="line"><span class="ln">  15</span><span class="src"> *</span></div>
+<div class="line"><span class="ln">  16</span><span class="src"> * Idempotent — safe to re-run. Classes without `subjects[]` are skipped.</span></div>
+<div class="line"><span class="ln">  17</span><span class="src"> *</span></div>
+<div class="line"><span class="ln">  18</span><span class="src"> * Usage:</span></div>
+<div class="line"><span class="ln">  19</span><span class="src"> *   pnpm --filter @campus-verse/api exec tsx infrastructure/scripts/migrate-subjects-to-sections.ts</span></div>
+<div class="line"><span class="ln">  20</span><span class="src"> *   MONGODB_URI="mongodb://localhost:27017/campusverse" pnpm tsx infrastructure/scripts/migrate-subjects-to-sections.ts</span></div>
+<div class="line"><span class="ln">  21</span><span class="src"> */</span></div>
+<div class="line"><span class="ln">  22</span><span class="src">import { MongoClient, ObjectId } from 'mongodb';</span></div>
+<div class="line"><span class="ln">  23</span><span class="src"></span></div>
+<div class="line"><span class="ln">  24</span><span class="src">const URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/campusverse';</span></div>
+<div class="line"><span class="ln">  25</span><span class="src"></span></div>
+<div class="line"><span class="ln">  26</span><span class="src">interface SubjectEntry {</span></div>
+<div class="line"><span class="ln">  27</span><span class="src">  subjectId: ObjectId;</span></div>
+<div class="line"><span class="ln">  28</span><span class="src">  teacherId?: ObjectId;</span></div>
+<div class="line"><span class="ln">  29</span><span class="src">  periodsPerWeek?: number;</span></div>
+<div class="line"><span class="ln">  30</span><span class="src">}</span></div>
+<div class="line"><span class="ln">  31</span><span class="src"></span></div>
+<div class="line"><span class="ln">  32</span><span class="src">async function run() {</span></div>
+<div class="line"><span class="ln">  33</span><span class="src">  const client = new MongoClient(URI);</span></div>
+<div class="line"><span class="ln">  34</span><span class="src">  await client.connect();</span></div>
+<div class="line"><span class="ln">  35</span><span class="src">  const db = client.db();</span></div>
+<div class="line"><span class="ln">  36</span><span class="src"></span></div>
+<div class="line"><span class="ln">  37</span><span class="src">  const classes = db.collection('classes');</span></div>
+<div class="line"><span class="ln">  38</span><span class="src">  const sections = db.collection('sections');</span></div>
+<div class="line"><span class="ln">  39</span><span class="src"></span></div>
+<div class="line"><span class="ln">  40</span><span class="src">  const classesWithSubjects = await classes</span></div>
+<div class="line"><span class="ln">  41</span><span class="src">    .find({ subjects: { $exists: true, $ne: [] } })</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 5782 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  42</span><span class="src">    .project({ _id: 1, tenantId: 1, subjects: 1 })</span></div>
+<div class="line"><span class="ln">  43</span><span class="src">    .toArray();</span></div>
+<div class="line"><span class="ln">  44</span><span class="src"></span></div>
+<div class="line"><span class="ln">  45</span><span class="src">  console.log(`Found ${classesWithSubjects.length} classes with legacy subjects[]`);</span></div>
+<div class="line"><span class="ln">  46</span><span class="src"></span></div>
+<div class="line"><span class="ln">  47</span><span class="src">  let sectionsUpdated = 0;</span></div>
+<div class="line"><span class="ln">  48</span><span class="src">  let classesCleared = 0;</span></div>
+<div class="line"><span class="ln">  49</span><span class="src"></span></div>
+<div class="line"><span class="ln">  50</span><span class="src">  for (const cls of classesWithSubjects) {</span></div>
+<div class="line"><span class="ln">  51</span><span class="src">    const classSubjects = (cls.subjects ?? []) as SubjectEntry[];</span></div>
+<div class="line"><span class="ln">  52</span><span class="src">    if (classSubjects.length === 0) continue;</span></div>
+<div class="line"><span class="ln">  53</span><span class="src"></span></div>
+<div class="line"><span class="ln">  54</span><span class="src">    const classSections = await sections</span></div>
+<div class="line"><span class="ln">  55</span><span class="src">      .find({ classId: cls._id, tenantId: cls.tenantId })</span></div>
+<div class="line"><span class="ln">  56</span><span class="src">      .toArray();</span></div>
+<div class="line"><span class="ln">  57</span><span class="src"></span></div>
+<div class="line"><span class="ln">  58</span><span class="src">    for (const section of classSections) {</span></div>
+<div class="line"><span class="ln">  59</span><span class="src">      const existing = (section.subjects ?? []) as SubjectEntry[];</span></div>
+<div class="line"><span class="ln">  60</span><span class="src">      const existingIds = new Set(existing.map((s) =&gt; s.subjectId.toString()));</span></div>
+<div class="line"><span class="ln">  61</span><span class="src"></span></div>
+<div class="line"><span class="ln">  62</span><span class="src">      const merged = [...existing];</span></div>
+<div class="line"><span class="ln">  63</span><span class="src">      for (const cs of classSubjects) {</span></div>
+<div class="line"><span class="ln">  64</span><span class="src">        if (!existingIds.has(cs.subjectId.toString())) {</span></div>
+<div class="line"><span class="ln">  65</span><span class="src">          merged.push(cs);</span></div>
+<div class="line"><span class="ln">  66</span><span class="src">        }</span></div>
+<div class="line"><span class="ln">  67</span><span class="src">      }</span></div>
+<div class="line"><span class="ln">  68</span><span class="src"></span></div>
+<div class="line"><span class="ln">  69</span><span class="src">      await sections.updateOne(</span></div>
+<div class="line"><span class="ln">  70</span><span class="src">        { _id: section._id },</span></div>
+<div class="line"><span class="ln">  71</span><span class="src">        { $set: { subjects: merged, updatedAt: new Date() } }</span></div>
+<div class="line"><span class="ln">  72</span><span class="src">      );</span></div>
+<div class="line"><span class="ln">  73</span><span class="src">      sectionsUpdated++;</span></div>
+<div class="line"><span class="ln">  74</span><span class="src">    }</span></div>
+<div class="line"><span class="ln">  75</span><span class="src"></span></div>
+<div class="line"><span class="ln">  76</span><span class="src">    await classes.updateOne(</span></div>
+<div class="line"><span class="ln">  77</span><span class="src">      { _id: cls._id },</span></div>
+<div class="line"><span class="ln">  78</span><span class="src">      { $unset: { subjects: '' }, $set: { updatedAt: new Date() } }</span></div>
+<div class="line"><span class="ln">  79</span><span class="src">    );</span></div>
+<div class="line"><span class="ln">  80</span><span class="src">    classesCleared++;</span></div>
+<div class="line"><span class="ln">  81</span><span class="src"></span></div>
+<div class="line"><span class="ln">  82</span><span class="src">    console.log(</span></div>
+<div class="line"><span class="ln">  83</span><span class="src">      `  · class ${cls._id.toString()}: copied ${classSubjects.length} subjects to ${classSections.length} sections`</span></div>
+<div class="line"><span class="ln">  84</span><span class="src">    );</span></div>
+<div class="line"><span class="ln">  85</span><span class="src">  }</span></div>
+<div class="line"><span class="ln">  86</span><span class="src"></span></div>
+<div class="line"><span class="ln">  87</span><span class="src">  console.log(</span></div>
+<div class="line"><span class="ln">  88</span><span class="src">    `\nDone. ${classesCleared} class docs cleared, ${sectionsUpdated} section docs updated.`</span></div>
+<div class="line"><span class="ln">  89</span><span class="src">  );</span></div>
+<div class="line"><span class="ln">  90</span><span class="src"></span></div>
+<div class="line"><span class="ln">  91</span><span class="src">  await client.close();</span></div>
+<div class="line"><span class="ln">  92</span><span class="src">}</span></div>
+<div class="line"><span class="ln">  93</span><span class="src"></span></div>
+<div class="line"><span class="ln">  94</span><span class="src">run().catch((err) =&gt; {</span></div>
+<div class="line"><span class="ln">  95</span><span class="src">  console.error(err);</span></div>
+<div class="line"><span class="ln">  96</span><span class="src">  process.exit(1);</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 5783 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  97</span><span class="src">});</span></div>
+<div class="line"><span class="ln">  98</span><span class="src"></span></div>
+<div class="line"><span class="ln"></span><span class="src"></span></div>
+<div class="hdr">========== FILE: infrastructure/scripts/mongo-init.js (93 lines) ==========</div>
+<div class="line"><span class="ln">   1</span><span class="src">/* eslint-disable no-undef */</span></div>
+<div class="line"><span class="ln">   2</span><span class="src">// MongoDB initialization script</span></div>
+<div class="line"><span class="ln">   3</span><span class="src">// This runs when the container is first created</span></div>
+<div class="line"><span class="ln">   4</span><span class="src"></span></div>
+<div class="line"><span class="ln">   5</span><span class="src">print('Starting MongoDB initialization...');</span></div>
+<div class="line"><span class="ln">   6</span><span class="src"></span></div>
+<div class="line"><span class="ln">   7</span><span class="src">// Switch to the campus_verse database</span></div>
+<div class="line"><span class="ln">   8</span><span class="src">db = db.getSiblingDB('campus_verse');</span></div>
+<div class="line"><span class="ln">   9</span><span class="src"></span></div>
+<div class="line"><span class="ln">  10</span><span class="src">// Create collections with validation</span></div>
+<div class="line"><span class="ln">  11</span><span class="src">db.createCollection('tenants');</span></div>
+<div class="line"><span class="ln">  12</span><span class="src">db.createCollection('branches');</span></div>
+<div class="line"><span class="ln">  13</span><span class="src">db.createCollection('users');</span></div>
+<div class="line"><span class="ln">  14</span><span class="src">db.createCollection('roles');</span></div>
+<div class="line"><span class="ln">  15</span><span class="src">db.createCollection('academic_batches');</span></div>
+<div class="line"><span class="ln">  16</span><span class="src">db.createCollection('classes');</span></div>
+<div class="line"><span class="ln">  17</span><span class="src">db.createCollection('sections');</span></div>
+<div class="line"><span class="ln">  18</span><span class="src">db.createCollection('subjects');</span></div>
+<div class="line"><span class="ln">  19</span><span class="src">db.createCollection('students');</span></div>
+<div class="line"><span class="ln">  20</span><span class="src">db.createCollection('student_enrollments');</span></div>
+<div class="line"><span class="ln">  21</span><span class="src">db.createCollection('leads');</span></div>
+<div class="line"><span class="ln">  22</span><span class="src">db.createCollection('applications');</span></div>
+<div class="line"><span class="ln">  23</span><span class="src">db.createCollection('fee_structures');</span></div>
+<div class="line"><span class="ln">  24</span><span class="src">db.createCollection('fee_assignments');</span></div>
+<div class="line"><span class="ln">  25</span><span class="src">db.createCollection('fee_transactions');</span></div>
+<div class="line"><span class="ln">  26</span><span class="src">db.createCollection('concessions');</span></div>
+<div class="line"><span class="ln">  27</span><span class="src">db.createCollection('student_attendance');</span></div>
+<div class="line"><span class="ln">  28</span><span class="src">db.createCollection('staff');</span></div>
+<div class="line"><span class="ln">  29</span><span class="src">db.createCollection('staff_attendance');</span></div>
+<div class="line"><span class="ln">  30</span><span class="src">db.createCollection('leaves');</span></div>
+<div class="line"><span class="ln">  31</span><span class="src">db.createCollection('leave_balances');</span></div>
+<div class="line"><span class="ln">  32</span><span class="src">db.createCollection('announcements');</span></div>
+<div class="line"><span class="ln">  33</span><span class="src">db.createCollection('events');</span></div>
+<div class="line"><span class="ln">  34</span><span class="src">db.createCollection('sms_logs');</span></div>
+<div class="line"><span class="ln">  35</span><span class="src">db.createCollection('audit_logs');</span></div>
+<div class="line"><span class="ln">  36</span><span class="src">db.createCollection('settings');</span></div>
+<div class="line"><span class="ln">  37</span><span class="src">db.createCollection('counters');</span></div>
+<div class="line"><span class="ln">  38</span><span class="src">db.createCollection('wallets');</span></div>
+<div class="line"><span class="ln">  39</span><span class="src">db.createCollection('wallet_transactions');</span></div>
+<div class="line"><span class="ln">  40</span><span class="src">db.createCollection('approval_requests');</span></div>
+<div class="line"><span class="ln">  41</span><span class="src"></span></div>
+<div class="line"><span class="ln">  42</span><span class="src">print('Collections created successfully');</span></div>
+<div class="line"><span class="ln">  43</span><span class="src"></span></div>
+<div class="line"><span class="ln">  44</span><span class="src">// Create indexes</span></div>
+<div class="line"><span class="ln">  45</span><span class="src">db.tenants.createIndex({ code: 1 }, { unique: true });</span></div>
+<div class="line"><span class="ln">  46</span><span class="src">db.branches.createIndex({ tenantId: 1, code: 1 }, { unique: true });</span></div>
+<div class="line"><span class="ln">  47</span><span class="src">db.users.createIndex({ tenantId: 1, email: 1 }, { unique: true });</span></div>
+<div class="line"><span class="ln">  48</span><span class="src">db.roles.createIndex({ tenantId: 1, code: 1 }, { unique: true });</span></div>
+<div class="line"><span class="ln">  49</span><span class="src">db.students.createIndex({ tenantId: 1, branchId: 1, admissionNumber: 1 }, { unique: true });</span></div>
+<div class="line"><span class="ln">  50</span><span class="src">db.students.createIndex({ firstName: 'text', lastName: 'text', admissionNumber: 'text' });</span></div>
+<div class="line"><span class="ln">  51</span><span class="src">db.fee_transactions.createIndex({ tenantId: 1, branchId: 1, receiptNumber: 1 }, { unique: true });</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 5784 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  52</span><span class="src"></span></div>
+<div class="line"><span class="ln">  53</span><span class="src">// Wallet indexes</span></div>
+<div class="line"><span class="ln">  54</span><span class="src">db.wallets.createIndex({ tenantId: 1, studentId: 1 }, { unique: true });</span></div>
+<div class="line"><span class="ln">  55</span><span class="src">db.wallets.createIndex({ tenantId: 1, branchId: 1, walletNumber: 1 }, { unique: true });</span></div>
+<div class="line"><span class="ln">  56</span><span class="src">db.wallets.createIndex({ tenantId: 1, branchId: 1 });</span></div>
+<div class="line"><span class="ln">  57</span><span class="src"></span></div>
+<div class="line"><span class="ln">  58</span><span class="src">// Wallet transaction indexes</span></div>
+<div class="line"><span class="ln">  59</span><span class="src">db.wallet_transactions.createIndex({ walletId: 1, createdAt: -1 });</span></div>
+<div class="line"><span class="ln">  60</span><span class="src">db.wallet_transactions.createIndex({ tenantId: 1, branchId: 1, createdAt: -1 });</span></div>
+<div class="line"><span class="ln">  61</span><span class="src"></span></div>
+<div class="line"><span class="ln">  62</span><span class="src">// Approval request indexes</span></div>
+<div class="line"><span class="ln">  63</span><span class="src">db.approval_requests.createIndex({ tenantId: 1, branchId: 1, status: 1 });</span></div>
+<div class="line"><span class="ln">  64</span><span class="src">db.approval_requests.createIndex({ transactionId: 1, status: 1 });</span></div>
+<div class="line"><span class="ln">  65</span><span class="src">db.approval_requests.createIndex({ tenantId: 1, branchId: 1, createdAt: -1 });</span></div>
+<div class="line"><span class="ln">  66</span><span class="src"></span></div>
+<div class="line"><span class="ln">  67</span><span class="src">// Teaching module collections</span></div>
+<div class="line"><span class="ln">  68</span><span class="src">db.createCollection('timetable_slots');</span></div>
+<div class="line"><span class="ln">  69</span><span class="src">db.createCollection('timetable_entries');</span></div>
+<div class="line"><span class="ln">  70</span><span class="src">db.createCollection('lesson_plans');</span></div>
+<div class="line"><span class="ln">  71</span><span class="src">db.createCollection('assignments');</span></div>
+<div class="line"><span class="ln">  72</span><span class="src">db.createCollection('grades');</span></div>
+<div class="line"><span class="ln">  73</span><span class="src"></span></div>
+<div class="line"><span class="ln">  74</span><span class="src">// Teaching module indexes</span></div>
+<div class="line"><span class="ln">  75</span><span class="src">db.timetable_slots.createIndex({ tenantId: 1, branchId: 1, order: 1 });</span></div>
+<div class="line"><span class="ln">  76</span><span class="src">db.timetable_entries.createIndex(</span></div>
+<div class="line"><span class="ln">  77</span><span class="src">  { tenantId: 1, branchId: 1, teacherId: 1, slotId: 1, dayOfWeek: 1 },</span></div>
+<div class="line"><span class="ln">  78</span><span class="src">  { unique: true }</span></div>
+<div class="line"><span class="ln">  79</span><span class="src">);</span></div>
+<div class="line"><span class="ln">  80</span><span class="src">db.timetable_entries.createIndex(</span></div>
+<div class="line"><span class="ln">  81</span><span class="src">  { tenantId: 1, branchId: 1, sectionId: 1, slotId: 1, dayOfWeek: 1 },</span></div>
+<div class="line"><span class="ln">  82</span><span class="src">  { unique: true }</span></div>
+<div class="line"><span class="ln">  83</span><span class="src">);</span></div>
+<div class="line"><span class="ln">  84</span><span class="src">db.lesson_plans.createIndex({ tenantId: 1, branchId: 1, teacherId: 1, date: -1 });</span></div>
+<div class="line"><span class="ln">  85</span><span class="src">db.lesson_plans.createIndex({ tenantId: 1, sectionId: 1, subjectId: 1 });</span></div>
+<div class="line"><span class="ln">  86</span><span class="src">db.assignments.createIndex({ tenantId: 1, branchId: 1, teacherId: 1, status: 1 });</span></div>
+<div class="line"><span class="ln">  87</span><span class="src">db.assignments.createIndex({ tenantId: 1, sectionId: 1, dueDate: -1 });</span></div>
+<div class="line"><span class="ln">  88</span><span class="src">db.grades.createIndex({ tenantId: 1, assignmentId: 1, studentId: 1 }, { unique: true });</span></div>
+<div class="line"><span class="ln">  89</span><span class="src">db.grades.createIndex({ tenantId: 1, studentId: 1 });</span></div>
+<div class="line"><span class="ln">  90</span><span class="src"></span></div>
+<div class="line"><span class="ln">  91</span><span class="src">print('Indexes created successfully');</span></div>
+<div class="line"><span class="ln">  92</span><span class="src">print('MongoDB initialization completed!');</span></div>
+<div class="line"><span class="ln">  93</span><span class="src"></span></div>
+<div class="line"><span class="ln"></span><span class="src"></span></div>
+<div class="hdr">========== FILE: packages/eslint-config/index.js (35 lines) ==========</div>
+<div class="line"><span class="ln">   1</span><span class="src">module.exports = {</span></div>
+<div class="line"><span class="ln">   2</span><span class="src">  parser: '@typescript-eslint/parser',</span></div>
+<div class="line"><span class="ln">   3</span><span class="src">  extends: [</span></div>
+<div class="line"><span class="ln">   4</span><span class="src">    'eslint:recommended',</span></div>
+<div class="line"><span class="ln">   5</span><span class="src">    'plugin:@typescript-eslint/recommended',</span></div>
+<div class="line"><span class="ln">   6</span><span class="src">    'plugin:prettier/recommended',</span></div>
+<div class="line"><span class="ln">   7</span><span class="src">  ],</span></div>
+<div class="line"><span class="ln">   8</span><span class="src">  plugins: ['@typescript-eslint', 'prettier'],</span></div>
+<div class="line"><span class="ln">   9</span><span class="src">  env: {</span></div>
+<div class="line"><span class="ln">  10</span><span class="src">    node: true,</span></div>
+<div class="line"><span class="ln">  11</span><span class="src">    es2022: true,</span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+<section class="page">
+  <header>
+    <span>Campus Verse — Source Code</span>
+    <span>Page 5785 of 5785</span>
+  </header>
+  <div class="content"><div class="line"><span class="ln">  12</span><span class="src">  },</span></div>
+<div class="line"><span class="ln">  13</span><span class="src">  parserOptions: {</span></div>
+<div class="line"><span class="ln">  14</span><span class="src">    ecmaVersion: 'latest',</span></div>
+<div class="line"><span class="ln">  15</span><span class="src">    sourceType: 'module',</span></div>
+<div class="line"><span class="ln">  16</span><span class="src">  },</span></div>
+<div class="line"><span class="ln">  17</span><span class="src">  rules: {</span></div>
+<div class="line"><span class="ln">  18</span><span class="src">    'prettier/prettier': 'error',</span></div>
+<div class="line"><span class="ln">  19</span><span class="src">    '@typescript-eslint/no-unused-vars': [</span></div>
+<div class="line"><span class="ln">  20</span><span class="src">      'error',</span></div>
+<div class="line"><span class="ln">  21</span><span class="src">      {</span></div>
+<div class="line"><span class="ln">  22</span><span class="src">        argsIgnorePattern: '^_',</span></div>
+<div class="line"><span class="ln">  23</span><span class="src">        varsIgnorePattern: '^_',</span></div>
+<div class="line"><span class="ln">  24</span><span class="src">        destructuredArrayIgnorePattern: '^_',</span></div>
+<div class="line"><span class="ln">  25</span><span class="src">        caughtErrorsIgnorePattern: '^_',</span></div>
+<div class="line"><span class="ln">  26</span><span class="src">      },</span></div>
+<div class="line"><span class="ln">  27</span><span class="src">    ],</span></div>
+<div class="line"><span class="ln">  28</span><span class="src">    '@typescript-eslint/explicit-function-return-type': 'off',</span></div>
+<div class="line"><span class="ln">  29</span><span class="src">    '@typescript-eslint/no-explicit-any': 'warn',</span></div>
+<div class="line"><span class="ln">  30</span><span class="src">    '@typescript-eslint/no-non-null-assertion': 'warn',</span></div>
+<div class="line"><span class="ln">  31</span><span class="src">    'no-console': ['warn', { allow: ['warn', 'error'] }],</span></div>
+<div class="line"><span class="ln">  32</span><span class="src">  },</span></div>
+<div class="line"><span class="ln">  33</span><span class="src">  ignorePatterns: ['node_modules', 'dist', '.next', 'coverage'],</span></div>
+<div class="line"><span class="ln">  34</span><span class="src">};</span></div>
+<div class="line"><span class="ln">  35</span><span class="src"></span></div>
+<div class="line"><span class="ln"></span><span class="src"></span></div>
+<div class="hdr">========== FILE: packages/eslint-config/next.js (17 lines) ==========</div>
+<div class="line"><span class="ln">   1</span><span class="src">module.exports = {</span></div>
+<div class="line"><span class="ln">   2</span><span class="src">  extends: [</span></div>
+<div class="line"><span class="ln">   3</span><span class="src">    'next/core-web-vitals',</span></div>
+<div class="line"><span class="ln">   4</span><span class="src">    'plugin:@typescript-eslint/recommended',</span></div>
+<div class="line"><span class="ln">   5</span><span class="src">    'plugin:prettier/recommended',</span></div>
+<div class="line"><span class="ln">   6</span><span class="src">  ],</span></div>
+<div class="line"><span class="ln">   7</span><span class="src">  plugins: ['@typescript-eslint', 'prettier'],</span></div>
+<div class="line"><span class="ln">   8</span><span class="src">  rules: {</span></div>
+<div class="line"><span class="ln">   9</span><span class="src">    'prettier/prettier': 'error',</span></div>
+<div class="line"><span class="ln">  10</span><span class="src">    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],</span></div>
+<div class="line"><span class="ln">  11</span><span class="src">    '@typescript-eslint/no-explicit-any': 'warn',</span></div>
+<div class="line"><span class="ln">  12</span><span class="src">    'react/no-unescaped-entities': 'off',</span></div>
+<div class="line"><span class="ln">  13</span><span class="src">    '@next/next/no-img-element': 'off',</span></div>
+<div class="line"><span class="ln">  14</span><span class="src">  },</span></div>
+<div class="line"><span class="ln">  15</span><span class="src">  ignorePatterns: ['node_modules', '.next', 'out'],</span></div>
+<div class="line"><span class="ln">  16</span><span class="src">};</span></div>
+<div class="line"><span class="ln">  17</span><span class="src"></span></div>
+<div class="line"><span class="ln"></span><span class="src"></span></div></div>
+  <footer>
+    <span>Author signature: ____________________________</span>
+    <span>Date: ____________</span>
+  </footer>
+</section>
+
+</body>
+</html>

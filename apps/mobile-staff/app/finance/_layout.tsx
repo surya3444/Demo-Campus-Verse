@@ -1,0 +1,10 @@
+import { Stack } from 'expo-router';
+
+export default function FinanceLayout() {
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="counter" />
+      <Stack.Screen name="collect" />
+    </Stack>
+  );
+}

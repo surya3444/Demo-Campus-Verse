@@ -1,0 +1,48 @@
+# Dependencies (reinstalled in Docker)
+node_modules
+**/node_modules
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Environment files (secrets!)
+.env
+.env.*
+!.env.example
+
+# Build artifacts (rebuilt in Docker)
+dist
+**/dist
+.turbo
+**/.turbo
+.next
+**/.next
+
+# Web app (not needed for API)
+apps/web
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+**/tests
+**/test
+**/__tests__
+**/coverage
+**/vitest.config.ts
+
+# Documentation
+*.md
+docs
+LICENSE
+
+# Misc
+.DS_Store
+*.log
+npm-debug.log*

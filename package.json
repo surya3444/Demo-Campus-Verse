@@ -1,0 +1,57 @@
+{
+  "name": "campus-verse",
+  "private": true,
+  "scripts": {
+    "dev": "docker compose up -d redis && turbo dev",
+    "dev:no-docker": "turbo dev",
+    "dev:api": "turbo dev --filter=@campus-verse/api",
+    "dev:web": "turbo dev --filter=@campus-verse/web",
+    "dev:superadmin": "turbo dev --filter=@campus-verse/superadmin-web",
+    "dev:student": "pnpm --filter @campus-verse/mobile-student start",
+    "student:ios": "pnpm --filter @campus-verse/mobile-student ios",
+    "student:android": "pnpm --filter @campus-verse/mobile-student android",
+    "dev:staff": "pnpm --filter @campus-verse/mobile-staff start",
+    "staff:ios": "pnpm --filter @campus-verse/mobile-staff ios",
+    "staff:android": "pnpm --filter @campus-verse/mobile-staff android",
+    "build": "turbo build",
+    "test": "turbo test",
+    "test:unit": "turbo test:unit",
+    "test:e2e": "turbo test:e2e",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "db:seed": "tsx infrastructure/scripts/seed-db.ts",
+    "db:indexes": "tsx infrastructure/scripts/create-indexes.ts",
+    "seed:admin": "pnpm --filter @campus-verse/api exec tsx src/scripts/seed-super-admin.ts",
+    "clean": "turbo clean && rm -rf node_modules",
+    "prepare": "husky",
+    "deploy:build": "docker compose -f docker-compose.prod.yml build --no-cache api",
+    "deploy:up": "docker compose -f docker-compose.prod.yml up -d",
+    "deploy:restart": "docker compose -f docker-compose.prod.yml restart api",
+    "deploy:logs": "docker compose -f docker-compose.prod.yml logs -f api",
+    "deploy": "pnpm deploy:build && pnpm deploy:up"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.51.0"
+  },
+  "packageManager": "pnpm@9.14.2",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+}

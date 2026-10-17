@@ -1,0 +1,75 @@
+{
+  "expo": {
+    "name": "CampusVerse Staff",
+    "slug": "campusverse-staff",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "campusverse-staff",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cc390dfb-d2b6-4b8f-a5cd-99864326a1e4",
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#4f46e5"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.campusverse.staff",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Use Face ID to securely login to CampusVerse",
+        "NSCameraUsageDescription": "Take photos for profile and documents"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#4f46e5"
+      },
+      "package": "com.campusverse.staff",
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.CAMERA"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-updates",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow CampusVerse to use Face ID for secure login"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#4f46e5"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "cc390dfb-d2b6-4b8f-a5cd-99864326a1e4"
+      }
+    },
+    "owner": "ichiranjeeb"
+  }
+}

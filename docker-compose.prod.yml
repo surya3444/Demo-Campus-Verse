@@ -1,0 +1,52 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: production
+    container_name: campusverse-api
+    restart: unless-stopped
+    expose:
+      - "3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - REDIS_URL=redis://redis:6379
+    env_file:
+      - .env.production
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - campus-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: campusverse-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    # volatile-lru (not allkeys-lru): only keys with a TTL are eviction
+    # candidates, and only under memory pressure — allkeys-lru was evicting
+    # live auth sessions, abruptly logging users out.
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy volatile-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - campus-network
+
+volumes:
+  redis_data:
+
+networks:
+  campus-network:
+    driver: bridge

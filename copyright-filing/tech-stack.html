@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Technology Stack — Campus Verse</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  body { font-family: 'Times New Roman', Times, serif; font-size: 10.5pt; line-height: 1.4; color: #000; margin: 0; }
+  h1 { text-align: center; font-size: 16pt; margin: 0 0 1mm 0; }
+  .subtitle { text-align: center; font-size: 11pt; margin: 0 0 6mm 0; color: #333; }
+  h2 { font-size: 12pt; margin: 6mm 0 2mm 0; border-bottom: 1px solid #000; padding-bottom: 1mm; }
+  h3 { font-size: 11pt; margin: 4mm 0 1.5mm 0; }
+  .meta { text-align: center; font-size: 10pt; margin-bottom: 5mm; color: #444; }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 3mm 0; }
+  th, td { border: 1px solid #000; padding: 1.8mm 2.5mm; vertical-align: top; text-align: left; }
+  th { background: #e8e8e8; font-weight: 600; font-size: 10pt; }
+  td.k { width: 32%; font-weight: 600; background: #f4f4f4; }
+  td.v { width: 22%; font-family: 'Courier New', Courier, monospace; font-size: 9.5pt; }
+  td.d { width: 46%; }
+  p { margin: 1mm 0 2mm 0; }
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  .small { font-size: 9.5pt; color: #333; }
+  .lead { font-size: 10.5pt; margin: 0 0 3mm 0; }
+  ul { margin: 1mm 0 2mm 5mm; padding: 0; }
+  ul li { margin: 0.5mm 0; }
+  .signblock { margin-top: 12mm; }
+  .signrow { display: flex; justify-content: space-between; margin-top: 14mm; }
+  .signrow .col { width: 45%; }
+  .signrow hr { border: 0; border-top: 1px solid #000; margin: 0 0 1mm 0; }
+  .pill { display: inline-block; padding: 0.5mm 2mm; border: 1px solid #555; border-radius: 2mm; font-size: 9pt; margin-right: 1mm; }
+</style>
+</head>
+<body>
+
+<!-- ============================================ COVER ============================================ -->
+<section class="page">
+
+<h1>CAMPUS VERSE</h1>
+<div class="subtitle">Technology Stack &mdash; Statement for Copyright Filing</div>
+<div class="meta">
+  Multi-Tenant Cloud-Based ERP Platform for Educational Institutions<br>
+  Annexure to Application for Registration of Copyright (Form XIV)<br>
+  <span class="small">Document version: 1.0 &middot; Date: 21 May 2026</span>
+</div>
+
+<h2>1. Executive Summary</h2>
+<p class="lead">
+  Campus Verse is an original computer program (literary work) authored as a unified
+  multi-tenant Software-as-a-Service (SaaS) platform that automates academic, financial,
+  administrative and communication workflows for schools, colleges and universities. The
+  work consists of an integrated codebase distributed across <strong>five (5) deployable
+  applications</strong> and <strong>three (3) shared internal libraries</strong>,
+  organised as a <strong>pnpm + Turborepo monorepo</strong>.
+</p>
+
+<table>
+  <tr><td class="k">Work title</td><td colspan="2">Campus Verse &mdash; Multi-Tenant ERP Platform for Educational Institutions</td></tr>
+  <tr><td class="k">Class of work</td><td colspan="2">Literary Work (Computer Software) &mdash; Section 2(o), Copyright Act 1957</td></tr>
+  <tr><td class="k">Primary programming languages</td><td colspan="2">TypeScript (~95%), JavaScript, HTML, CSS, YAML, JSON</td></tr>
+  <tr><td class="k">Architecture paradigm</td><td colspan="2">Service-oriented, multi-tenant, REST + WebSocket, mobile-first</td></tr>
+  <tr><td class="k">Source repository layout</td><td colspan="2">pnpm workspaces + Turborepo &mdash; <em>apps/</em>, <em>packages/</em>, <em>infrastructure/</em></td></tr>
+  <tr><td class="k">Runtime platform</td><td colspan="2">Node.js &ge; 20 (LTS) on Linux (Ubuntu 22.04, Docker containers)</td></tr>
+  <tr><td class="k">Package manager</td><td colspan="2">pnpm 9.14.2</td></tr>
+  <tr><td class="k">Build orchestration</td><td colspan="2">Turborepo 2.x</td></tr>
+</table>
+
+<h2>2. Application Inventory</h2>
+<table>
+  <tr><th style="width:24%">Application</th><th style="width:18%">Package name</th><th style="width:18%">Type</th><th>Purpose</th></tr>
+  <tr><td>Backend API</td><td>@campus-verse/api</td><td>Node/Express service</td><td>Central REST &amp; WebSocket API server &mdash; business logic, data persistence, authentication, file storage, billing, notifications, real-time classrooms.</td></tr>
+  <tr><td>Admin Web App</td><td>@campus-verse/web</td><td>Next.js 16 SSR/SPA</td><td>Primary administrator and staff dashboard for tenants &mdash; admissions, finance, HR, attendance, communication, certificates, dashboards.</td></tr>
+  <tr><td>SuperAdmin Web App</td><td>@campus-verse/superadmin-web</td><td>Next.js 16 SSR/SPA</td><td>Platform-level console used by Campus Verse operators &mdash; tenant onboarding, plan/feature management, system health.</td></tr>
+  <tr><td>Student Mobile App</td><td>@campus-verse/mobile-student</td><td>Expo / React Native</td><td>Cross-platform iOS &amp; Android app for students &mdash; academics, fees, attendance, inbox, ID card, live classes.</td></tr>
+  <tr><td>Staff Mobile App</td><td>@campus-verse/mobile-staff</td><td>Expo / React Native</td><td>Cross-platform iOS &amp; Android app for teaching &amp; non-teaching staff &mdash; classes, gradebook, attendance, announcements.</td></tr>
+  <tr><td>Shared library (web)</td><td>@campus-verse/shared</td><td>TypeScript library</td><td>Shared domain types, Zod validation schemas, constants, formatting utilities reused across API and web apps.</td></tr>
+  <tr><td>Shared library (mobile)</td><td>@campus-verse/mobile-shared</td><td>TypeScript library</td><td>Shared mobile-specific code: API clients, auth store, biometric service, live-class UI components.</td></tr>
+  <tr><td>ESLint config</td><td>@campus-verse/eslint-config</td><td>Tooling package</td><td>Shared linting rules across the monorepo.</td></tr>
+</table>
+
+</section>
+
+<!-- ============================================ BACKEND ============================================ -->
+<section class="page">
+
+<h2>3. Backend Technology Stack (apps/api)</h2>
+
+<h3>3.1 Core runtime &amp; framework</h3>
+<table>
+  <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+  <tr><td class="k">Language</td><td class="v">TypeScript 5.7</td><td class="d">Strongly-typed superset of JavaScript; compiled to ES2022.</td></tr>
+  <tr><td class="k">Runtime</td><td class="v">Node.js 20 LTS</td><td class="d">JavaScript runtime; deployed via Alpine Linux Docker image.</td></tr>
+  <tr><td class="k">HTTP framework</td><td class="v">Express 4.21</td><td class="d">REST API server. All endpoints versioned under <em>/api/v1/</em>.</td></tr>
+  <tr><td class="k">Process supervisor (dev)</td><td class="v">tsx (watch mode)</td><td class="d">Hot-reload TypeScript execution during development.</td></tr>
+  <tr><td class="k">Schema validation</td><td class="v">Zod 3.23</td><td class="d">Request body / query / params validation; environment variable schema.</td></tr>
+</table>
+
+<h3>3.2 Data persistence</h3>
+<table>
+  <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+  <tr><td class="k">Primary database</td><td class="v">MongoDB 7.x</td><td class="d">NoSQL document store. Accessed via official native driver (not Mongoose). Connection pool: 10&ndash;50.</td></tr>
+  <tr><td class="k">Cache &amp; queues</td><td class="v">Redis 7.x</td><td class="d">Session blacklist, feature-flag cache, rate-limit store, Socket.IO adapter, BullMQ broker.</td></tr>
+  <tr><td class="k">Redis client</td><td class="v">ioredis 5.4</td><td class="d">Lazy connect, graceful degradation if Redis unavailable.</td></tr>
+  <tr><td class="k">Job queue</td><td class="v">BullMQ 5.x</td><td class="d">Asynchronous background jobs (email, exports, certificate generation).</td></tr>
+  <tr><td class="k">Object storage</td><td class="v">AWS S3 (@aws-sdk/client-s3)</td><td class="d">Uploaded documents, ID-card photos, certificates, attachments. Presigned URLs via @aws-sdk/s3-request-presigner.</td></tr>
+</table>
+
+<h3>3.3 Authentication, security &amp; compliance</h3>
+<table>
+  <tr><td class="k">JWT</td><td class="v">jsonwebtoken 9.0</td><td class="d">Access + refresh token issuance. Access secret &amp; refresh secret &ge; 32 chars (enforced by Zod env schema).</td></tr>
+  <tr><td class="k">Password hashing</td><td class="v">bcryptjs 2.4</td><td class="d">One-way password storage with per-record salt.</td></tr>
+  <tr><td class="k">HTTP hardening</td><td class="v">Helmet 8.0</td><td class="d">CSP, HSTS, X-Frame-Options, X-Content-Type-Options.</td></tr>
+  <tr><td class="k">CORS</td><td class="v">cors 2.8</td><td class="d">Origin allow-list per environment.</td></tr>
+  <tr><td class="k">Rate limiting</td><td class="v">express-rate-limit + rate-limit-redis</td><td class="d">API limiter (100/min), auth limiter (10/15min), bulk-op limiter (10/hr).</td></tr>
+  <tr><td class="k">Cookies</td><td class="v">cookie-parser 1.4</td><td class="d">Refresh-token cookie handling.</td></tr>
+</table>
+
+<h3>3.4 Real-time, communications &amp; integrations</h3>
+<table>
+  <tr><td class="k">WebSockets</td><td class="v">Socket.IO 4.8 + Redis adapter</td><td class="d">Real-time inbox, live-class events, presence, notifications.</td></tr>
+  <tr><td class="k">Live classroom</td><td class="v">LiveKit (livekit-server-sdk 2.15)</td><td class="d">WebRTC SFU integration for video/audio classrooms.</td></tr>
+  <tr><td class="k">Collaborative editing</td><td class="v">Yjs 13.6</td><td class="d">CRDT-based collaborative document state (lesson plans, whiteboards).</td></tr>
+  <tr><td class="k">Transactional email</td><td class="v">Resend 6.6 / Nodemailer 6.9</td><td class="d">System emails, OTPs, password resets, receipts.</td></tr>
+  <tr><td class="k">SMS</td><td class="v">Pluggable SMS provider (HTTP)</td><td class="d">OTP &amp; alerts via configurable gateway.</td></tr>
+  <tr><td class="k">Payments</td><td class="v">Razorpay 2.9</td><td class="d">Fee collection, online payments, webhooks.</td></tr>
+  <tr><td class="k">File uploads</td><td class="v">multer 1.4 + multer-s3 3.0</td><td class="d">Multipart upload handling with direct-to-S3 streaming.</td></tr>
+  <tr><td class="k">PDF generation</td><td class="v">PDFKit 0.15</td><td class="d">Receipts, hall tickets, ID cards, report cards, certificates.</td></tr>
+  <tr><td class="k">Excel export</td><td class="v">ExcelJS 4.4</td><td class="d">Bulk data exports (marks, attendance, finance reports).</td></tr>
+</table>
+
+<h3>3.5 Observability &amp; utilities</h3>
+<table>
+  <tr><td class="k">Structured logging</td><td class="v">Pino 9.5 + pino-http + pino-pretty</td><td class="d">JSON logs in production, pretty logs in development.</td></tr>
+  <tr><td class="k">Date/time</td><td class="v">dayjs 1.11 (timezone plugin)</td><td class="d">Default timezone <em>Asia/Kolkata</em>; academic year starts April.</td></tr>
+  <tr><td class="k">ID generation</td><td class="v">nanoid 5.0</td><td class="d">URL-safe unique identifiers.</td></tr>
+  <tr><td class="k">Env management</td><td class="v">dotenv 17.2</td><td class="d">Loads .env in development; validated by Zod schema.</td></tr>
+</table>
+
+</section>
+
+<!-- ============================================ WEB FRONTEND ============================================ -->
+<section class="page">
+
+<h2>4. Web Frontend Technology Stack (apps/web, apps/superadmin-web)</h2>
+
+<h3>4.1 Core framework</h3>
+<table>
+  <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+  <tr><td class="k">Language</td><td class="v">TypeScript 5.7</td><td class="d">Strong typing throughout the client.</td></tr>
+  <tr><td class="k">Application framework</td><td class="v">Next.js 16</td><td class="d">React framework with App Router, server components, edge-ready routing.</td></tr>
+  <tr><td class="k">UI library</td><td class="v">React 19.2</td><td class="d">Component-based UI rendering.</td></tr>
+  <tr><td class="k">Build tooling</td><td class="v">Next.js compiler (SWC) + PostCSS + Autoprefixer</td><td class="d">Compiles TSX, optimises bundles, transforms CSS.</td></tr>
+</table>
+
+<h3>4.2 State management &amp; data fetching</h3>
+<table>
+  <tr><td class="k">Client state</td><td class="v">Zustand 5.0</td><td class="d">Lightweight stores: authStore, branchStore, uiStore. Persisted via localStorage.</td></tr>
+  <tr><td class="k">Server state</td><td class="v">@tanstack/react-query 5.61</td><td class="d">Query caching, retries, mutations. Devtools enabled in dev.</td></tr>
+  <tr><td class="k">HTTP client</td><td class="v">Axios 1.7</td><td class="d">Interceptors handle Authorization &amp; X-Branch-Id headers, refresh-on-401 queueing.</td></tr>
+</table>
+
+<h3>4.3 UI components &amp; styling</h3>
+<table>
+  <tr><td class="k">Styling</td><td class="v">Tailwind CSS 3.4 + tailwind-merge + tailwindcss-animate</td><td class="d">Utility-first CSS; class-variance-authority for component variants.</td></tr>
+  <tr><td class="k">Headless primitives</td><td class="v">Radix UI (Dialog, Popover, Select, Tooltip, Tabs, DropdownMenu, etc.)</td><td class="d">Accessible, unstyled component primitives wrapped by shadcn/ui.</td></tr>
+  <tr><td class="k">Component system</td><td class="v">shadcn/ui (custom-tuned)</td><td class="d">Internal design system built on Radix + Tailwind.</td></tr>
+  <tr><td class="k">Icons</td><td class="v">lucide-react 0.460</td><td class="d">Open-source SVG icon set.</td></tr>
+  <tr><td class="k">Toasts &amp; notifications</td><td class="v">Sonner 1.7</td><td class="d">Toast notifications.</td></tr>
+  <tr><td class="k">Forms</td><td class="v">react-hook-form 7.53 + @hookform/resolvers + Zod 3.23</td><td class="d">Performant forms with schema-driven validation.</td></tr>
+  <tr><td class="k">Data tables</td><td class="v">@tanstack/react-table 8.20</td><td class="d">Headless tables with sorting, filtering, pagination.</td></tr>
+  <tr><td class="k">Drag &amp; drop</td><td class="v">@hello-pangea/dnd 18.0</td><td class="d">Kanban boards (admission pipeline, etc.).</td></tr>
+  <tr><td class="k">Charts</td><td class="v">Recharts 2.13</td><td class="d">Dashboards: enrolment, revenue, attendance trends.</td></tr>
+  <tr><td class="k">Calendar / dates</td><td class="v">react-day-picker 10.0 + date-fns 4.1</td><td class="d">Date pickers, almanac, scheduling.</td></tr>
+  <tr><td class="k">Command palette</td><td class="v">cmdk 1.0</td><td class="d">Cmd-K global search.</td></tr>
+</table>
+
+<h3>4.4 Specialised editors &amp; integrations</h3>
+<table>
+  <tr><td class="k">Rich text editor</td><td class="v">BlockNote 0.47 (core + react + shadcn + mantine)</td><td class="d">Block-based WYSIWYG editor for announcements &amp; lesson plans.</td></tr>
+  <tr><td class="k">Whiteboard</td><td class="v">@excalidraw/excalidraw 0.18</td><td class="d">Collaborative whiteboarding in live classes.</td></tr>
+  <tr><td class="k">Workflow diagrams</td><td class="v">@xyflow/react 12.10 + dagre 0.8</td><td class="d">Visual workflow editor with auto-layout.</td></tr>
+  <tr><td class="k">Live classroom client</td><td class="v">@livekit/components-react 2.9 + livekit-client 2.18</td><td class="d">Browser-side WebRTC for video classrooms.</td></tr>
+  <tr><td class="k">Real-time transport</td><td class="v">socket.io-client 4.8</td><td class="d">Real-time inbox, presence, live-class events.</td></tr>
+  <tr><td class="k">Collaboration CRDT</td><td class="v">yjs 13.6 + y-protocols 1.0</td><td class="d">Synchronised state for collaborative editing.</td></tr>
+  <tr><td class="k">Maps</td><td class="v">@react-google-maps/api 2.20 + use-places-autocomplete 4.0</td><td class="d">Transport-module: routes, stops, address autocomplete.</td></tr>
+  <tr><td class="k">Geographic data</td><td class="v">country-state-city 3.2</td><td class="d">Country/state/city dropdowns in forms.</td></tr>
+</table>
+
+</section>
+
+<!-- ============================================ MOBILE ============================================ -->
+<section class="page">
+
+<h2>5. Mobile Technology Stack (apps/mobile-student, apps/mobile-staff)</h2>
+
+<h3>5.1 Core framework</h3>
+<table>
+  <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+  <tr><td class="k">Language</td><td class="v">TypeScript 5.9</td><td class="d">Type-safe React Native code.</td></tr>
+  <tr><td class="k">Mobile framework</td><td class="v">React Native 0.81</td><td class="d">Cross-platform native UI for iOS &amp; Android.</td></tr>
+  <tr><td class="k">Toolchain</td><td class="v">Expo SDK 54</td><td class="d">Managed workflow, native modules, EAS Build, EAS Update (OTA).</td></tr>
+  <tr><td class="k">Navigation</td><td class="v">Expo Router 6.0 + @react-navigation/native 7.1 + bottom-tabs 7.0</td><td class="d">File-system based routing with native tabs &amp; stack.</td></tr>
+  <tr><td class="k">UI runtime</td><td class="v">React 19.1, React-DOM 19.1 (web target), react-native-web 0.21</td><td class="d">Single codebase rendering on iOS, Android, and web.</td></tr>
+</table>
+
+<h3>5.2 Styling, animation &amp; UX</h3>
+<table>
+  <tr><td class="k">Styling</td><td class="v">NativeWind 4.1 + react-native-css-interop + Tailwind 3.4</td><td class="d">Tailwind utility classes on native components.</td></tr>
+  <tr><td class="k">Animations</td><td class="v">react-native-reanimated 4.1 + react-native-worklets 0.5</td><td class="d">High-performance, GPU-accelerated animations on the UI thread.</td></tr>
+  <tr><td class="k">Safe area &amp; screens</td><td class="v">react-native-safe-area-context 5.6 + react-native-screens 4.16</td><td class="d">Native screen primitives &amp; notch-safe layouts.</td></tr>
+  <tr><td class="k">Blur &amp; visual effects</td><td class="v">expo-blur 15.0</td><td class="d">Native blur views for modals &amp; backgrounds.</td></tr>
+  <tr><td class="k">Icons &amp; fonts</td><td class="v">@expo/vector-icons 15.0 + @expo-google-fonts (DM Sans, Fraunces, JetBrains Mono)</td><td class="d">Branded typography &amp; iconography.</td></tr>
+</table>
+
+<h3>5.3 Device capabilities</h3>
+<table>
+  <tr><td class="k">Secure storage</td><td class="v">expo-secure-store 15.0 + react-native-mmkv 3.2</td><td class="d">Keychain/Keystore-backed secrets; high-performance KV cache.</td></tr>
+  <tr><td class="k">Biometric auth</td><td class="v">expo-local-authentication 16.0</td><td class="d">Face ID / Touch ID / fingerprint unlock.</td></tr>
+  <tr><td class="k">Push notifications</td><td class="v">expo-notifications 0.32 + expo-device 8.0</td><td class="d">APNs &amp; FCM push delivery.</td></tr>
+  <tr><td class="k">Deep linking</td><td class="v">expo-linking 8.0</td><td class="d">Universal links / app links.</td></tr>
+  <tr><td class="k">OTA updates</td><td class="v">expo-updates 29.0</td><td class="d">Over-the-air JavaScript updates via EAS Update.</td></tr>
+  <tr><td class="k">In-app browser</td><td class="v">expo-web-browser 15.0</td><td class="d">Authenticated browser sessions, payment redirects.</td></tr>
+  <tr><td class="k">Splash &amp; status bar</td><td class="v">expo-splash-screen 31.0 + expo-status-bar 3.0</td><td class="d">Branded launch experience.</td></tr>
+</table>
+
+<h3>5.4 Real-time &amp; data</h3>
+<table>
+  <tr><td class="k">Server state</td><td class="v">@tanstack/react-query 5.61</td><td class="d">Same query layer as web for consistent caching.</td></tr>
+  <tr><td class="k">Client state</td><td class="v">Zustand 5.0</td><td class="d">Auth store, UI state.</td></tr>
+  <tr><td class="k">HTTP client</td><td class="v">Axios 1.7</td><td class="d">Shared API client with web (token refresh, X-Branch-Id).</td></tr>
+  <tr><td class="k">Real-time</td><td class="v">socket.io-client 4.8</td><td class="d">Inbox, live-class events.</td></tr>
+  <tr><td class="k">Live classroom (native)</td><td class="v">@livekit/react-native 2.10 + @livekit/react-native-webrtc 144.0</td><td class="d">Native WebRTC stack for video classrooms.</td></tr>
+</table>
+
+</section>
+
+<!-- ============================================ SHARED + INFRA ============================================ -->
+<section class="page">
+
+<h2>6. Shared Packages</h2>
+<table>
+  <tr><th>Package</th><th>Contents</th><th>Consumers</th></tr>
+  <tr><td>@campus-verse/shared</td><td>Domain types (User, Tenant, Student, Lead, etc.), Zod schemas (loginSchema, etc.), constants (PERMISSIONS, LEAD_STAGES, STATUS enums), formatters (formatCurrency &mdash; INR, formatPhone &mdash; +91, formatCompactNumber &mdash; Cr/L/K).</td><td>API + Web + SuperAdmin</td></tr>
+  <tr><td>@campus-verse/mobile-shared</td><td>Mobile-specific API clients, auth store, biometric service, push-notification service, secure-storage wrapper, LiveClass UI components, design tokens &amp; fonts.</td><td>mobile-student + mobile-staff</td></tr>
+  <tr><td>@campus-verse/eslint-config</td><td>Shared ESLint flat-config rules for TypeScript/React/React-Native.</td><td>All apps &amp; packages</td></tr>
+</table>
+
+<h2>7. Infrastructure &amp; Deployment</h2>
+
+<h3>7.1 Containerisation</h3>
+<table>
+  <tr><td class="k">Container runtime</td><td class="v">Docker (multi-stage Alpine builds)</td><td class="d">Reproducible builds &amp; deploys. Production base image: node:20-alpine.</td></tr>
+  <tr><td class="k">Local orchestration</td><td class="v">Docker Compose</td><td class="d"><em>docker-compose.yml</em> for MongoDB+Redis dev infra; <em>docker-compose.prod.yml</em> for full production stack (API + Mongo + Redis + Nginx).</td></tr>
+</table>
+
+<h3>7.2 Hosting topology</h3>
+<table>
+  <tr><th>Component</th><th>Hosting</th><th>Notes</th></tr>
+  <tr><td>Web frontends (web, superadmin-web)</td><td>Vercel</td><td>Edge-deployed Next.js with automatic preview environments.</td></tr>
+  <tr><td>Backend API</td><td>Digital Ocean Droplet</td><td>Ubuntu LTS host running Docker, fronted by Nginx with Let's Encrypt TLS (Certbot).</td></tr>
+  <tr><td>MongoDB</td><td>Self-hosted on Droplet (containerised)</td><td>Configured via <em>infrastructure/mongo/mongod.conf</em>; nightly backups via cron.</td></tr>
+  <tr><td>Redis</td><td>Self-hosted on Droplet (containerised)</td><td>Used for caching, rate-limiting, queues, Socket.IO adapter.</td></tr>
+  <tr><td>Object storage</td><td>AWS S3</td><td>Uploads, certificates, generated PDFs.</td></tr>
+  <tr><td>Mobile binaries</td><td>EAS Build &mdash; Apple App Store &amp; Google Play Store</td><td>iOS &amp; Android builds, OTA updates via EAS Update.</td></tr>
+  <tr><td>TLS termination</td><td>Nginx + Certbot</td><td>HTTPS for all production domains.</td></tr>
+</table>
+
+<h3>7.3 Tooling, CI/CD &amp; quality</h3>
+<table>
+  <tr><td class="k">Monorepo orchestrator</td><td class="v">Turborepo 2.x</td><td class="d">Cached task graph: build, test, lint across all packages.</td></tr>
+  <tr><td class="k">Package manager</td><td class="v">pnpm 9.14 (workspaces)</td><td class="d">Disk-efficient, deterministic installs; <em>pnpm-lock.yaml</em> committed.</td></tr>
+  <tr><td class="k">Linting</td><td class="v">ESLint 9 (flat config) + typescript-eslint 8</td><td class="d">Shared rules from @campus-verse/eslint-config.</td></tr>
+  <tr><td class="k">Formatting</td><td class="v">Prettier 3.4</td><td class="d">Format-on-commit via lint-staged.</td></tr>
+  <tr><td class="k">Git hooks</td><td class="v">Husky 9 + lint-staged 15</td><td class="d">Pre-commit lint+format on changed files only.</td></tr>
+  <tr><td class="k">Testing (backend)</td><td class="v">Vitest 2.1 + @vitest/coverage-v8 + Supertest 7</td><td class="d">Unit + integration tests. Coverage thresholds: 80% line/func/stmt, 75% branch.</td></tr>
+  <tr><td class="k">Testing (web e2e)</td><td class="v">Playwright 1.49</td><td class="d">Browser-driven end-to-end tests for critical journeys.</td></tr>
+  <tr><td class="k">EAS Workflows</td><td class="v">expo-eas (cloud build/submit)</td><td class="d">Automated iOS/Android build &amp; submission pipelines.</td></tr>
+</table>
+
+<h2>8. Multi-Tenancy Model</h2>
+<p>
+  Each MongoDB document carries a <em>tenantId</em>, set from a verified JWT claim, scoping all
+  queries to the calling tenant. Branch-scoped endpoints additionally require an
+  <em>X-Branch-Id</em> HTTP header, validated against the user's access-scope. Feature
+  availability per tenant is enforced by a <em>requireModule()</em> middleware backed by a
+  5-minute Redis cache. Institution-type schemas (School, College, University) determine
+  the academic hierarchy: <em>Branch &rarr; Class (Grade/Stream/Department) &rarr; Section &rarr; Students</em>.
+</p>
+
+</section>
+
+<!-- ============================================ SUMMARY ============================================ -->
+<section class="page">
+
+<h2>9. Aggregate Dependency Summary</h2>
+<p>
+  The work depends on widely-adopted open-source libraries each with permissive licences
+  (MIT, Apache-2.0, ISC, BSD). All such third-party libraries are unmodified and used
+  exclusively as runtime/development dependencies; the original creative expression
+  &mdash; the architecture, business logic, data models, user interfaces, workflows and
+  source code &mdash; is wholly authored by Campus Verse.
+</p>
+
+<table>
+  <tr><th style="width:40%">Category</th><th>Representative components</th></tr>
+  <tr><td class="k">Languages</td><td>TypeScript, JavaScript, HTML, CSS, YAML, JSON, Bash (deploy scripts)</td></tr>
+  <tr><td class="k">Runtimes</td><td>Node.js 20 LTS, React 19, React Native 0.81, Expo SDK 54</td></tr>
+  <tr><td class="k">Frameworks</td><td>Express 4, Next.js 16, Expo Router 6, React Navigation 7</td></tr>
+  <tr><td class="k">Databases / stores</td><td>MongoDB 7, Redis 7, AWS S3</td></tr>
+  <tr><td class="k">Real-time / media</td><td>Socket.IO, LiveKit (SFU + client SDKs), WebRTC, Yjs CRDT</td></tr>
+  <tr><td class="k">UI &amp; design system</td><td>Tailwind CSS, Radix UI, shadcn/ui, NativeWind, Reanimated, Lucide</td></tr>
+  <tr><td class="k">Forms &amp; validation</td><td>react-hook-form, Zod, @hookform/resolvers</td></tr>
+  <tr><td class="k">State &amp; data</td><td>Zustand, TanStack Query, TanStack Table, Axios</td></tr>
+  <tr><td class="k">Auth &amp; security</td><td>JWT, bcrypt, Helmet, CORS, express-rate-limit, expo-secure-store, expo-local-authentication</td></tr>
+  <tr><td class="k">Files &amp; documents</td><td>multer, multer-s3, PDFKit, ExcelJS, BlockNote, Excalidraw</td></tr>
+  <tr><td class="k">Payments &amp; messaging</td><td>Razorpay, Resend, Nodemailer, configurable SMS provider</td></tr>
+  <tr><td class="k">Observability</td><td>Pino, pino-http</td></tr>
+  <tr><td class="k">DevOps</td><td>Docker, Docker Compose, Turborepo, pnpm workspaces, Nginx, Certbot, EAS Build/Update, Vercel</td></tr>
+  <tr><td class="k">Quality</td><td>ESLint, Prettier, Husky, lint-staged, Vitest, Playwright, Supertest</td></tr>
+</table>
+
+<h2>10. Declaration</h2>
+<p>
+  I, the undersigned, hereby declare that the technology-stack particulars set out
+  above are true and correct to the best of my knowledge and belief, and accurately
+  describe the technical composition of the computer program <strong>Campus Verse</strong>
+  for which copyright registration is sought. The third-party open-source libraries
+  enumerated herein are used under their respective permissive licences and form part
+  of the operating environment of the work; they do not constitute the creative
+  expression for which protection is claimed.
+</p>
+
+<div class="signblock">
+  <div class="signrow">
+    <div class="col">
+      <hr>
+      <div>Signature of Authorised Signatory</div>
+      <div class="small">Name: ________________________________</div>
+      <div class="small">Designation: __________________________</div>
+      <div class="small">For: __________________________________</div>
+    </div>
+    <div class="col">
+      <hr>
+      <div>Place &amp; Date</div>
+      <div class="small">Place: ________________________________</div>
+      <div class="small">Date: _________________________________</div>
+    </div>
+  </div>
+</div>
+
+<p class="small" style="margin-top:10mm; text-align:center; color:#555;">
+  &mdash; End of Technology Stack Statement &mdash;
+</p>
+
+</section>
+
+</body>
+</html>

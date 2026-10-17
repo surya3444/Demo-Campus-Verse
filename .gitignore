@@ -1,0 +1,58 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# This is a pnpm monorepo — never commit an npm lockfile
+# (EAS Build detects package manager by lockfile and will wrongly use npm
+#  if package-lock.json is present, breaking workspace:* resolution).
+package-lock.json
+
+# Build outputs
+dist
+.next
+out
+build
+.turbo
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.production
+!.env.example
+!.env.production.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+*.tsbuildinfo
+.eslintcache
+.prettiercache
+
+# Docker
+docker-compose.override.yml
+
+# Terraform
+.terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example

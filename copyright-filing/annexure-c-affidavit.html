@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Annexure D — Affidavit (Source Code Integrity) — Campus Verse</title>
+<style>
+  @page { size: A4; margin: 24mm 22mm; }
+  body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.55; color: #000; margin: 0; }
+  h1 { text-align: center; font-size: 15pt; margin: 0 0 2mm 0; letter-spacing: 0.5px; }
+  h2 { text-align: center; font-size: 11pt; font-weight: normal; font-style: italic; margin: 0 0 12mm 0; color: #333; }
+  .stamp-banner { text-align: center; margin-bottom: 14mm; padding: 4mm; border: 1px solid #888; font-size: 10pt; color: #444; }
+  ol { padding-left: 7mm; }
+  ol li { margin-bottom: 4mm; text-align: justify; }
+  .hash-block {
+    margin: 4mm 0 4mm 0;
+    padding: 4mm 6mm;
+    border-left: 3px solid #000;
+    background: #f6f6f4;
+    font-family: 'Courier New', monospace;
+    font-size: 10.5pt;
+    word-break: break-all;
+    letter-spacing: 0.4px;
+  }
+  .fill { color: #b00; font-style: italic; }
+  .signblock { margin-top: 14mm; }
+  .signrow { display: flex; justify-content: space-between; margin-top: 16mm; }
+  .signrow .col { width: 45%; }
+  .signrow hr { border: 0; border-top: 1px solid #000; margin: 0 0 1mm 0; }
+  .verify { margin-top: 14mm; padding-top: 6mm; border-top: 1px solid #999; }
+  .notary { margin-top: 14mm; padding: 6mm; border: 1.5px dashed #999; }
+  .small { font-size: 10pt; color: #444; }
+  p.foot { text-align: center; font-size: 9.5pt; color: #555; margin-top: 12mm; }
+</style>
+</head>
+<body>
+
+<div class="stamp-banner">
+  To be executed on Non-Judicial Stamp Paper of Rs. 100/- (Indian) <br>
+  <span class="small">(or as prescribed by the State; place stamp paper behind this page when filing)</span>
+</div>
+
+<h1>ANNEXURE D — AFFIDAVIT</h1>
+<h2>
+  In support of Application for Registration of Copyright<br>
+  under Section 45 of the Copyright Act, 1957 read with Rule 70 of the Copyright Rules, 2013
+</h2>
+
+<p>
+  I, <span class="fill">[AUTHOR FULL NAME]</span>, son/daughter of <span class="fill">[FATHER'S NAME]</span>, aged <span class="fill">[AGE]</span> years, residing at <span class="fill">[RESIDENTIAL ADDRESS]</span>, do hereby solemnly affirm and declare as under:
+</p>
+
+<ol>
+  <li>
+    That I am the author / co-author of the original computer software titled
+    <strong>“Campus Verse — Multi-Tenant ERP Platform for Educational Institutions”</strong>
+    (“the Work”), in respect of which a copyright application has been filed in
+    Form XIV before the Registrar of Copyrights, Government of India, New Delhi.
+  </li>
+
+  <li>
+    That the printed source-code extract enclosed with the said application —
+    being the <strong>first ten (10) pages</strong> and the <strong>last ten (10)
+    pages</strong> of the Work, paginated at fifty-five (55) lines per A4 page,
+    totalling twenty (20) pages, each signed by me — constitutes a
+    representative specimen of the Work and is drawn from the larger, complete
+    source code referenced below.
+  </li>
+
+  <li>
+    That the <strong>complete source code</strong> of the Work, comprising
+    <strong>{{FILE_COUNT}} source files</strong> and approximately
+    <strong>{{LINE_COUNT}} lines</strong> of code (totalling
+    <strong>{{PAGE_COUNT}} A4 pages</strong> at 55 lines per page), is
+    enclosed herewith on sealed media (USB drive / DVD-R) as <strong>Annexure
+    C</strong>, in a single ZIP archive named
+    <code>campus-verse-full-source.zip</code> of approximately
+    <strong>{{ZIP_SIZE_MB}} megabytes</strong>.
+  </li>
+
+  <li>
+    That the SHA-256 cryptographic hash of the said ZIP archive, computed at
+    the time of sealing, is:
+    <div class="hash-block">{{SHA256}}</div>
+    The said hash is also printed on the physical seal of the media and on the
+    cover of the printed source-code extract for cross-reference.
+  </li>
+
+  <li>
+    That the said sealed media has been signed across the seal by me. Any
+    tampering with the seal or any alteration of the archive shall be
+    detectable by re-computing the SHA-256 hash and comparing it with the hash
+    recorded in paragraph 4 hereinabove. No alteration to the archive is
+    possible without producing a different hash.
+  </li>
+
+  <li>
+    That the complete source code on the said media is original to me, has
+    been independently authored, and is not a copy or substantial reproduction
+    of any third-party work. The Work makes use of widely-available
+    open-source libraries and frameworks (each used under its respective
+    permissive licence — MIT, Apache 2.0 and similar) as tools to express the
+    Work, but no third-party code is reproduced as part of, nor claimed as,
+    the Work being registered.
+  </li>
+
+  <li>
+    That I have read the contents of the present Affidavit and understood the
+    same. The contents hereof are true to my own knowledge, no part of it is
+    false, and nothing material has been concealed therefrom.
+  </li>
+</ol>
+
+<div class="signblock">
+  <p>Solemnly affirmed at <span class="fill">[PLACE]</span> on this <span class="fill">[DAY]</span> day of <span class="fill">[MONTH]</span>, 20<span class="fill">[YY]</span>.</p>
+  <div class="signrow">
+    <div class="col">
+      <hr>
+      <strong>DEPONENT</strong><br>
+      <span class="small">Name: [AUTHOR FULL NAME]</span><br>
+      <span class="small">Aadhaar / PAN: [_______________]</span>
+    </div>
+  </div>
+</div>
+
+<div class="verify">
+  <p style="margin:0 0 4mm 0;"><strong>VERIFICATION</strong></p>
+  <p>
+    Verified at <span class="fill">[PLACE]</span> on this <span class="fill">[DAY]</span> day of <span class="fill">[MONTH]</span>, 20<span class="fill">[YY]</span>, that the contents of paragraphs 1 to 7 of the above Affidavit are true and correct to my knowledge and belief, and nothing material has been concealed therefrom.
+  </p>
+  <div class="signrow">
+    <div class="col">
+      <hr>
+      <strong>DEPONENT</strong>
+    </div>
+  </div>
+</div>
+
+<div class="notary">
+  <p style="margin:0 0 6mm 0; text-align:center;">
+    <strong>SOLEMNLY AFFIRMED AND DECLARED before me</strong><br>
+    on this <span class="fill">[__]</span> day of <span class="fill">[__________]</span>, 20<span class="fill">[__]</span><br>
+    at <span class="fill">[_____________________________]</span>
+  </p>
+  <div class="signrow">
+    <div class="col">
+      <hr>
+      <strong>NOTARY PUBLIC</strong><br>
+      <span class="small">Seal &amp; Signature</span><br>
+      <span class="small">Registration No.: [_______________]</span>
+    </div>
+  </div>
+</div>
+
+<p class="foot">
+  Annexure D · Affidavit accompanying Form XIV · Page 1 of 1
+</p>
+
+</body>
+</html>
