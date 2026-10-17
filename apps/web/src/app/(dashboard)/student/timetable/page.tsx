@@ -7,6 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Clock } from 'lucide-react';
+import { TimetableCell } from '@/components/timetable/TimetableCell';
+import { subjectColors } from '@/components/timetable/subjectColors';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -19,8 +21,11 @@ interface TimetableEntry {
   slotOrder: number;
   slotType: string;
   dayOfWeek: number;
+  subjectId: string;
   subjectName: string;
   teacherName: string;
+  batchName?: string | null;
+  roomNumber?: string | null;
 }
 
 export default function StudentTimetablePage() {
@@ -72,16 +77,18 @@ export default function StudentTimetablePage() {
     return Array.from(slotMap.values()).sort((a, b) => a.slotOrder - b.slotOrder);
   }, [entries]);
 
-  // Build lookup: dayOfWeek -> slotId -> entry
+  // Build lookup: dayOfWeek -> slotId -> entries (lab batches share a period)
   const entryMap = useMemo(() => {
-    const map = new Map<string, Map<string, TimetableEntry>>();
+    const map = new Map<string, Map<string, TimetableEntry[]>>();
     for (const entry of entries) {
       const key = `${entry.dayOfWeek}`;
       if (!map.has(key)) map.set(key, new Map());
-      map.get(key)!.set(entry.slotId, entry);
+      const day = map.get(key)!;
+      day.set(entry.slotId, [...(day.get(entry.slotId) ?? []), entry]);
     }
     return map;
   }, [entries]);
+  const color = useMemo(() => subjectColors(entries.map((e) => e.subjectId)), [entries]);
 
   const weekDays = [1, 2, 3, 4, 5, 6];
 
@@ -164,9 +171,9 @@ export default function StudentTimetablePage() {
                           );
                         }
 
-                        const entry = entryMap.get(`${day}`)?.get(slot.slotId);
+                        const here = entryMap.get(`${day}`)?.get(slot.slotId);
 
-                        if (!entry) {
+                        if (!here?.length) {
                           return (
                             <td key={day} className="p-2 text-center text-xs text-muted-foreground">
                               -
@@ -177,12 +184,18 @@ export default function StudentTimetablePage() {
                         return (
                           <td
                             key={day}
-                            className={`p-2 text-center ${day === today ? 'bg-primary/5' : ''}`}
+                            className={`space-y-1 p-1 align-top ${day === today ? 'bg-primary/5' : ''}`}
                           >
-                            <p className="text-xs font-medium">{entry.subjectName || '-'}</p>
-                            <p className="text-[10px] text-muted-foreground">
-                              {entry.teacherName || ''}
-                            </p>
+                            {here.map((entry) => (
+                              <TimetableCell
+                                key={entry._id}
+                                subjectName={entry.subjectName || '-'}
+                                teacherName={entry.teacherName}
+                                batchName={entry.batchName}
+                                room={entry.roomNumber ?? undefined}
+                                color={color(entry.subjectId)}
+                              />
+                            ))}
                           </td>
                         );
                       })}

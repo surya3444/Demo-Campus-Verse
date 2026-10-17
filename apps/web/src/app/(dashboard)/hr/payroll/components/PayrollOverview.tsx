@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { reduceMotion, useCountUp } from '@/hooks/useCountUp';
 import {
   Bar,
   BarChart,
@@ -60,27 +61,6 @@ function inr(n: number) {
   if (n >= 1e7) return `₹${(n / 1e7).toFixed(2)} Cr`;
   if (n >= 1e5) return `₹${(n / 1e5).toFixed(1)} L`;
   return `₹${Math.round(n).toLocaleString('en-IN')}`;
-}
-
-const reduceMotion = () =>
-  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-/** Counts up to `target` once (eased); instant for reduced-motion users. */
-function useCountUp(target: number, duration = 1100) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    if (!target || reduceMotion()) return setValue(target);
-    let frame = 0;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      setValue(target * (1 - Math.pow(1 - t, 3)));
-      if (t < 1) frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [target, duration]);
-  return value;
 }
 
 /** Fills from 0 to `pct` just after mount, so bars and meters grow in. */

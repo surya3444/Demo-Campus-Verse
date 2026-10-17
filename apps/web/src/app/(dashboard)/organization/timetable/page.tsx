@@ -1,9 +1,9 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { CalendarClock, Loader2, MapPin, Trash2 } from 'lucide-react';
+import { CalendarClock, Loader2, MapPin, Trash2, Wand2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHero } from '@/components/ui/page-hero';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,10 @@ import {
   type Subject,
 } from './PeriodDialog';
 import { LabBatchesDialog, type LabBatch } from './LabBatchesDialog';
+import { GenerateDialog } from './GenerateDialog';
+import { TimetableCell } from '@/components/timetable/TimetableCell';
+import { BREAK_ROW, subjectColors } from '@/components/timetable/subjectColors';
+import { cn } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -112,6 +116,8 @@ function Timetable() {
   const [batchesOpen, setBatchesOpen] = useState(false);
   const [batches, setBatches] = useState<LabBatch[]>([]);
   const [clearOpen, setClearOpen] = useState(false);
+  const [genOpen, setGenOpen] = useState(false);
+  const today = new Date().getDay();
 
   const [classes, setClasses] = useState<ClassRow[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -220,6 +226,7 @@ function Timetable() {
   );
   const sectionOptions = classes.find((c) => c._id === classId)?.sections ?? [];
 
+  const color = useMemo(() => subjectColors(entries.map((e) => e.subjectId)), [entries]);
   const cellEntries = (slotId: string, day: number) =>
     entries.filter((e) => e.slotId === slotId && e.dayOfWeek === day);
   /** The slot straight after this one, if it's a class period (for double labs). */
@@ -276,16 +283,27 @@ function Timetable() {
         description="One place to build and read timetables: by section to plan a class's week, by teacher to see anyone's load."
       />
 
-      <div className="inline-flex rounded-lg border bg-muted/40 p-1 text-sm">
-        {(['section', 'teacher'] as const).map((v) => (
-          <button
-            key={v}
-            onClick={() => setQuery({ view: v === 'teacher' ? 'teacher' : null })}
-            className={`rounded-md px-3 py-1.5 font-medium transition-colors ${view === v ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="inline-flex rounded-lg border bg-muted/40 p-1 text-sm">
+          {(['section', 'teacher'] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setQuery({ view: v === 'teacher' ? 'teacher' : null })}
+              className={`rounded-md px-3 py-1.5 font-medium transition-colors ${view === v ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              {v === 'section' ? 'By section' : 'By teacher'}
+            </button>
+          ))}
+        </div>
+        {canEdit && (
+          <Button
+            onClick={() => setGenOpen(true)}
+            className="ml-auto gap-2 shadow-sm"
           >
-            {v === 'section' ? 'By section' : 'By teacher'}
-          </button>
-        ))}
+            <Wand2 className="h-4 w-4" />
+            Auto-generate timetable
+          </Button>
+        )}
       </div>
 
       {view === 'teacher' && (
@@ -471,12 +489,23 @@ function Timetable() {
               </p>
               <div className="overflow-x-auto rounded-xl border bg-card">
                 <table className="w-full min-w-[860px] table-fixed text-sm">
-                  <thead className="border-b bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                  <thead className="border-b bg-gradient-to-r from-primary/10 via-violet-500/10 to-fuchsia-500/10 text-xs uppercase tracking-wider">
                     <tr>
-                      <th className="w-28 px-3 py-2.5 text-left">Period</th>
+                      <th className="w-28 px-3 py-2.5 text-left text-muted-foreground">Period</th>
                       {DAYS.map((d) => (
-                        <th key={d.n} className="px-2 py-2.5 text-left">
+                        <th
+                          key={d.n}
+                          className={cn(
+                            'px-2 py-2.5 text-left font-semibold text-foreground/80',
+                            d.n === today && 'text-primary'
+                          )}
+                        >
                           {d.label}
+                          {d.n === today && (
+                            <span className="ml-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[9px] text-primary-foreground">
+                              Today
+                            </span>
+                          )}
                         </th>
                       ))}
                     </tr>
@@ -484,7 +513,7 @@ function Timetable() {
                   <tbody className="divide-y">
                     {slots.map((slot) =>
                       slot.type !== 'period' ? (
-                        <tr key={slot._id} className="bg-muted/30">
+                        <tr key={slot._id} className={BREAK_ROW}>
                           <td className="px-3 py-1.5 text-xs text-muted-foreground">
                             {slot.startTime}–{slot.endTime}
                           </td>
@@ -506,32 +535,32 @@ function Timetable() {
                           {DAYS.map((d) => {
                             const here = cellEntries(slot._id, d.n);
                             return (
-                              <td key={d.n} className="p-1 align-top">
+                              <td
+                                key={d.n}
+                                className={cn(
+                                  'p-1 align-top',
+                                  d.n === today && 'bg-primary/[0.03]'
+                                )}
+                              >
                                 <button
                                   disabled={!canEdit}
                                   onClick={() => setEditing({ slot, day: d.n })}
-                                  className="h-full min-h-14 w-full rounded-lg border border-transparent p-1.5 text-left transition-colors hover:border-primary/40 hover:bg-primary/[0.04] disabled:cursor-default"
+                                  className="group h-full min-h-14 w-full space-y-1 rounded-lg border border-transparent p-0.5 text-left transition-all hover:-translate-y-px hover:border-primary/40 hover:shadow-sm disabled:cursor-default disabled:hover:translate-y-0 disabled:hover:shadow-none"
                                 >
                                   {here.length === 0 ? (
-                                    <span className="text-xs text-muted-foreground/60">
+                                    <span className="flex min-h-12 items-center justify-center rounded-md border border-dashed border-transparent text-xs text-muted-foreground/50 group-hover:border-primary/30 group-hover:text-primary">
                                       {canEdit ? '+ Add' : ''}
                                     </span>
                                   ) : (
                                     here.map((e) => (
-                                      <span key={e._id} className="block">
-                                        <span className="block truncate text-xs font-semibold">
-                                          {e.batchName && (
-                                            <span className="mr-1 rounded bg-primary/10 px-1 text-[10px] font-semibold text-primary">
-                                              {e.batchName}
-                                            </span>
-                                          )}
-                                          {e.subjectName}
-                                        </span>
-                                        <span className="block truncate text-[11px] text-muted-foreground">
-                                          {e.teacherName}
-                                          {e.roomNumber ? ` · ${e.roomNumber}` : ''}
-                                        </span>
-                                      </span>
+                                      <TimetableCell
+                                        key={e._id}
+                                        subjectName={e.subjectName}
+                                        teacherName={e.teacherName}
+                                        batchName={e.batchName}
+                                        room={e.roomNumber ?? undefined}
+                                        color={color(e.subjectId)}
+                                      />
                                     ))
                                   )}
                                 </button>
@@ -607,6 +636,15 @@ function Timetable() {
           onManageBatches={() => setBatchesOpen(true)}
         />
       )}
+
+      <GenerateDialog
+        open={genOpen}
+        onClose={() => setGenOpen(false)}
+        classes={classes}
+        programs={programs}
+        defaultProgramId={programId || cls?.programId || undefined}
+        onApplied={load}
+      />
 
       {sectionId && section && (
         <LabBatchesDialog

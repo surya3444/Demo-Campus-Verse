@@ -3,11 +3,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { teachingApi } from '@/lib/api';
+import { TimetableCell } from '@/components/timetable/TimetableCell';
+import { subjectColors } from '@/components/timetable/subjectColors';
 
 interface TeacherEntry {
   _id: string;
   sectionId: string;
   sectionName: string;
+  subjectId: string;
   className: string;
   subjectName: string;
   startTime: string;
@@ -60,6 +63,7 @@ export function TeacherWeek({
     [entries]
   );
 
+  const color = subjectColors((entries ?? []).map((e) => e.subjectId));
   if (error) return <p className="text-sm text-destructive">{error}</p>;
   if (!entries) {
     return (
@@ -88,11 +92,11 @@ export function TeacherWeek({
       </p>
       <div className="overflow-x-auto rounded-xl border bg-card">
         <table className="w-full min-w-[820px] table-fixed text-sm">
-          <thead className="border-b bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+          <thead className="border-b bg-gradient-to-r from-primary/10 via-violet-500/10 to-fuchsia-500/10 text-xs uppercase tracking-wider">
             <tr>
-              <th className="w-28 px-3 py-2.5 text-left">Time</th>
+              <th className="w-28 px-3 py-2.5 text-left text-muted-foreground">Time</th>
               {DAYS.map((d) => (
-                <th key={d.n} className="px-2 py-2.5 text-left">
+                <th key={d.n} className="px-2 py-2.5 text-left font-semibold text-foreground/80">
                   {d.label}
                 </th>
               ))}
@@ -113,32 +117,25 @@ export function TeacherWeek({
                         const where = `${e.className.split(' · ').pop()} · ${e.sectionName}`;
                         const full = `${e.className.split(' · ').slice(-2).join(' · ')} · Section ${e.sectionName}`;
                         const body = (
-                          <>
-                            <span className="block truncate text-xs font-semibold">
-                              {e.batchName && (
-                                <span className="mr-1 rounded bg-primary/10 px-1 text-[10px] font-semibold text-primary">
-                                  {e.batchName}
-                                </span>
-                              )}
-                              {e.subjectName}
-                            </span>
-                            <span className="block truncate text-[11px] text-muted-foreground">
-                              {where}
-                              {e.roomNumber ? ` · ${e.roomNumber}` : ''}
-                            </span>
-                          </>
+                          <TimetableCell
+                            subjectName={e.subjectName}
+                            teacherName={where}
+                            batchName={e.batchName}
+                            room={e.roomNumber ?? undefined}
+                            color={color(e.subjectId)}
+                          />
                         );
                         return onOpenSection ? (
                           <button
                             key={e._id}
                             onClick={() => onOpenSection(e.sectionId)}
-                            className="block w-full rounded-lg p-1.5 text-left hover:bg-primary/[0.05]"
+                            className="block w-full rounded-lg p-0.5 text-left transition-transform hover:-translate-y-px"
                             title={`Open ${full}`}
                           >
                             {body}
                           </button>
                         ) : (
-                          <span key={e._id} className="block p-1.5" title={full}>
+                          <span key={e._id} className="block p-0.5" title={full}>
                             {body}
                           </span>
                         );

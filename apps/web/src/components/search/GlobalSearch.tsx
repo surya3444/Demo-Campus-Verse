@@ -11,7 +11,6 @@ import {
   Bus,
   CalendarDays,
   ClipboardList,
-  Clock,
   CornerDownLeft,
   FileText,
   GraduationCap,
@@ -54,10 +53,12 @@ function scorePage(entry: PageEntry, q: string): number {
   if (label.startsWith(q)) return 80;
   if (label.split(/\s+/).some((w) => w.startsWith(q))) return 60;
   if (full.includes(q)) return 40;
-  // "fc" → "Fee Counter": every letter, in order.
-  let i = 0;
-  for (const ch of full) if (ch === q[i]) i++;
-  return i === q.length ? 10 : 0;
+  // "fc" → "Fee Counter": the label's word initials.
+  const initials = label
+    .split(/\s+/)
+    .map((w) => w[0])
+    .join('');
+  return initials.startsWith(q) ? 10 : 0;
 }
 
 function usePageEntries(): PageEntry[] {
@@ -105,27 +106,6 @@ function usePageEntries(): PageEntry[] {
   }, [sections]);
 }
 
-// ── Recent picks (per browser, best effort) ─────────────────────────────────
-
-const RECENT_KEY = 'cv-search-recent';
-type Recent = { key: string; title: string; subtitle?: string; href: string; group: string };
-
-function readRecent(): Recent[] {
-  try {
-    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]') as Recent[];
-  } catch {
-    return [];
-  }
-}
-function pushRecent(item: Recent) {
-  try {
-    const next = [item, ...readRecent().filter((r) => r.key !== item.key)].slice(0, 6);
-    localStorage.setItem(RECENT_KEY, JSON.stringify(next));
-  } catch {
-    // storage blocked: recents are a nicety
-  }
-}
-
 // ── Small display helpers ───────────────────────────────────────────────────
 
 function Highlight({ text, query }: { text: string; query: string }) {
@@ -135,7 +115,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
   return (
     <>
       {text.slice(0, i)}
-      <mark className="rounded-sm bg-amber-200/70 px-0.5 text-inherit dark:bg-amber-500/30">
+      <mark className="rounded-[3px] bg-[hsl(var(--brand-cyan,199_89%_48%)/0.18)] font-semibold text-primary dark:text-sky-300">
         {text.slice(i, i + query.length)}
       </mark>
       {text.slice(i + query.length)}
@@ -238,7 +218,10 @@ const GROUPS: Array<{ key: string; label: string; render: Renderer }> = [
             )}
           </div>
           <p className="truncate text-xs text-muted-foreground">
-            {[h.meta?.className, h.meta?.sectionName && `Section ${s(h.meta.sectionName)}`]
+            {[
+              s(h.meta?.className).split(' · ').slice(-2).join(' · '),
+              h.meta?.sectionName && `Section ${s(h.meta.sectionName)}`,
+            ]
               .filter(Boolean)
               .join(' · ') || 'No class assigned'}
           </p>
@@ -524,9 +507,19 @@ const GROUPS: Array<{ key: string; label: string; render: Renderer }> = [
 ];
 
 const itemClass =
-  'flex cursor-pointer select-none items-center gap-3 rounded-lg px-3 py-2 text-sm outline-none data-[selected=true]:bg-accent/10 data-[selected=true]:text-foreground';
+  'group/item relative flex cursor-pointer select-none items-center gap-3 rounded-xl px-3 py-2.5 text-sm outline-none transition-colors before:absolute before:inset-y-2 before:left-0 before:w-[3px] before:rounded-full before:bg-primary before:opacity-0 before:transition-opacity data-[selected=true]:bg-primary/[0.06] data-[selected=true]:before:opacity-100 dark:data-[selected=true]:bg-primary/20';
 const groupClass =
-  '[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground';
+  'motion-safe:animate-fade-in [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-4 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground';
+
+/** Group heading with a result count. */
+const heading = (label: string, n: number) => (
+  <span className="flex items-center gap-2">
+    {label}
+    <span className="rounded-full bg-muted px-1.5 py-px text-[10px] font-semibold tabular-nums tracking-normal">
+      {n}
+    </span>
+  </span>
+);
 
 // ── The palette ─────────────────────────────────────────────────────────────
 
@@ -541,7 +534,6 @@ export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
-  const [recent, setRecent] = useState<Recent[]>([]);
 
   // ⌘K / Ctrl+K anywhere, and "/" when not typing in a field.
   useEffect(() => {
@@ -557,8 +549,7 @@ export function GlobalSearch() {
   }, []);
 
   useEffect(() => {
-    if (open) setRecent(readRecent());
-    else setQuery('');
+    if (!open) setQuery('');
   }, [open]);
 
   useEffect(() => {
@@ -588,9 +579,11 @@ export function GlobalSearch() {
   const pageResults = pageHits.filter((p) => p.kind === 'page').slice(0, 6);
   const settingsResults = pageHits.filter((p) => p.kind === 'settings').slice(0, 4);
 
+  // A few everyday pages to jump to before typing.
+  const quick = useMemo(() => pages.filter((p) => p.kind === 'page').slice(0, 6), [pages]);
+
   const go = useCallback(
-    (href: string, recentItem: Recent, group?: string, hitId?: string) => {
-      pushRecent(recentItem);
+    (href: string, group?: string, hitId?: string) => {
       setOpen(false);
       if (group === 'campuses' && hitId) {
         setSelectedBranchId(hitId);
@@ -614,15 +607,7 @@ export function GlobalSearch() {
     <CommandPrimitive.Item
       key={`page:${p.key}`}
       value={`page:${p.key}`}
-      onSelect={() =>
-        go(p.href, {
-          key: `page:${p.key}`,
-          title: p.label,
-          subtitle: p.crumb,
-          href: p.href,
-          group: p.kind,
-        })
-      }
+      onSelect={() => go(p.href)}
       className={itemClass}
     >
       <IconTile icon={p.icon} tone="bg-primary/10 text-primary" />
@@ -632,7 +617,7 @@ export function GlobalSearch() {
         </span>
         {p.crumb && <p className="truncate text-xs text-muted-foreground">{p.crumb}</p>}
       </div>
-      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+      <ArrowRight className="h-4 w-4 shrink-0 -translate-x-1 text-primary opacity-0 transition-all group-data-[selected=true]/item:translate-x-0 group-data-[selected=true]/item:opacity-100" />
     </CommandPrimitive.Item>
   );
 
@@ -654,11 +639,17 @@ export function GlobalSearch() {
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="top-[12vh] max-w-2xl translate-y-0 gap-0 overflow-hidden p-0 [&>button]:hidden">
+        <DialogContent className="top-[10vh] max-w-2xl translate-y-0 gap-0 overflow-hidden rounded-2xl border-0 p-0 shadow-2xl ring-1 ring-primary/10 [&>button]:hidden">
           <DialogTitle className="sr-only">Search</DialogTitle>
           <CommandPrimitive shouldFilter={false} loop className="flex flex-col">
-            <div className="flex items-center gap-3 border-b px-4">
-              <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
+            <div className="relative flex items-center gap-3 border-b bg-gradient-to-b from-primary/[0.04] to-transparent px-4 py-1">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+                {isFetching ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Search className="h-4 w-4" />
+                )}
+              </span>
               <CommandPrimitive.Input
                 autoFocus
                 value={query}
@@ -668,76 +659,95 @@ export function GlobalSearch() {
                     ? 'Search pages…'
                     : 'Search by name, roll no., admission no., receipt, bus, course…'
                 }
-                className="h-14 flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
+                className="h-14 flex-1 border-0 bg-transparent text-base shadow-none outline-none ring-0 placeholder:text-muted-foreground/70 focus:outline-none ![box-shadow:none] focus-visible:outline-none"
               />
-              {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
-              <kbd className="rounded-md border px-1.5 py-0.5 text-[11px] text-muted-foreground">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="rounded-md border bg-background px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground shadow-sm hover:text-foreground"
+              >
                 esc
-              </kbd>
+              </button>
             </div>
 
-            <CommandPrimitive.List className="max-h-[60vh] overflow-y-auto overscroll-contain px-2 pb-2">
-              {!q && recent.length > 0 && (
-                <CommandPrimitive.Group heading="Recent" className={groupClass}>
-                  {recent.map((r) => (
-                    <CommandPrimitive.Item
-                      key={r.key}
-                      value={`recent:${r.key}`}
-                      onSelect={() => go(r.href, r)}
-                      className={itemClass}
-                    >
-                      <IconTile icon={Clock} tone="bg-muted text-muted-foreground" />
-                      <div className="min-w-0 flex-1">
-                        <span className="truncate font-medium">{r.title}</span>
-                        {r.subtitle && (
-                          <p className="truncate text-xs text-muted-foreground">{r.subtitle}</p>
-                        )}
-                      </div>
-                    </CommandPrimitive.Item>
-                  ))}
-                </CommandPrimitive.Group>
-              )}
-
+            <CommandPrimitive.List className="max-h-[calc(70vh-7.5rem)] overflow-y-auto overscroll-contain px-2 pb-2">
               {!q && (
-                <div className="px-3 py-6 text-center text-sm text-muted-foreground">
-                  {isStudent ? (
-                    'Type to jump to any page in your portal.'
-                  ) : (
-                    <>
-                      Search everything you have access to: students by name or roll number, staff,
-                      fee receipts, admissions, programs, subjects, exams, buses and every page and
-                      setting.
-                    </>
+                <div className="px-2 pb-2 pt-4 motion-safe:animate-fade-in">
+                  <p className="px-1 pb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                    Jump to
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {quick.map((p, i) => (
+                      <CommandPrimitive.Item
+                        key={p.key}
+                        value={`quick:${p.key}`}
+                        onSelect={() => go(p.href)}
+                        className="group/item flex cursor-pointer items-center gap-2.5 rounded-xl border bg-card p-2.5 text-sm outline-none transition-all hover:-translate-y-px hover:shadow-sm data-[selected=true]:border-primary/40 data-[selected=true]:bg-primary/[0.05] motion-safe:animate-fade-up [animation-fill-mode:both]"
+                        style={{ animationDelay: `${i * 35}ms` }}
+                      >
+                        <IconTile icon={p.icon} tone="bg-primary/10 text-primary" />
+                        <span className="min-w-0">
+                          <span className="block truncate font-medium">{p.label}</span>
+                          {p.crumb && (
+                            <span className="block truncate text-[11px] text-muted-foreground">
+                              {p.crumb}
+                            </span>
+                          )}
+                        </span>
+                      </CommandPrimitive.Item>
+                    ))}
+                  </div>
+                  {!isStudent && (
+                    <div className="mt-4 rounded-xl bg-muted/50 px-3 py-3">
+                      <p className="text-xs font-medium">Search across your campus</p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {[
+                          [GraduationCap, 'Students & roll no.'],
+                          [UserRound, 'Staff'],
+                          [Receipt, 'Fee receipts'],
+                          [ClipboardList, 'Admissions'],
+                          [BookOpen, 'Programs & subjects'],
+                          [FileText, 'Exams'],
+                          [Bus, 'Buses & stops'],
+                          [Megaphone, 'Announcements'],
+                        ].map(([Icon, label]) => {
+                          const I = Icon as LucideIcon;
+                          return (
+                            <span
+                              key={label as string}
+                              className="inline-flex items-center gap-1 rounded-full border bg-background px-2 py-0.5 text-[11px] text-muted-foreground"
+                            >
+                              <I className="h-3 w-3 text-primary" />
+                              {label as string}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
 
               {pageResults.length > 0 && (
-                <CommandPrimitive.Group heading="Pages" className={groupClass}>
+                <CommandPrimitive.Group
+                  heading={heading('Pages', pageResults.length)}
+                  className={groupClass}
+                >
                   {pageResults.map(pageItem)}
                 </CommandPrimitive.Group>
               )}
 
               {remoteGroups.map((g) => (
-                <CommandPrimitive.Group key={g.key} heading={g.label} className={groupClass}>
+                <CommandPrimitive.Group
+                  key={g.key}
+                  heading={heading(g.label, remote?.[g.key]?.length ?? 0)}
+                  className={groupClass}
+                >
                   {(remote?.[g.key] ?? []).map((hit) => (
                     <CommandPrimitive.Item
                       key={`${g.key}:${hit.id}`}
                       value={`${g.key}:${hit.id}`}
-                      onSelect={() =>
-                        go(
-                          hit.href,
-                          {
-                            key: `${g.key}:${hit.id}`,
-                            title: hit.title,
-                            subtitle: g.label,
-                            href: hit.href,
-                            group: g.key,
-                          },
-                          g.key,
-                          hit.id
-                        )
-                      }
+                      onSelect={() => go(hit.href, g.key, hit.id)}
                       className={itemClass}
                     >
                       {g.render(hit, q)}
@@ -747,7 +757,10 @@ export function GlobalSearch() {
               ))}
 
               {settingsResults.length > 0 && (
-                <CommandPrimitive.Group heading="Settings" className={groupClass}>
+                <CommandPrimitive.Group
+                  heading={heading('Settings', settingsResults.length)}
+                  className={groupClass}
+                >
                   {settingsResults.map(pageItem)}
                 </CommandPrimitive.Group>
               )}
@@ -759,7 +772,10 @@ export function GlobalSearch() {
               )}
 
               {nothing && (
-                <div className="px-3 py-10 text-center">
+                <div className="flex flex-col items-center px-3 py-10 text-center motion-safe:animate-fade-in">
+                  <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+                    <Search className="h-5 w-5" />
+                  </span>
                   <p className="text-sm font-medium">No results for “{q}”</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Only records you have access to in the current campus are searched.
@@ -768,18 +784,26 @@ export function GlobalSearch() {
               )}
             </CommandPrimitive.List>
 
-            <div className="flex items-center gap-4 border-t bg-muted/30 px-4 py-2 text-[11px] text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <kbd className="rounded border bg-background px-1">↑</kbd>
-                <kbd className="rounded border bg-background px-1">↓</kbd> navigate
+            <div className="flex shrink-0 items-center gap-4 border-t bg-muted/40 px-4 py-2.5 text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded-md border bg-background px-1 shadow-sm">
+                  ↑
+                </kbd>
+                <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded-md border bg-background px-1 shadow-sm">
+                  ↓
+                </kbd>
+                navigate
               </span>
-              <span className="flex items-center gap-1">
-                <kbd className="rounded border bg-background px-1">
+              <span className="flex items-center gap-1.5">
+                <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded-md border bg-background px-1 shadow-sm">
                   <CornerDownLeft className="h-3 w-3" />
                 </kbd>
                 open
               </span>
-              <span className="ml-auto hidden sm:inline">Results follow your role and access</span>
+              <span className="ml-auto hidden items-center gap-1.5 sm:inline-flex">
+                <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--brand-cyan,199_89%_48%))]" />
+                Results follow your role and access
+              </span>
             </div>
           </CommandPrimitive>
         </DialogContent>

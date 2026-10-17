@@ -58,6 +58,22 @@ const timetableSubjectRowSchema = z.object({
   linkedSectionIds: z.array(objectIdSchema).optional().default([]),
 });
 
+/** Auto-generate a program's or department's week (preview unless apply). */
+export const generateTimetableSchema = z
+  .object({
+    programId: objectIdSchema.optional(),
+    departmentId: objectIdSchema.optional(),
+    classIds: z.array(objectIdSchema).max(50).optional(),
+    days: z.array(z.number().int().min(0).max(6)).min(1).max(7).default([1, 2, 3, 4, 5, 6]),
+    maxPerDay: z.number().int().min(1).max(10).default(5),
+    mode: z.enum(['fill', 'fresh']).default('fill'),
+    seed: z.number().int().min(0).max(2147483647).default(1),
+    apply: z.boolean().default(false),
+  })
+  .refine((v) => v.programId || v.departmentId || v.classIds?.length, {
+    message: 'Pick a program, a department or some years',
+  });
+
 export const createTimetableEntrySchema = z.object({
   sectionId: objectIdSchema,
   slotId: objectIdSchema,

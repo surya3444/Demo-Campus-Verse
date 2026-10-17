@@ -28,6 +28,7 @@ import {
   updateTimetableEntrySchema,
   updateTimetableGroupSchema,
   bulkCreateTimetableEntriesSchema,
+  generateTimetableSchema,
   createLessonPlanSchema,
   updateLessonPlanSchema,
   updateLessonPlanTeachingStatusSchema,
@@ -142,6 +143,14 @@ router.get(
   '/timetable/busy',
   requirePermission('teaching.timetable', 'view'),
   timetableController.getBusyTeachers
+);
+
+// Auto-generate a program's/department's week (preview, or apply with apply:true)
+router.post(
+  '/timetable/generate',
+  requirePermission('teaching.timetable', 'create'),
+  validateBody(generateTimetableSchema),
+  timetableController.generate
 );
 
 // Empty one section's week (periods stay)

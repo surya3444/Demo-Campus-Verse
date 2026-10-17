@@ -6,6 +6,7 @@ import { hasPermission } from '../../middleware/rbac';
 import { getElectiveSubjectIds } from './scope';
 import { Request, Response, NextFunction } from 'express';
 import { timetableService } from './timetable.service';
+import { timetableAutoService } from './timetableAuto.service';
 import { getStaffIdForUser } from './teaching.utils';
 import { success, created } from '../../utils/response';
 
@@ -91,6 +92,22 @@ class TimetableController {
         req.user!.userId
       );
       success(res, result, undefined, 'Bulk timetable entries processed');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async generate(req: Request, res: Response, next: NextFunction) {
+    try {
+      success(
+        res,
+        await timetableAutoService.generate(
+          req.tenantId!,
+          req.branchId!,
+          req.user!.userId,
+          req.body
+        )
+      );
     } catch (error) {
       next(error);
     }

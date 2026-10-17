@@ -5377,6 +5377,20 @@ export const teachingApi = {
     const response = await api.delete(`/teaching/timetable/section/${sectionId}`);
     return response.data as { data: { deleted: number } };
   },
+  /** Auto-build a program's/department's week; a preview unless `apply`. */
+  generateTimetable: async (data: {
+    programId?: string;
+    departmentId?: string;
+    classIds?: string[];
+    days: number[];
+    maxPerDay: number;
+    mode: 'fill' | 'fresh';
+    seed: number;
+    apply: boolean;
+  }) => {
+    const response = await api.post('/teaching/timetable/generate', data, { timeout: 120000 });
+    return response.data as { data: GeneratedTimetable };
+  },
   /** Teachers already teaching at this period's time, and where. */
   getBusyTeachers: async (slotId: string, dayOfWeek: number, excludeGroupId?: string) => {
     const response = await api.get('/teaching/timetable/busy', {
@@ -7545,3 +7559,47 @@ export const obeApi = {
 };
 
 export { api };
+
+export interface GeneratedTimetable {
+  applied: boolean;
+  written: number;
+  replaced: number;
+  seed: number;
+  stats: {
+    sections: number;
+    years: number;
+    teachers: number;
+    demand: number;
+    placed: number;
+    kept: number;
+    labBlocks: number;
+    attempts: number;
+    ms: number;
+  };
+  sections: Array<{
+    sectionId: string;
+    label: string;
+    slots: Array<{ _id: string; name: string; startTime: string; endTime: string; type: string }>;
+    cells: Array<{
+      slotId: string;
+      day: number;
+      subjectId: string;
+      subjectName: string;
+      subjectCode: string;
+      teacherName: string;
+      batchName: string | null;
+      kind: 'theory' | 'lab';
+      isNew: boolean;
+    }>;
+  }>;
+  teachers: Array<{ teacherId: string; name: string; periods: number; busiestDay: number }>;
+  unplaced: Array<{
+    section: string;
+    subjectId: string;
+    subjectName: string;
+    subjectCode: string;
+    batchName: string | null;
+    periods: number;
+    reason: string;
+  }>;
+}

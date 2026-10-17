@@ -125,6 +125,10 @@ const config: Config = {
           from: { opacity: '0', transform: 'translateY(-8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        'pop-in': {
+          '0%': { opacity: '0', transform: 'scale(0.6)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
         'scale-in': {
           from: { opacity: '0', transform: 'scale(0.96)' },
           to: { opacity: '1', transform: 'scale(1)' },
@@ -161,6 +165,7 @@ const config: Config = {
         'fade-up': 'fade-up 0.4s ease-out',
         'fade-down': 'fade-down 0.4s ease-out',
         'scale-in': 'scale-in 0.2s ease-out',
+        'pop-in': 'pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
         'slide-in-right': 'slide-in-right 0.3s ease-out',
         'slide-in-left': 'slide-in-left 0.3s ease-out',
         shimmer: 'shimmer 2s infinite',
