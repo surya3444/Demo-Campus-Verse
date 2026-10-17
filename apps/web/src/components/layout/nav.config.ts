@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   Activity,
+  IdCard,
   ArrowLeftRight,
   ArrowRightLeft,
   Award,
@@ -273,6 +274,12 @@ export const NAV_SECTIONS: NavSection[] = [
             href: '/students',
             icon: Users,
             permission: { module: 'students.list', action: 'view' },
+          },
+          {
+            name: 'ID Cards',
+            href: '/students/id-cards',
+            icon: IdCard,
+            permission: { module: 'certificates.idcards', action: 'view' },
           },
           {
             name: 'Bulk Upload',

@@ -2107,11 +2107,33 @@ export const academicApi = {
 
 // Student API
 export const studentApi = {
+  // ID card designs (structured; rendered by components/id-card)
+  getIdCardDesigns: async () => {
+    const response = await api.get('/students/id-card-designs');
+    return response.data as { data: IdCardDesign[] };
+  },
+  saveIdCardDesign: async (
+    data: Pick<IdCardDesign, 'name' | 'branchId' | 'config'>,
+    id?: string
+  ) => {
+    const response = id
+      ? await api.put(`/students/id-card-designs/${id}`, data)
+      : await api.post('/students/id-card-designs', data);
+    return response.data as { data: IdCardDesign };
+  },
+  setDefaultIdCardDesign: async (id: string) => {
+    await api.post(`/students/id-card-designs/${id}/default`);
+  },
+  deleteIdCardDesign: async (id: string) => {
+    await api.delete(`/students/id-card-designs/${id}`);
+  },
+
   getStudents: async (params?: {
     page?: number;
     limit?: number;
     search?: string;
     status?: string;
+    programId?: string;
     classId?: string;
     sectionId?: string;
     academicBatchId?: string;
@@ -7602,4 +7624,14 @@ export interface GeneratedTimetable {
     periods: number;
     reason: string;
   }>;
+}
+
+export interface IdCardDesign {
+  _id: string;
+  name: string;
+  /** null = every campus of the institution */
+  branchId: string | null;
+  config: import('@campus-verse/shared/schemas').IdCardDesignConfig;
+  isDefault: boolean;
+  updatedAt: string;
 }

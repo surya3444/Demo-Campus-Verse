@@ -8,11 +8,13 @@ import { validateBody } from '../../middleware/validate';
 import { studentController } from './student.controller';
 import { studentBulkUploadController } from './bulkUpload.controller';
 import { studentAiMappingController } from './aiMapping.controller';
+import { idCardDesignController } from './idCardDesign.controller';
 import {
   createStudentSchema,
   updateStudentSchema,
   transferStudentSchema,
   updateStudentStatusSchema,
+  saveIdCardDesignSchema,
 } from '@campus-verse/shared';
 import { imageUpload, requireS3Configured } from '../upload/upload.middleware';
 
@@ -160,6 +162,35 @@ router.post(
   requirePermission('students.list', 'create'),
   validateBody(createStudentSchema),
   studentController.create
+);
+
+// ID card designs (before '/:id' so the path isn't read as a student id)
+router.get(
+  '/id-card-designs',
+  requirePermission('certificates.idcards', 'view'),
+  idCardDesignController.list
+);
+router.post(
+  '/id-card-designs',
+  requirePermission('certificates.idcards', 'create'),
+  validateBody(saveIdCardDesignSchema),
+  idCardDesignController.create
+);
+router.put(
+  '/id-card-designs/:designId',
+  requirePermission('certificates.idcards', 'edit'),
+  validateBody(saveIdCardDesignSchema),
+  idCardDesignController.update
+);
+router.post(
+  '/id-card-designs/:designId/default',
+  requirePermission('certificates.idcards', 'edit'),
+  idCardDesignController.setDefault
+);
+router.delete(
+  '/id-card-designs/:designId',
+  requirePermission('certificates.idcards', 'delete'),
+  idCardDesignController.remove
 );
 
 router.get('/:id', requirePermission('students.details', 'view'), studentController.findById);

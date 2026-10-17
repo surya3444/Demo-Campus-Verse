@@ -34,6 +34,7 @@ class StudentController {
         search: req.query.search as string,
         status: req.query.status as string | string[],
         classId: req.query.classId as string,
+        programId: req.query.programId as string,
         sectionId: req.query.sectionId as string,
         academicBatchId: req.query.academicBatchId as string,
         category: req.query.category as string,

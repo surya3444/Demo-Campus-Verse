@@ -151,3 +151,54 @@ export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;
 export type BulkUploadStudentInput = z.infer<typeof bulkUploadStudentSchema>;
 export type PromoteStudentInput = z.infer<typeof promoteStudentSchema>;
 export type TransferStudentInput = z.infer<typeof transferStudentSchema>;
+
+// ============ ID card designs ============
+
+const hexColor = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Use a hex colour like #0B2A5B');
+const imageRef = z.string().max(500000).optional(); // URL or small data: URI
+
+export const ID_CARD_FIELDS = [
+  'rollNumber',
+  'admissionNumber',
+  'program',
+  'section',
+  'dateOfBirth',
+  'bloodGroup',
+  'phone',
+  'guardianPhone',
+  'validTill',
+] as const;
+
+export const idCardDesignConfigSchema = z.object({
+  template: z.enum(['classic', 'modern', 'minimal', 'campus']),
+  orientation: z.enum(['portrait', 'landscape']),
+  colors: z.object({ primary: hexColor, accent: hexColor }),
+  title: z.string().trim().max(80).optional(),
+  subtitle: z.string().trim().max(120).optional(),
+  logoUrl: imageRef,
+  photoShape: z.enum(['rounded', 'circle']),
+  fields: z.array(z.enum(ID_CARD_FIELDS)).max(ID_CARD_FIELDS.length),
+  showQr: z.boolean(),
+  signatureLabel: z.string().trim().max(40),
+  signatureUrl: imageRef,
+  validTill: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  back: z.object({
+    enabled: z.boolean(),
+    instructions: z.string().trim().max(600),
+    showAddress: z.boolean(),
+    showEmergency: z.boolean(),
+  }),
+});
+
+export const saveIdCardDesignSchema = z.object({
+  name: z.string().trim().min(2).max(60),
+  /** null = every campus of the institution. */
+  branchId: objectIdSchema.nullable(),
+  config: idCardDesignConfigSchema,
+});
+
+export type IdCardDesignConfig = z.infer<typeof idCardDesignConfigSchema>;
+export type IdCardField = (typeof ID_CARD_FIELDS)[number];

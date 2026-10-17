@@ -82,6 +82,8 @@ export interface StudentListParams {
   limit?: number;
   search?: string;
   status?: string | string[];
+  /** Every year (class) of a program. Ignored when classId is given. */
+  programId?: string;
   classId?: string;
   sectionId?: string;
   academicBatchId?: string;
@@ -608,6 +610,19 @@ class StudentService {
         restrictToClassIds && !restrictToClassIds.some((id) => id.equals(classOid))
           ? { $in: [] }
           : classOid;
+    } else if (params.programId) {
+      // Every year of the program, still inside the caller's scope.
+      const ids = (
+        await collections.classes
+          .find({ tenantId: new ObjectId(tenantId), programId: new ObjectId(params.programId) })
+          .project({ _id: 1 })
+          .toArray()
+      ).map((c) => c._id as ObjectId);
+      filter['currentEnrollment.classId'] = {
+        $in: restrictToClassIds
+          ? ids.filter((id) => restrictToClassIds.some((r) => r.equals(id)))
+          : ids,
+      };
     } else if (restrictToClassIds) {
       filter['currentEnrollment.classId'] = { $in: restrictToClassIds };
     }

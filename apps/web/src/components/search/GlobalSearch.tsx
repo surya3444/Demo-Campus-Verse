@@ -11,6 +11,7 @@ import {
   Bus,
   CalendarDays,
   ClipboardList,
+  Clock,
   CornerDownLeft,
   FileText,
   GraduationCap,
@@ -24,6 +25,7 @@ import {
   UserPlus,
   UserRound,
   Wallet,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 import { Command as CommandPrimitive } from 'cmdk';
@@ -105,6 +107,86 @@ function usePageEntries(): PageEntry[] {
     return out.filter((e, i) => out.findIndex((x) => x.href === e.href) === i);
   }, [sections]);
 }
+
+// ── Recent picks (this browser only; storage may be blocked) ───────────────
+
+const RECENT_KEY = 'cv-search-recent';
+const RECENT_MAX = 6;
+type Recent = {
+  key: string;
+  title: string;
+  subtitle?: string;
+  href: string;
+  group: string;
+  hitId?: string;
+};
+
+function readRecent(): Recent[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]');
+    return Array.isArray(v) ? (v as Recent[]) : [];
+  } catch {
+    return [];
+  }
+}
+function writeRecent(list: Recent[]) {
+  try {
+    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+  } catch {
+    // storage blocked: recents are a nicety
+  }
+}
+
+const RECENT_LOOK: Record<string, { icon: LucideIcon; tone: string }> = {
+  students: {
+    icon: GraduationCap,
+    tone: 'bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300',
+  },
+  staff: {
+    icon: UserRound,
+    tone: 'bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300',
+  },
+  receipts: {
+    icon: Receipt,
+    tone: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
+  },
+  admissions: {
+    icon: ClipboardList,
+    tone: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300',
+  },
+  academics: {
+    icon: BookOpen,
+    tone: 'bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300',
+  },
+  exams: {
+    icon: FileText,
+    tone: 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300',
+  },
+  courses: {
+    icon: BookOpen,
+    tone: 'bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300',
+  },
+  transport: {
+    icon: Bus,
+    tone: 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
+  },
+  hostel: {
+    icon: BedDouble,
+    tone: 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/15 dark:text-fuchsia-300',
+  },
+  feeStructures: {
+    icon: Wallet,
+    tone: 'bg-lime-100 text-lime-700 dark:bg-lime-500/15 dark:text-lime-300',
+  },
+  communications: {
+    icon: Megaphone,
+    tone: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300',
+  },
+  campuses: {
+    icon: Building2,
+    tone: 'bg-slate-100 text-slate-700 dark:bg-slate-500/15 dark:text-slate-300',
+  },
+};
 
 // ── Small display helpers ───────────────────────────────────────────────────
 
@@ -534,6 +616,7 @@ export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
+  const [recent, setRecent] = useState<Recent[]>([]);
 
   // ⌘K / Ctrl+K anywhere, and "/" when not typing in a field.
   useEffect(() => {
@@ -549,8 +632,17 @@ export function GlobalSearch() {
   }, []);
 
   useEffect(() => {
-    if (!open) setQuery('');
+    if (open) setRecent(readRecent());
+    else setQuery('');
   }, [open]);
+
+  const remember = (item: Recent) =>
+    writeRecent([item, ...readRecent().filter((r) => r.key !== item.key)].slice(0, RECENT_MAX));
+  const forget = (key?: string) => {
+    const next = key ? recent.filter((r) => r.key !== key) : [];
+    setRecent(next);
+    writeRecent(next);
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(query.trim()), 200);
@@ -607,7 +699,16 @@ export function GlobalSearch() {
     <CommandPrimitive.Item
       key={`page:${p.key}`}
       value={`page:${p.key}`}
-      onSelect={() => go(p.href)}
+      onSelect={() => {
+        remember({
+          key: `page:${p.href}`,
+          title: p.label,
+          subtitle: p.crumb,
+          href: p.href,
+          group: 'page',
+        });
+        go(p.href);
+      }}
       className={itemClass}
     >
       <IconTile icon={p.icon} tone="bg-primary/10 text-primary" />
@@ -671,6 +772,77 @@ export function GlobalSearch() {
             </div>
 
             <CommandPrimitive.List className="max-h-[calc(70vh-7.5rem)] overflow-y-auto overscroll-contain px-2 pb-2">
+              {!q && recent.length > 0 && (
+                <div className="px-2 pt-4 motion-safe:animate-fade-in">
+                  <div className="flex items-center justify-between px-1 pb-1.5">
+                    <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                      <Clock className="h-3.5 w-3.5" />
+                      Recent
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => forget()}
+                      className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  <CommandPrimitive.Group>
+                    {recent.map((r, i) => {
+                      const page = pages.find((p) => p.href === r.href);
+                      const look =
+                        RECENT_LOOK[r.group] ??
+                        (r.group === 'page' || r.group === 'settings'
+                          ? { icon: page?.icon ?? Layers, tone: 'bg-primary/10 text-primary' }
+                          : { icon: Clock, tone: 'bg-muted text-muted-foreground' });
+                      return (
+                        <CommandPrimitive.Item
+                          key={r.key}
+                          value={`recent:${r.key}`}
+                          onSelect={() => {
+                            remember(r);
+                            go(r.href, r.group, r.hitId);
+                          }}
+                          className={cn(
+                            itemClass,
+                            'py-2 motion-safe:animate-fade-up [animation-fill-mode:both]'
+                          )}
+                          style={{ animationDelay: `${i * 30}ms` }}
+                        >
+                          {r.group === 'students' || r.group === 'staff' ? (
+                            <Avatar name={r.title} tone={look.tone} />
+                          ) : (
+                            <IconTile icon={look.icon} tone={look.tone} />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <span className="block truncate font-medium">{r.title}</span>
+                            {r.subtitle && (
+                              <span className="block truncate text-xs text-muted-foreground">
+                                {r.subtitle}
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            aria-label={`Remove ${r.title} from recent`}
+                            title="Remove from recent"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              forget(r.key);
+                            }}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground/60 opacity-0 transition-all hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 group-hover/item:opacity-100 group-data-[selected=true]/item:opacity-100 [@media(hover:none)]:opacity-100"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </CommandPrimitive.Item>
+                      );
+                    })}
+                  </CommandPrimitive.Group>
+                </div>
+              )}
+
               {!q && (
                 <div className="px-2 pb-2 pt-4 motion-safe:animate-fade-in">
                   <p className="px-1 pb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
@@ -747,7 +919,17 @@ export function GlobalSearch() {
                     <CommandPrimitive.Item
                       key={`${g.key}:${hit.id}`}
                       value={`${g.key}:${hit.id}`}
-                      onSelect={() => go(hit.href, g.key, hit.id)}
+                      onSelect={() => {
+                        remember({
+                          key: `${g.key}:${hit.id}`,
+                          title: hit.title,
+                          subtitle: g.label,
+                          href: hit.href,
+                          group: g.key,
+                          hitId: hit.id,
+                        });
+                        go(hit.href, g.key, hit.id);
+                      }}
                       className={itemClass}
                     >
                       {g.render(hit, q)}
