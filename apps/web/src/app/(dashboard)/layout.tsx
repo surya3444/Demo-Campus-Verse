@@ -8,6 +8,7 @@ import { TopBar } from '@/components/layout/TopBar';
 import { ProtectedRoute, ChangePasswordModal } from '@/components/auth';
 import { AssistantWidget } from '@/components/ai/AssistantWidget';
 import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { SidebarThemeProvider } from '@/contexts/SidebarThemeContext';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // The AI assistant page is a full-height chat surface: fill the content area
   // (no container padding / max-width) and let it manage its own internal scroll.
   const isAssistant = pathname === '/assistant';
+
+  // The stored user is a snapshot from login; pull the latest once per page
+  // load so profile photo, name and permission changes show without re-login.
+  const { refreshProfile } = useAuth();
+  const signedIn = !!user;
+  useEffect(() => {
+    if (signedIn) void refreshProfile();
+  }, [signedIn]);
 
   // Sidebar state
   const [isCollapsed, setIsCollapsed] = useState(false);
