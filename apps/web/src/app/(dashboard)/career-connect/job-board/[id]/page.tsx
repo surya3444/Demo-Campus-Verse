@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Briefcase, CheckCircle2, MoreHorizontal, Send } from 'lucide-react';
+import { Briefcase, CheckCircle2, ExternalLink, MoreHorizontal, Send } from 'lucide-react';
 import { careerConnectApi } from '@/lib/api';
 import { usePermissions } from '@/hooks/usePermissions';
 import { Button } from '@/components/ui/button';
@@ -72,6 +72,8 @@ interface JobPosting {
   maxApplications?: number;
   applicationCount?: number;
   postingNumber?: string;
+  externalUrl?: string;
+  source?: string;
   createdAt: string;
 }
 interface Application {
@@ -164,6 +166,7 @@ export default function JobPostingDetailPage() {
   const count = (s: string) => apps.filter((a) => a.status === s).length;
   const left = daysLeft(job.applicationDeadline);
   const canApply =
+    !job.externalUrl &&
     !canManage &&
     hasPermission('careerConnect.jobBoard', 'apply') &&
     job.status === 'active' &&
@@ -196,6 +199,14 @@ export default function JobPostingDetailPage() {
         actions={
           <>
             {job.status !== 'active' && <StatusPill status={job.status} />}
+            {job.externalUrl && (
+              <Button size="sm" asChild>
+                <a href={job.externalUrl} target="_blank" rel="noreferrer">
+                  <ExternalLink className="mr-1.5 h-4 w-4" />
+                  Apply on {job.companyName ?? 'company'} site
+                </a>
+              </Button>
+            )}
             {canApply && (
               <Button size="sm" onClick={() => setApplyOpen(true)}>
                 <Send className="mr-1.5 h-4 w-4" />
@@ -351,6 +362,7 @@ export default function JobPostingDetailPage() {
                 ],
                 ['Eligibility', job.eligibility?.minCGPA ? `CGPA ${job.eligibility.minCGPA} and above` : 'All final-year students'],
                 ['Posted', fmtDate(job.createdAt)],
+                ...(job.source ? [['Source', `Virtual Placement Office · ${job.source}`] as [string, string]] : []),
               ]}
             />
           </Panel>

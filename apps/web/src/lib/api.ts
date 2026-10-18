@@ -5677,6 +5677,15 @@ export const careerConnectApi = {
     const response = await api.get('/career-connect/hub');
     return response.data as { data: CareerHub };
   },
+  /** Virtual Placement Office: live openings in India from public job sources. */
+  getVpoJobs: async (params?: Record<string, unknown>) => {
+    const response = await api.get('/career-connect/vpo/jobs', { params });
+    return response.data as { data: VpoFeed };
+  },
+  shareVpoJob: async (jobId: string) => {
+    const response = await api.post(`/career-connect/vpo/jobs/${encodeURIComponent(jobId)}/share`);
+    return response.data as { data: { _id: string; alreadyShared: boolean } };
+  },
   // Companies
   getCompanies: async (params?: Record<string, unknown>) => {
     const response = await api.get('/career-connect/companies', { params });
@@ -7844,4 +7853,37 @@ export interface HealthHub {
     date: string;
     overdue: boolean;
   }>;
+}
+
+export interface VpoJob {
+  id: string;
+  title: string;
+  company: string;
+  logo: string | null;
+  website: string | null;
+  location: string;
+  city: string | null;
+  remote: boolean;
+  type: string;
+  category: string;
+  fresher: boolean;
+  salary: string | null;
+  url: string;
+  postedAt: string | null;
+  source: string;
+  sourceUrl: string;
+  shared: boolean;
+}
+
+export interface VpoFeed {
+  jobs: VpoJob[];
+  total: number;
+  page: number;
+  limit: number;
+  updatedAt: string;
+  stats: { total: number; newToday: number; fresher: number; inCities: number; remote: number; companies: number };
+  categories: Array<{ name: string; count: number }>;
+  cities: Array<{ name: string; count: number }>;
+  topCompanies: Array<{ name: string; logo: string | null; website: string | null; count: number }>;
+  sources: Array<{ name: string; count: number; ok: boolean }>;
 }

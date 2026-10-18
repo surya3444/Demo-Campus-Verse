@@ -36,7 +36,13 @@ import {
   Panel,
   PersonCell,
   Skeleton,
-  Stat,
+  Avatar,
+  Faces,
+  FeatureCard,
+  FeatureNumber,
+  MiniBars,
+  Ring,
+  Spark,
   StatusPill,
   fmtDate,
   lpa,
@@ -64,7 +70,6 @@ export default function CareerConnectOverview() {
     );
   }
   const k = h.kpis;
-  const weekly = h.timeline.map((t) => t.accepted);
   const funnel = h.funnel;
   const recruiters = h.recruiters.filter((r) => r.accepted).slice(0, 7);
   const maxHired = Math.max(1, ...recruiters.map((r) => r.accepted));
@@ -92,33 +97,84 @@ export default function CareerConnectOverview() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat
-          label="Students placed"
-          value={k.placed}
-          icon={Users}
-          trend={weekly}
-          hint={`${k.placementRate}% of ${k.registered} who registered`}
-        />
-        <Stat
-          label="Offers made"
-          value={k.offers}
-          icon={Award}
-          hint={`${k.offers - k.placed} declined or pending`}
-        />
-        <Stat
-          label="Highest package"
-          value={k.highestCtc}
-          format={lpa}
-          icon={TrendingUp}
-          hint={h.topOffers[0] ? `${h.topOffers[0].company} · ${h.topOffers[0].role}` : undefined}
-        />
-        <Stat
-          label="Average package"
-          value={k.averageCtc}
-          format={lpa}
-          icon={IndianRupee}
-          hint={`Median ${lpa(k.medianCtc)}`}
-        />
+        <FeatureCard solid label="Students placed" icon={Users}>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <FeatureNumber value={k.placed} />
+              <p className="mt-1.5 text-xs text-white/75">of {k.registered} who registered</p>
+            </div>
+            <Ring value={k.placementRate} size={68} stroke={6} color="#fff" track="rgba(255,255,255,.2)">
+              <span className="text-sm font-semibold tabular-nums">{k.placementRate}%</span>
+            </Ring>
+          </div>
+          {h.recentPlacements.length > 0 && (
+            <Link
+              href={`/career-connect/student-profile/${h.recentPlacements[0].studentId}`}
+              className="mt-auto flex items-center gap-2.5 rounded-xl bg-white/10 px-2.5 py-2 text-xs backdrop-blur transition hover:bg-white/15 [margin-top:1rem]"
+            >
+              <Faces people={h.recentPlacements.slice(0, 4)} max={4} size={24} />
+              <span className="min-w-0 truncate text-white/85">
+                Latest: <span className="font-semibold text-white">{h.recentPlacements[0].name.split(' ')[0]}</span> →{' '}
+                {h.recentPlacements[0].company}
+              </span>
+            </Link>
+          )}
+        </FeatureCard>
+
+        <FeatureCard label="Highest package" icon={TrendingUp}>
+          <div className="flex items-start justify-between gap-3">
+            <FeatureNumber value={k.highestCtc} format={lpa} />
+            {h.topOffers[0] && (
+              <CompanyLogo name={h.topOffers[0].company} website={h.topOffers[0].website} size={42} className="rounded-xl" />
+            )}
+          </div>
+          {h.topOffers[0] && (
+            <Link
+              href={`/career-connect/student-profile/${h.topOffers[0].studentId}`}
+              className="mt-auto flex items-center gap-2.5 rounded-xl bg-amber-50 px-2.5 py-2 transition hover:bg-amber-100/70 dark:bg-amber-500/10 [margin-top:1rem]"
+            >
+              <Avatar person={h.topOffers[0]} size={28} />
+              <span className="min-w-0 text-xs leading-tight">
+                <span className="block truncate font-semibold">{h.topOffers[0].name}</span>
+                <span className="block truncate text-muted-foreground">
+                  {h.topOffers[0].role} · {h.topOffers[0].company}
+                </span>
+              </span>
+              <Award className="ml-auto h-4 w-4 shrink-0 text-amber-500" />
+            </Link>
+          )}
+        </FeatureCard>
+
+        <FeatureCard label="Offers made" icon={Award}>
+          <div className="flex items-end justify-between gap-3">
+            <FeatureNumber value={k.offers} />
+            <Spark data={h.timeline.map((t) => t.offers)} color={BLUE} width={96} height={34} />
+          </div>
+          <div className="mt-auto [margin-top:1rem]">
+            <div className="flex h-2 overflow-hidden rounded-full bg-muted">
+              <span className="h-full bg-[#1e4fd8]" style={{ width: `${k.offers ? (k.placed / k.offers) * 100 : 0}%` }} />
+              <span className="h-full bg-[#1e4fd8]/25" style={{ width: `${k.offers ? ((k.offers - k.placed) / k.offers) * 100 : 0}%` }} />
+            </div>
+            <p className="mt-2 flex justify-between text-xs text-muted-foreground">
+              <span>
+                <span className="font-semibold text-foreground">{k.placed}</span> accepted
+              </span>
+              <span>{k.offers - k.placed} pending or declined</span>
+            </p>
+          </div>
+        </FeatureCard>
+
+        <FeatureCard label="Average package" icon={IndianRupee}>
+          <FeatureNumber value={k.averageCtc} format={lpa} />
+          <p className="mt-1.5 text-xs text-muted-foreground">Median {lpa(k.medianCtc)}</p>
+          <div className="mt-auto [margin-top:1rem]">
+            <MiniBars data={h.ctcBands.map((b) => b.count)} color={BLUE} height={36} />
+            <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+              <span>{h.ctcBands[0]?.label}</span>
+              <span>{h.ctcBands[h.ctcBands.length - 1]?.label}</span>
+            </div>
+          </div>
+        </FeatureCard>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">

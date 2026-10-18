@@ -17,7 +17,11 @@ import {
   PersonCell,
   Pill,
   Skeleton,
-  Stat,
+  Faces,
+  FeatureCard,
+  FeatureNumber,
+  MiniBars,
+  Ring,
   fmtDate,
   fmtTime,
 } from '@/components/connect/kit';
@@ -82,36 +86,75 @@ export default function HealthOverview() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat
-          accent="health"
-          label="Sick-room visits today"
-          value={k.visitsToday}
-          icon={Stethoscope}
-          hint={k.inSickRoom ? `${k.inSickRoom} still in the sick room` : 'Nobody in the sick room'}
-        />
-        <Stat
-          accent="health"
-          label="Visits, last 30 days"
-          value={k.visitsMonth}
-          icon={HeartPulse}
-          trend={daily}
-          hint={`${k.visitsWeek} this week`}
-        />
-        <Stat
-          accent="health"
-          label="Check-ups completed"
-          value={k.checkupsDone}
-          icon={ClipboardCheck}
-          hint={`${checkRate}% of ${k.checkupsTotal} scheduled · avg BMI ${k.averageBmi}`}
-        />
-        <Stat
-          accent="health"
-          label="Vaccination compliance"
-          value={k.vaccinationCompliance}
-          format={(n) => `${Math.round(n)}%`}
-          icon={ShieldCheck}
-          hint={`${k.overdue} doses overdue`}
-        />
+        <FeatureCard accent="health" solid label="Sick-room visits today" icon={Stethoscope}>
+          <div className="flex items-center gap-3">
+            <FeatureNumber value={k.visitsToday} />
+            {k.inSickRoom > 0 && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-medium">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                </span>
+                {k.inSickRoom} resting now
+              </span>
+            )}
+          </div>
+          <p className="mt-1.5 text-xs text-white/75">{k.visitsWeek} this week · {k.visitsMonth} this month</p>
+          {h.today.length > 0 && (
+            <Link
+              href="/health/visits"
+              className="mt-auto flex items-center gap-2.5 rounded-xl bg-white/10 px-2.5 py-2 text-xs backdrop-blur transition hover:bg-white/15 [margin-top:1rem]"
+            >
+              <Faces people={h.today.slice(0, 5)} max={5} size={24} />
+              <span className="min-w-0 truncate text-white/85">
+                Latest: <span className="font-semibold text-white">{h.today[0].name.split(' ')[0]}</span> · {h.today[0].complaint}
+              </span>
+            </Link>
+          )}
+        </FeatureCard>
+
+        <FeatureCard accent="health" label="Visits, last 30 days" icon={HeartPulse}>
+          <FeatureNumber value={k.visitsMonth} />
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            Mostly {h.complaints[0]?.name?.toLowerCase() ?? 'routine'} · {k.visitsWeek} this week
+          </p>
+          <MiniBars data={daily} color={TEAL} height={40} className="mt-auto [margin-top:1rem]" />
+        </FeatureCard>
+
+        <FeatureCard accent="health" label="Check-ups completed" icon={ClipboardCheck}>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <FeatureNumber value={k.checkupsDone} />
+              <p className="mt-1.5 text-xs text-muted-foreground">of {k.checkupsTotal} scheduled</p>
+            </div>
+            <Ring value={checkRate} size={68} stroke={6} color={TEAL}>
+              <span className="text-sm font-semibold tabular-nums">{checkRate}%</span>
+            </Ring>
+          </div>
+          <div className="mt-auto flex items-center justify-between rounded-xl bg-teal-50 px-3 py-2 text-xs dark:bg-teal-500/10 [margin-top:1rem]">
+            <span className="text-muted-foreground">Average BMI</span>
+            <span className="font-semibold tabular-nums text-teal-700 dark:text-teal-300">{k.averageBmi}</span>
+          </div>
+        </FeatureCard>
+
+        <FeatureCard accent="health" label="Vaccination compliance" icon={ShieldCheck}>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <FeatureNumber value={k.vaccinationCompliance} format={(n) => `${Math.round(n)}%`} />
+              <p className="mt-1.5 text-xs text-muted-foreground">{k.vaccinesGiven} doses given</p>
+            </div>
+            <Ring value={k.vaccinationCompliance} size={68} stroke={6} color={TEAL}>
+              <ShieldCheck className="h-5 w-5 text-teal-600" />
+            </Ring>
+          </div>
+          <Link
+            href="/health/vaccinations"
+            className={`mt-auto flex items-center justify-between rounded-xl px-3 py-2 text-xs transition [margin-top:1rem] ${k.overdue ? 'bg-rose-50 text-rose-700 hover:bg-rose-100/70 dark:bg-rose-500/10 dark:text-rose-300' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10'}`}
+          >
+            <span>{k.overdue ? `${k.overdue} doses overdue` : 'Nothing overdue'}</span>
+            <span className="font-medium">{k.overdue ? 'Remind →' : '✓'}</span>
+          </Link>
+        </FeatureCard>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">

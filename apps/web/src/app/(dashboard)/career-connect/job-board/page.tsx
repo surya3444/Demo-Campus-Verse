@@ -36,6 +36,7 @@ interface JobPosting {
   eligibility?: { minCGPA?: number };
   applicationDeadline: string;
   applicationCount?: number;
+  vpoJobId?: string;
 }
 
 type Kind = '' | 'job' | 'internship';
@@ -158,6 +159,11 @@ export default function JobBoardPage() {
                       {j.type === 'internship' ? 'Internship' : 'Full-time'}
                     </Pill>
                     {money && <span className="text-sm font-semibold tabular-nums">{money}</span>}
+                    {j.vpoJobId && (
+                      <Pill tone="teal" dot={false}>
+                        Via placement office
+                      </Pill>
+                    )}
                   </div>
 
                   <div className="mt-auto flex items-center justify-between border-t border-border/60 pt-3.5 text-xs text-muted-foreground [margin-top:1.25rem]">

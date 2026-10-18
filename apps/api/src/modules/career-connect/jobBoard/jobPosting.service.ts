@@ -220,7 +220,10 @@ class JobPostingService {
       .project({ website: 1 })
       .toArray();
     const site = new Map(companies.map((c) => [String(c._id), c.website as string]));
-    return rows.map((r) => ({ ...r, companyWebsite: site.get(String(r.companyId)) ?? null }));
+    return rows.map((r) => ({
+      ...r,
+      companyWebsite: site.get(String(r.companyId)) ?? (r as { companyWebsite?: string }).companyWebsite ?? null,
+    }));
   }
 
   private formatPosting(doc: Document) {

@@ -703,11 +703,14 @@ const MONO = ['#1e4fd8', '#0e7490', '#6d28d9', '#be123c', '#b45309', '#047857'];
 export function CompanyLogo({
   name,
   website,
+  logo,
   size = 36,
   className,
 }: {
   name: string;
   website?: string | null;
+  /** A direct logo image, used before the website's icon. */
+  logo?: string | null;
   size?: number;
   className?: string;
 }) {
@@ -720,8 +723,9 @@ export function CompanyLogo({
       return '';
     }
   })();
-  const [failed, setFailed] = useState(!host);
-  useEffect(() => setFailed(!host), [host]);
+  const src = logo || (host ? `https://www.google.com/s2/favicons?domain=${host}&sz=128` : '');
+  const [failed, setFailed] = useState(!src);
+  useEffect(() => setFailed(!src), [src]);
   const initials = name
     .replace(/&/g, ' ')
     .split(/\s+/)
@@ -748,9 +752,9 @@ export function CompanyLogo({
         </span>
       ) : (
         <img
-          src={`https://www.google.com/s2/favicons?domain=${host}&sz=128`}
+          src={src}
           alt=""
-          className="h-[66%] w-[66%] object-contain"
+          className={logo ? 'h-full w-full object-cover' : 'h-[66%] w-[66%] object-contain'}
           onLoad={(e) => e.currentTarget.naturalWidth < 32 && setFailed(true)}
           onError={() => setFailed(true)}
         />
@@ -836,3 +840,171 @@ export const jobPay = (j: {
 
 export const daysLeft = (d?: string | null) =>
   d ? Math.ceil((new Date(d).getTime() - Date.now()) / 86_400_000) : 0;
+
+/* ── Feature cards (overview headline numbers) ─────────────────────────── */
+
+/** A progress ring that fills when it scrolls into view. */
+export function Ring({
+  value,
+  size = 72,
+  stroke = 7,
+  color,
+  track = 'hsl(var(--muted))',
+  children,
+}: {
+  value: number;
+  size?: number;
+  stroke?: number;
+  color: string;
+  track?: string;
+  children?: ReactNode;
+}) {
+  const [ref, seen] = useInView<HTMLDivElement>();
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const pct = Math.max(0, Math.min(100, value));
+  return (
+    <div ref={ref} className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track} strokeWidth={stroke} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={seen ? c * (1 - pct / 100) : c}
+          style={{ transition: 'stroke-dashoffset 1.1s cubic-bezier(.2,.7,.2,1)' }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">{children}</div>
+    </div>
+  );
+}
+
+/** Tiny bar chart; bars grow in when visible. */
+export function MiniBars({
+  data,
+  color,
+  height = 40,
+  className,
+}: {
+  data: number[];
+  color: string;
+  height?: number;
+  className?: string;
+}) {
+  const [ref, seen] = useInView<HTMLDivElement>();
+  const max = Math.max(1, ...data);
+  return (
+    <div ref={ref} className={cn('flex items-end gap-[3px]', className)} style={{ height }}>
+      {data.map((d, i) => (
+        <span
+          key={i}
+          className="flex-1 rounded-t-[3px]"
+          style={{
+            height: seen ? `${Math.max(6, (d / max) * 100)}%` : '6%',
+            background: color,
+            opacity: 0.35 + 0.65 * (d / max),
+            transition: `height .7s cubic-bezier(.2,.7,.2,1) ${i * 18}ms`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Headline card for overview pages: a soft accent glow, lift on hover, and a
+ * `solid` variant (accent gradient, white text) for the one number that leads.
+ */
+export function FeatureCard({
+  accent = 'career',
+  solid,
+  label,
+  icon: Icon,
+  children,
+  className,
+}: {
+  accent?: Accent;
+  solid?: boolean;
+  label: string;
+  icon?: LucideIcon;
+  children: ReactNode;
+  className?: string;
+}) {
+  const a = ACCENT[accent];
+  const gradient =
+    accent === 'health'
+      ? 'linear-gradient(135deg,#0f766e 0%,#0d9488 45%,#14b8a6 100%)'
+      : 'linear-gradient(135deg,#0b2a7a 0%,#1e4fd8 55%,#3b82f6 100%)';
+  return (
+    <div
+      className={cn(
+        'group relative flex flex-col overflow-hidden rounded-2xl p-5 transition duration-300 hover:-translate-y-0.5',
+        solid
+          ? 'text-white shadow-[0_18px_40px_-20px_rgba(15,40,120,0.6)]'
+          : 'border border-border/70 bg-card shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:shadow-[0_14px_34px_-18px_rgba(16,24,40,0.25)]',
+        className
+      )}
+      style={solid ? { background: gradient } : undefined}
+    >
+      {solid ? (
+        <>
+          <span className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
+          <span
+            className="pointer-events-none absolute inset-0 opacity-[0.12]"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle at 1px 1px, rgba(255,255,255,.9) 1px, transparent 0)',
+              backgroundSize: '16px 16px',
+              maskImage: 'linear-gradient(135deg, transparent 40%, #000)',
+            }}
+          />
+        </>
+      ) : (
+        <span
+          className="pointer-events-none absolute -right-12 -top-14 h-36 w-36 rounded-full opacity-[0.10] blur-2xl transition-opacity duration-300 group-hover:opacity-[0.18]"
+          style={{ background: a.hex }}
+        />
+      )}
+      <div className="relative flex items-center justify-between">
+        <p className={cn('text-[13px] font-medium', solid ? 'text-white/80' : 'text-muted-foreground')}>
+          {label}
+        </p>
+        {Icon && (
+          <span
+            className={cn(
+              'flex h-8 w-8 items-center justify-center rounded-xl',
+              solid ? 'bg-white/15 text-white' : cn(a.soft, a.text)
+            )}
+          >
+            <Icon className="h-4 w-4" />
+          </span>
+        )}
+      </div>
+      <div className="relative mt-3 flex flex-1 flex-col">{children}</div>
+    </div>
+  );
+}
+
+/** The big number inside a FeatureCard. */
+export function FeatureNumber({
+  value,
+  format,
+  suffix,
+}: {
+  value: number;
+  format?: (n: number) => string;
+  suffix?: ReactNode;
+}) {
+  return (
+    <p className="font-display text-[34px] font-semibold leading-none tracking-tight tabular-nums">
+      <Num value={value} format={format} />
+      {suffix && <span className="ml-1.5 text-sm font-medium opacity-70">{suffix}</span>}
+    </p>
+  );
+}

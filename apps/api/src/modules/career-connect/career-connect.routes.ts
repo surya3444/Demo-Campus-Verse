@@ -6,6 +6,7 @@ import { requireModule } from '../../middleware/moduleGating';
 import { validateBody, validateQuery } from '../../middleware/validate';
 import { requireInstitutionType } from './middleware/institutionTypeGuard';
 import { careerHubService } from './reports/careerHub.service';
+import { vpoService } from './vpo/vpo.service';
 import { success } from '../../utils/response';
 import { companyController } from './companies/company.controller';
 import { driveController } from './drives/drive.controller';
@@ -781,6 +782,36 @@ router.post(
 
 // Placement reports (College/University only)
 // Career Connect home: everything the hub page shows, in one read
+// Virtual Placement Office: live job openings in India from public sources
+router.get(
+  '/vpo/jobs',
+  requireInstitutionType('placement'),
+  requirePermission('careerConnect.drives', 'view'),
+  async (req, res, next) => {
+    try {
+      success(res, await vpoService.jobs(req.tenantId!, req.query as Record<string, string>));
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
+router.post(
+  '/vpo/jobs/:jobId/share',
+  requireInstitutionType('placement'),
+  requirePermission('careerConnect.jobBoard', 'create'),
+  async (req, res, next) => {
+    try {
+      success(
+        res,
+        await vpoService.share(req.tenantId!, req.branchId!, req.user!.userId, req.params.jobId as string)
+      );
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
 router.get(
   '/hub',
   requireInstitutionType('placement'),

@@ -9,6 +9,7 @@ import { initSocket } from './realtime/socket';
 import { startParticipantJanitor, stopParticipantJanitor } from './realtime/participantJanitor';
 import { logger } from './lib/logger';
 import { env } from './config/env';
+import { warmVpoFeed } from './modules/career-connect/vpo/vpo.service';
 
 async function bootstrap() {
   try {
@@ -31,6 +32,7 @@ async function bootstrap() {
     httpServer.listen(env.PORT, () => {
       logger.info(`Server running on port ${env.PORT}`);
       logger.info(`Environment: ${env.NODE_ENV}`);
+      warmVpoFeed();
     });
   } catch (error) {
     logger.error({ err: error }, 'Failed to start server');
