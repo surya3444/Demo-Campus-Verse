@@ -162,7 +162,7 @@ export default function AlumniProfileDetailPage() {
               <p className="mt-3 flex items-center gap-1 text-lg font-semibold tracking-tight">
                 {profile.studentName}
                 {profile.isVerified && (
-                  <BadgeCheck className="h-5 w-5 text-blue-600" aria-label="Verified" />
+                  <BadgeCheck className="h-5 w-5 text-primary" aria-label="Verified" />
                 )}
               </p>
               <p className="text-sm text-muted-foreground">
@@ -255,7 +255,7 @@ export default function AlumniProfileDetailPage() {
                 {history.map((h, i) => (
                   <li key={i} className="relative">
                     <span
-                      className={`absolute -left-[25px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-card ${h.isCurrent ? 'bg-blue-600' : 'bg-muted-foreground/40'}`}
+                      className={`absolute -left-[25px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-card ${h.isCurrent ? 'bg-primary' : 'bg-muted-foreground/40'}`}
                     />
                     <div className="flex items-start justify-between gap-3">
                       <div>

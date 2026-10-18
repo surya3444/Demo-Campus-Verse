@@ -504,7 +504,7 @@ export default function MyCareerProfilePage() {
                               href={cert.credentialUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
+                              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                             >
                               View <ExternalLink className="h-3 w-3" />
                             </a>
@@ -566,7 +566,7 @@ export default function MyCareerProfilePage() {
                                 href={project.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800"
+                                className="text-primary hover:text-blue-800"
                               >
                                 <ExternalLink className="h-4 w-4" />
                               </a>

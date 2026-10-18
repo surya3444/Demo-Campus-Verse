@@ -118,7 +118,7 @@ export default function AlumniDirectoryPage() {
                         {a.studentName}
                         {a.isVerified && (
                           <BadgeCheck
-                            className="h-4 w-4 shrink-0 text-blue-600"
+                            className="h-4 w-4 shrink-0 text-primary"
                             aria-label="Verified"
                           />
                         )}

@@ -625,7 +625,7 @@ export default function StudentProfileDetailPage() {
               <ol className="relative space-y-5 border-l border-border/70 pl-5">
                 {profile.experience.map((e) => (
                   <li key={e._id} className="group relative">
-                    <span className="absolute -left-[25px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-card bg-blue-600" />
+                    <span className="absolute -left-[25px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-card bg-primary" />
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="font-medium">{e.role}</p>

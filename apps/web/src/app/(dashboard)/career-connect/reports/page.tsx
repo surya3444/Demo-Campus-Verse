@@ -12,7 +12,7 @@ const placementReports = [
     description: 'Overall placement statistics including drives, offers, and CTC analysis',
     href: '/career-connect/reports/placement-summary',
     icon: BarChart3,
-    color: 'text-blue-600',
+    color: 'text-primary',
     bgColor: 'bg-blue-50',
   },
   {

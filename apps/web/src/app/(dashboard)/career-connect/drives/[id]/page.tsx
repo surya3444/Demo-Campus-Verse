@@ -330,7 +330,7 @@ export default function DriveDetailPage() {
         <ol className="grid grid-cols-5 gap-2">
           {STAGE_LABEL.map((label, i) => (
             <li key={label}>
-              <div className={`h-1.5 rounded-full ${i <= stageIdx ? 'bg-blue-600' : 'bg-muted'}`} />
+              <div className={`h-1.5 rounded-full ${i <= stageIdx ? 'bg-primary' : 'bg-muted'}`} />
               <p
                 className={`mt-2 text-xs font-medium ${i === stageIdx ? 'text-foreground' : 'text-muted-foreground'}`}
               >

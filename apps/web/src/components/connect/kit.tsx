@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { ChevronRight, Search, type LucideIcon } from 'lucide-react';
+import { HeartPulse, Search, Sparkles, type LucideIcon } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useCountUp } from '@/hooks/useCountUp';
 
@@ -36,37 +37,72 @@ export const ACCENT: Record<
   },
 };
 
+// Eyebrow sections: path prefix → [label, list page]
+const SECTIONS: Array<[string, string]> = [
+  ['/career-connect/companies', 'Companies'],
+  ['/career-connect/drives', 'Placement drives'],
+  ['/career-connect/job-board', 'Job board'],
+  ['/career-connect/student-profile', 'Student profiles'],
+  ['/career-connect/virtual-placement-office', 'Placement office'],
+  ['/career-connect/alumni', 'Alumni'],
+  ['/career-connect/counseling', 'Counseling'],
+  ['/career-connect/reports', 'Reports'],
+  ['/career-connect', 'Placements'],
+  ['/health/records', 'Health records'],
+  ['/health/visits', 'Sick room'],
+  ['/health/checkups', 'Check-ups'],
+  ['/health/vaccinations', 'Vaccinations'],
+  ['/health/reports', 'Reports'],
+  ['/health/settings', 'Settings'],
+  ['/health', 'Overview'],
+];
+
+/**
+ * Page header shared by Career and Health Connect, in the Clubs style: a small
+ * "Module · Section" eyebrow over a bold display title. On deeper pages the
+ * section links back to its list.
+ */
 export function PageTitle({
   title,
   description,
   actions,
-  crumbs,
 }: {
   title: ReactNode;
   description?: ReactNode;
   actions?: ReactNode;
+  /** Kept for call sites; the eyebrow now carries the way back. */
   crumbs?: Array<{ label: string; href?: string }>;
 }) {
+  const pathname = usePathname() ?? '';
+  const health = pathname.startsWith('/health');
+  const section = SECTIONS.find(([p]) => pathname === p || pathname.startsWith(`${p}/`));
+  const deeper = section && pathname !== section[0];
   return (
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-4 animate-fade-in">
-      <div className="min-w-0 space-y-1">
-        {crumbs && crumbs.length > 0 && (
-          <nav className="flex items-center gap-1 text-xs text-muted-foreground">
-            {crumbs.map((c, i) => (
-              <span key={i} className="flex items-center gap-1">
-                {i > 0 && <ChevronRight className="h-3 w-3" />}
-                {c.href ? (
-                  <Link href={c.href} className="hover:text-foreground">
-                    {c.label}
-                  </Link>
-                ) : (
-                  <span>{c.label}</span>
-                )}
-              </span>
-            ))}
-          </nav>
-        )}
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+    <header className="mb-7 flex flex-wrap items-end justify-between gap-4 animate-fade-in">
+      <div className="min-w-0 space-y-2">
+        <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          {health ? (
+            <HeartPulse className="h-3.5 w-3.5 text-[hsl(var(--brand-cyan))]" />
+          ) : (
+            <Sparkles className="h-3.5 w-3.5 text-[hsl(var(--brand-cyan))]" />
+          )}
+          {health ? 'Health Connect' : 'Career Connect'}
+          {section && (
+            <>
+              <span aria-hidden>·</span>
+              {deeper ? (
+                <Link href={section[0]} className="transition-colors hover:text-foreground">
+                  {section[1]}
+                </Link>
+              ) : (
+                <span>{section[1]}</span>
+              )}
+            </>
+          )}
+        </p>
+        <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground md:text-4xl">
+          {title}
+        </h1>
         {description && <p className="max-w-2xl text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}

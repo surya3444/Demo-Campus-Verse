@@ -183,7 +183,7 @@ export default function PlacementSummaryPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="rounded-lg bg-blue-50 p-2.5">
-                    <Target className="h-5 w-5 text-blue-600" />
+                    <Target className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Total Offers</p>
