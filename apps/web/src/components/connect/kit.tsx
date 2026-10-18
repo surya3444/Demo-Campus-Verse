@@ -1,11 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { ChevronRight, Search, Star, type LucideIcon } from 'lucide-react';
+import { ChevronRight, Search, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useVisibleNav } from '@/components/layout/useVisibleNav';
 import { useCountUp } from '@/hooks/useCountUp';
 
 /*
@@ -19,85 +17,24 @@ export const ACCENT: Record<
   Accent,
   { hex: string; soft: string; text: string; ring: string; bg: string; label: string }
 > = {
+  // Theme tokens, so both modules share the app's palette (and dark mode)
   career: {
-    hex: '#1e4fd8',
-    soft: 'bg-blue-50 dark:bg-blue-500/10',
-    text: 'text-blue-700 dark:text-blue-300',
-    ring: 'ring-blue-600/15',
-    bg: 'bg-blue-600',
+    hex: 'hsl(var(--primary))',
+    soft: 'bg-primary/10',
+    text: 'text-primary',
+    ring: 'ring-primary/15',
+    bg: 'bg-primary',
     label: 'Career Connect',
   },
   health: {
-    hex: '#0d9488',
-    soft: 'bg-teal-50 dark:bg-teal-500/10',
-    text: 'text-teal-700 dark:text-teal-300',
-    ring: 'ring-teal-600/15',
-    bg: 'bg-teal-600',
+    hex: 'hsl(var(--success))',
+    soft: 'bg-success/10',
+    text: 'text-success',
+    ring: 'ring-success/15',
+    bg: 'bg-success',
     label: 'Health Connect',
   },
 };
-
-/* ── Module bar: identity + the module's pages, shown on every page ─────── */
-
-export function ModuleBar({ moduleId, accent }: { moduleId: string; accent: Accent }) {
-  const pathname = usePathname() ?? '';
-  const sections = useVisibleNav();
-  const mod = sections.flatMap((s) => s.modules).find((m) => m.id === moduleId);
-  const tabs =
-    mod?.children ?? (mod?.href ? [{ name: mod.name, href: mod.href, icon: mod.icon }] : []);
-  const a = ACCENT[accent];
-  // Longest match wins; a tab like /alumni/directory also owns its siblings (/alumni/*)
-  const score = (h: string) => {
-    if (pathname === h || pathname.startsWith(`${h}/`)) return h.length;
-    const parent = h.slice(0, h.lastIndexOf('/'));
-    return parent.split('/').length > 2 && pathname.startsWith(`${parent}/`) ? parent.length : -1;
-  };
-  const activeHref = tabs
-    .map((t) => t.href)
-    .filter((h) => score(h) >= 0)
-    .sort((x, y) => score(y) - score(x))[0];
-  return (
-    <div className="-mx-1 mb-6 border-b border-border/70">
-      <div className="flex items-center gap-2 px-1 pb-3 text-[13px] text-muted-foreground">
-        <span
-          className={cn('flex h-6 w-6 items-center justify-center rounded-md text-white', a.bg)}
-        >
-          {mod?.icon ? <mod.icon className="h-3.5 w-3.5" /> : null}
-        </span>
-        <span className="font-semibold text-foreground">{a.label}</span>
-        <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-label="Premium" />
-      </div>
-      <nav className="-mb-px flex gap-1 overflow-x-auto px-1 [scrollbar-width:none]">
-        {tabs.map((t) => {
-          const on = t.href === activeHref;
-          const Icon = t.icon;
-          return (
-            <Link
-              key={t.href}
-              href={t.href}
-              className={cn(
-                'group inline-flex shrink-0 items-center gap-1.5 border-b-2 px-3 pb-2.5 pt-1 text-sm font-medium transition-colors',
-                on
-                  ? 'border-current text-foreground'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              )}
-              style={on ? { color: undefined, borderColor: a.hex } : undefined}
-            >
-              {Icon && (
-                <Icon
-                  className={cn('h-4 w-4', on ? a.text : 'opacity-70 group-hover:opacity-100')}
-                />
-              )}
-              {t.name === 'Dashboard' ? 'Overview' : t.name}
-            </Link>
-          );
-        })}
-      </nav>
-    </div>
-  );
-}
-
-/* ── Page header ─────────────────────────────────────────────────────────── */
 
 export function PageTitle({
   title,
@@ -129,10 +66,8 @@ export function PageTitle({
             ))}
           </nav>
         )}
-        <h1 className="font-display text-[26px] font-semibold leading-tight tracking-tight text-foreground">
-          {title}
-        </h1>
-        {description && <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>}
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+        {description && <p className="max-w-2xl text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </header>
@@ -157,17 +92,14 @@ export function Panel({
   bodyClassName?: string;
 }) {
   return (
-    <section
-      className={cn(
-        'rounded-2xl border border-border/70 bg-card shadow-[0_1px_2px_rgba(16,24,40,0.04)]',
-        className
-      )}
-    >
+    <section className={cn('rounded-xl border bg-card shadow-xs', className)}>
       {(title || action) && (
         <div className="flex items-start justify-between gap-3 px-5 pb-1 pt-5">
           <div>
             {title && (
-              <h2 className="text-[15px] font-semibold tracking-tight text-foreground">{title}</h2>
+              <h2 className="font-display text-base font-semibold tracking-tight text-foreground">
+                {title}
+              </h2>
             )}
             {description && (
               <p className="mt-0.5 text-[13px] text-muted-foreground">{description}</p>
@@ -223,7 +155,7 @@ export function Stat({
 }) {
   const a = ACCENT[accent];
   return (
-    <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+    <div className="rounded-xl border bg-card p-5 shadow-xs">
       <div className="flex items-center justify-between">
         <p className="text-[13px] font-medium text-muted-foreground">{label}</p>
         {Icon && (
@@ -232,7 +164,7 @@ export function Stat({
           </span>
         )}
       </div>
-      <p className="mt-2 font-display text-[28px] font-semibold leading-none tracking-tight tabular-nums text-foreground">
+      <p className="mt-2 text-2xl font-bold leading-none tracking-tight tabular-nums text-foreground">
         <Num value={value} format={format} />
       </p>
       <div className="mt-2 flex items-end justify-between gap-3">
@@ -410,7 +342,7 @@ const TONE = {
   violet:
     'bg-violet-50 text-violet-700 ring-violet-600/15 dark:bg-violet-500/10 dark:text-violet-300',
   gray: 'bg-muted text-muted-foreground ring-border',
-  teal: 'bg-teal-50 text-teal-700 ring-teal-600/15 dark:bg-teal-500/10 dark:text-teal-300',
+  teal: 'bg-success/10 text-success ring-success/15',
 } as const;
 export type Tone = keyof typeof TONE;
 
@@ -697,7 +629,7 @@ export const fmtTime = (d?: string | Date | null) =>
 
 /* ── Company logo ────────────────────────────────────────────────────────── */
 
-const MONO = ['#1e4fd8', '#0e7490', '#6d28d9', '#be123c', '#b45309', '#047857'];
+const MONO = ['hsl(var(--primary))', '#0e7490', '#6d28d9', '#be123c', '#b45309', '#047857'];
 
 /** Company logo from its website's icon; a quiet monogram when none exists. */
 export function CompanyLogo({
@@ -737,7 +669,7 @@ export function CompanyLogo({
   return (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/70 bg-white',
+        'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-white',
         className
       )}
       style={{ width: size, height: size }}
@@ -792,7 +724,7 @@ export function Pager({
           type="button"
           disabled={page <= 1}
           onClick={() => onPage(page - 1)}
-          className="rounded-md border border-border/70 px-3 py-1 font-medium text-foreground transition hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+          className="rounded-md border px-3 py-1 font-medium text-foreground transition hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
         >
           Previous
         </button>
@@ -800,7 +732,7 @@ export function Pager({
           type="button"
           disabled={page >= pages}
           onClick={() => onPage(page + 1)}
-          className="rounded-md border border-border/70 px-3 py-1 font-medium text-foreground transition hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+          className="rounded-md border px-3 py-1 font-medium text-foreground transition hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
         >
           Next
         </button>
@@ -820,7 +752,11 @@ export function useDebounced<T>(value: T, ms = 300) {
 }
 
 export function SkillTag({ children }: { children: ReactNode }) {
-  return <span className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-foreground/80">{children}</span>;
+  return (
+    <span className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-foreground/80">
+      {children}
+    </span>
+  );
 }
 
 /* ── Job helpers ────────────────────────────────────────────────────────── */
@@ -940,14 +876,12 @@ export function FeatureCard({
   const gradient =
     accent === 'health'
       ? 'linear-gradient(135deg,#0f766e 0%,#0d9488 45%,#14b8a6 100%)'
-      : 'linear-gradient(135deg,#0b2a7a 0%,#1e4fd8 55%,#3b82f6 100%)';
+      : 'linear-gradient(135deg,#0b2a7a 0%,hsl(var(--primary)) 55%,#3b82f6 100%)';
   return (
     <div
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-2xl p-5 transition duration-300 hover:-translate-y-0.5',
-        solid
-          ? 'text-white shadow-[0_18px_40px_-20px_rgba(15,40,120,0.6)]'
-          : 'border border-border/70 bg-card shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:shadow-[0_14px_34px_-18px_rgba(16,24,40,0.25)]',
+        'group relative flex flex-col overflow-hidden rounded-xl p-5 transition duration-300 hover:-translate-y-0.5',
+        solid ? 'text-white shadow-soft' : 'border bg-card shadow-xs hover:shadow-soft',
         className
       )}
       style={solid ? { background: gradient } : undefined}
@@ -972,7 +906,12 @@ export function FeatureCard({
         />
       )}
       <div className="relative flex items-center justify-between">
-        <p className={cn('text-[13px] font-medium', solid ? 'text-white/80' : 'text-muted-foreground')}>
+        <p
+          className={cn(
+            'text-[13px] font-medium',
+            solid ? 'text-white/80' : 'text-muted-foreground'
+          )}
+        >
           {label}
         </p>
         {Icon && (
@@ -1002,7 +941,7 @@ export function FeatureNumber({
   suffix?: ReactNode;
 }) {
   return (
-    <p className="font-display text-[34px] font-semibold leading-none tracking-tight tabular-nums">
+    <p className="text-3xl font-bold leading-none tracking-tight tabular-nums">
       <Num value={value} format={format} />
       {suffix && <span className="ml-1.5 text-sm font-medium opacity-70">{suffix}</span>}
     </p>

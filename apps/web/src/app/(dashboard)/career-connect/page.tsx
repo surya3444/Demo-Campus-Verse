@@ -152,8 +152,8 @@ export default function CareerConnectOverview() {
           </div>
           <div className="mt-auto [margin-top:1rem]">
             <div className="flex h-2 overflow-hidden rounded-full bg-muted">
-              <span className="h-full bg-[#1e4fd8]" style={{ width: `${k.offers ? (k.placed / k.offers) * 100 : 0}%` }} />
-              <span className="h-full bg-[#1e4fd8]/25" style={{ width: `${k.offers ? ((k.offers - k.placed) / k.offers) * 100 : 0}%` }} />
+              <span className="h-full bg-primary" style={{ width: `${k.offers ? (k.placed / k.offers) * 100 : 0}%` }} />
+              <span className="h-full bg-primary/25" style={{ width: `${k.offers ? ((k.offers - k.placed) / k.offers) * 100 : 0}%` }} />
             </div>
             <p className="mt-2 flex justify-between text-xs text-muted-foreground">
               <span>
@@ -461,7 +461,7 @@ export default function CareerConnectOverview() {
             <Link
               key={href as string}
               href={href as string}
-              className="group flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-4 transition hover:border-border hover:shadow-sm"
+              className="group flex items-center gap-3 rounded-xl border bg-card p-4 transition hover:border-border hover:shadow-sm"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
                 <I className="h-4 w-4" />

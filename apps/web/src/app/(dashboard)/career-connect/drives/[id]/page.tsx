@@ -387,7 +387,7 @@ export default function DriveDetailPage() {
                     className="grid grid-cols-[150px_minmax(0,1fr)_56px] items-center gap-3 text-sm"
                   >
                     <span className="truncate capitalize text-muted-foreground">{f.label}</span>
-                    <Meter value={(f.count / top) * 100} color="#1e4fd8" />
+                    <Meter value={(f.count / top) * 100} color="hsl(var(--primary))" />
                     <span className="text-right font-medium tabular-nums">
                       {'pending' in f && f.pending ? '—' : f.count}
                     </span>

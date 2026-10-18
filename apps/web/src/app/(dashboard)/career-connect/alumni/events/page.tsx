@@ -78,7 +78,7 @@ export default function AlumniEventsPage() {
       {isLoading ? (
         <Skeleton rows={8} />
       ) : rows.length === 0 ? (
-        <div className="rounded-2xl border border-border/70 bg-card">
+        <div className="rounded-xl border bg-card">
           <Empty icon={CalendarDays} title={show === 'upcoming' ? 'Nothing scheduled' : 'Nothing here'} />
         </div>
       ) : (
@@ -90,9 +90,9 @@ export default function AlumniEventsPage() {
               <Link
                 key={e._id}
                 href={`/career-connect/alumni/events/${e._id}`}
-                className="flex flex-col gap-5 rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md sm:flex-row sm:items-center"
+                className="flex flex-col gap-5 rounded-xl border bg-card p-5 shadow-xs transition hover:shadow-md sm:flex-row sm:items-center"
               >
-                <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-xl bg-[#1e4fd8]/[0.07] text-[#1e4fd8]">
+                <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-xl bg-primary/[0.07] text-primary">
                   <span className="text-[11px] font-semibold uppercase tracking-wider">
                     {d.toLocaleDateString('en-IN', { month: 'short' })}
                   </span>

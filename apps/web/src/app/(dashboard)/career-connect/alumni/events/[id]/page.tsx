@@ -182,7 +182,7 @@ export default function AlumniEventDetailPage() {
                 )}
                 {e.isVirtual ? (
                   e.virtualLink ? (
-                    <a href={e.virtualLink} target="_blank" rel="noreferrer" className="text-[#1e4fd8] hover:underline">
+                    <a href={e.virtualLink} target="_blank" rel="noreferrer" className="text-primary hover:underline">
                       Join online
                     </a>
                   ) : (

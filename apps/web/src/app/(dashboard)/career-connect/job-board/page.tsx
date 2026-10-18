@@ -113,11 +113,11 @@ export default function JobBoardPage() {
       </div>
 
       {isLoading ? (
-        <div className="rounded-2xl border border-border/70 bg-card">
+        <div className="rounded-xl border bg-card">
           <Skeleton rows={8} />
         </div>
       ) : jobs.length === 0 ? (
-        <div className="rounded-2xl border border-border/70 bg-card">
+        <div className="rounded-xl border bg-card">
           <Empty icon={Briefcase} title="No openings here" text="Try another filter or post one." />
         </div>
       ) : (
@@ -130,13 +130,13 @@ export default function JobBoardPage() {
                 <Link
                   key={j._id}
                   href={`/career-connect/job-board/${j._id}`}
-                  className="group flex flex-col rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:border-border hover:shadow-md"
+                  className="group flex flex-col rounded-xl border bg-card p-5 shadow-xs transition hover:-translate-y-0.5 hover:border-border hover:shadow-md"
                 >
                   <div className="flex items-start gap-3">
                     <CompanyLogo name={j.companyName ?? ''} website={j.companyWebsite} size={44} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm text-muted-foreground">{j.companyName}</p>
-                      <p className="mt-0.5 font-semibold leading-snug group-hover:text-[#1e4fd8]">
+                      <p className="mt-0.5 font-semibold leading-snug group-hover:text-primary">
                         {j.title}
                       </p>
                     </div>
@@ -186,7 +186,7 @@ export default function JobBoardPage() {
               );
             })}
           </div>
-          <div className="mt-4 rounded-2xl border border-border/70 bg-card">
+          <div className="mt-4 rounded-xl border bg-card">
             <Pager page={page} total={total} limit={LIMIT} onPage={setPage} />
           </div>
         </>

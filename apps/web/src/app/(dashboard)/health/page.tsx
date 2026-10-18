@@ -74,7 +74,7 @@ export default function HealthOverview() {
               <Link href="/health/reports">Reports</Link>
             </Button>
             {hasPermission('health.visits', 'create') && (
-              <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+              <Button size="sm" asChild>
                 <Link href="/health/visits/new">
                   <Plus className="mr-1.5 h-4 w-4" />
                   Log a visit
@@ -131,9 +131,9 @@ export default function HealthOverview() {
               <span className="text-sm font-semibold tabular-nums">{checkRate}%</span>
             </Ring>
           </div>
-          <div className="mt-auto flex items-center justify-between rounded-xl bg-teal-50 px-3 py-2 text-xs dark:bg-teal-500/10 [margin-top:1rem]">
+          <div className="mt-auto flex items-center justify-between rounded-xl bg-success/10 px-3 py-2 text-xs  [margin-top:1rem]">
             <span className="text-muted-foreground">Average BMI</span>
-            <span className="font-semibold tabular-nums text-teal-700 dark:text-teal-300">{k.averageBmi}</span>
+            <span className="font-semibold tabular-nums text-success">{k.averageBmi}</span>
           </div>
         </FeatureCard>
 
@@ -144,7 +144,7 @@ export default function HealthOverview() {
               <p className="mt-1.5 text-xs text-muted-foreground">{k.vaccinesGiven} doses given</p>
             </div>
             <Ring value={k.vaccinationCompliance} size={68} stroke={6} color={TEAL}>
-              <ShieldCheck className="h-5 w-5 text-teal-600" />
+              <ShieldCheck className="h-5 w-5 text-success" />
             </Ring>
           </div>
           <Link
@@ -163,7 +163,7 @@ export default function HealthOverview() {
           action={
             <Link
               href="/health/visits"
-              className="text-sm font-medium text-teal-700 hover:underline dark:text-teal-300"
+              className="text-sm font-medium text-success hover:underline "
             >
               All visits
             </Link>
@@ -231,7 +231,7 @@ export default function HealthOverview() {
                   cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }}
                 />
                 <Bar dataKey="illness" name="Illness" stackId="v" fill={TEAL} />
-                <Bar dataKey="injury" name="Injury" stackId="v" fill="#5eead4" />
+                <Bar dataKey="injury" name="Injury" stackId="v" fill='hsl(var(--chart-3))' />
                 <Bar
                   dataKey="other"
                   name="Routine"
@@ -245,7 +245,7 @@ export default function HealthOverview() {
           <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
             {[
               ['Illness', TEAL],
-              ['Injury', '#5eead4'],
+              ['Injury', 'hsl(var(--chart-3))'],
               ['Routine', '#cbd5e1'],
             ].map(([l, c]) => (
               <span key={l} className="flex items-center gap-1.5">
@@ -337,7 +337,7 @@ export default function HealthOverview() {
                 className="grid grid-cols-[minmax(0,1fr)_140px_90px_48px] items-center gap-4 px-5 py-2.5 text-sm"
               >
                 <span className="flex items-center gap-2 truncate font-medium">
-                  <Syringe className="h-3.5 w-3.5 text-teal-600" />
+                  <Syringe className="h-3.5 w-3.5 text-success" />
                   {c.name}
                 </span>
                 <Meter value={c.rate} color={c.rate >= 75 ? TEAL : '#f59e0b'} />
@@ -355,7 +355,7 @@ export default function HealthOverview() {
           action={
             <Link
               href="/health/vaccinations"
-              className="text-sm font-medium text-teal-700 hover:underline dark:text-teal-300"
+              className="text-sm font-medium text-success hover:underline "
             >
               All vaccinations
             </Link>

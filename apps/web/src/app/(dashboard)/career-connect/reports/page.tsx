@@ -74,8 +74,8 @@ const alumniReports = [
     description: 'Alumni distribution by company, role, location, and graduation year',
     href: '/career-connect/reports/alumni-demographics',
     icon: Users,
-    color: 'text-teal-600',
-    bgColor: 'bg-teal-50',
+    color: 'text-success',
+    bgColor: 'bg-success/10',
   },
   {
     title: 'Mentorship Impact',

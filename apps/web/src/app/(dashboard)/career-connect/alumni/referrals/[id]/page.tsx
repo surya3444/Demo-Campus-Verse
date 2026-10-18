@@ -172,7 +172,7 @@ export default function ReferralDetailPage() {
           {r.alumni && (
             <Link
               href={`/career-connect/alumni/directory/${r.alumni.id}`}
-              className="block rounded-2xl border border-border/70 bg-card p-5 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
+              className="block rounded-xl border bg-card p-5 text-center shadow-xs transition hover:shadow-md"
             >
               <Avatar person={r.alumni} size={64} className="mx-auto" />
               <p className="mt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">

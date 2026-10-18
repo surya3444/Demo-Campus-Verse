@@ -117,7 +117,7 @@ export default function VaccinationsPage() {
               </Button>
             )}
             {hasPermission('health.vaccinations', 'create') && (
-              <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+              <Button size="sm" asChild>
                 <Link href="/health/vaccinations/new">
                   <Plus className="mr-1.5 h-4 w-4" />
                   Add vaccination

@@ -86,7 +86,7 @@ export default function HealthRecordsPage() {
         description="Medical history, allergies and check-ups for every student and staff member."
         actions={
           hasPermission('health.records', 'create') ? (
-            <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+            <Button size="sm" asChild>
               <Link href="/health/records/new">
                 <Plus className="mr-1.5 h-4 w-4" />
                 New record

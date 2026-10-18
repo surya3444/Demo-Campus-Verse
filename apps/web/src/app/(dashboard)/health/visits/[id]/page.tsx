@@ -134,7 +134,7 @@ export default function VisitDetailPage() {
               </Button>
             )}
             {canEdit && open && (
-              <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+              <Button size="sm" asChild>
                 <Link href={`/health/visits/${id}/close`}>Close visit</Link>
               </Button>
             )}
@@ -158,7 +158,7 @@ export default function VisitDetailPage() {
             {vitals.map(([label, value, high]) => (
               <div
                 key={label}
-                className="rounded-2xl border border-border/70 bg-card p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+                className="rounded-xl border bg-card p-4 shadow-xs"
               >
                 <p className="text-xs text-muted-foreground">{label}</p>
                 <p className={`mt-1 text-xl font-semibold tabular-nums ${high ? 'text-rose-600' : ''}`}>
@@ -218,7 +218,7 @@ export default function VisitDetailPage() {
           {!open && (
             <Panel title="Outcome">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-600" />
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
                 <div className="space-y-1 text-sm">
                   <p className="font-medium">
                     {o?.label ?? 'Closed'}
@@ -239,7 +239,7 @@ export default function VisitDetailPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-2xl border border-border/70 bg-card p-5 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+          <div className="rounded-xl border bg-card p-5 text-center shadow-xs">
             <Avatar person={v.person ?? { name: v.personName }} size={72} className="mx-auto" />
             <p className="mt-3 font-semibold">{v.person?.name ?? v.personName}</p>
             <p className="text-sm text-muted-foreground">

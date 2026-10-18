@@ -108,7 +108,7 @@ export default function CheckupsPage() {
               <Button variant="outline" size="sm" asChild>
                 <Link href="/health/checkups/campaigns/new">New campaign</Link>
               </Button>
-              <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+              <Button size="sm" asChild>
                 <Link href="/health/checkups/new">
                   <Plus className="mr-1.5 h-4 w-4" />
                   Schedule check-up
@@ -151,7 +151,7 @@ export default function CheckupsPage() {
               <Link
                 key={c._id}
                 href={`/health/checkups/campaigns/${c._id}`}
-                className="rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-border hover:shadow-sm"
+                className="rounded-xl border bg-card p-5 shadow-xs transition hover:border-border hover:shadow-sm"
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-semibold leading-snug">{c.name}</p>

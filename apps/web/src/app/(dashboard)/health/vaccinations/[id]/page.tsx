@@ -79,7 +79,7 @@ export default function VaccinationDetailPage() {
           <>
             <StatusPill status={v.status} />
             {pending && hasPermission('health.vaccinations', 'edit') && (
-              <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+              <Button size="sm" asChild>
                 <Link href={`/health/vaccinations/${id}/administer`}>Record dose</Link>
               </Button>
             )}
@@ -97,7 +97,7 @@ export default function VaccinationDetailPage() {
                 return (
                   <div key={d} className="flex-1">
                     <div
-                      className={`h-2 rounded-full ${done ? 'bg-teal-600' : current && v.status === 'overdue' ? 'bg-rose-400' : current ? 'bg-teal-200' : 'bg-muted'}`}
+                      className={`h-2 rounded-full ${done ? 'bg-success' : current && v.status === 'overdue' ? 'bg-rose-400' : current ? 'bg-success/20' : 'bg-muted'}`}
                     />
                     <p className={`mt-2 text-xs ${current ? 'font-medium' : 'text-muted-foreground'}`}>Dose {d}</p>
                   </div>
@@ -135,7 +135,7 @@ export default function VaccinationDetailPage() {
                 <li key={h._id}>
                   <Link
                     href={`/health/vaccinations/${h._id}`}
-                    className={`flex items-center justify-between gap-3 px-5 py-3 text-sm transition-colors hover:bg-muted/40 ${h._id === v._id ? 'bg-teal-50/60 dark:bg-teal-500/5' : ''}`}
+                    className={`flex items-center justify-between gap-3 px-5 py-3 text-sm transition-colors hover:bg-muted/40 ${h._id === v._id ? 'bg-success/10' : ''}`}
                   >
                     <span>
                       <span className="font-medium">{h.vaccineName}</span>
@@ -154,7 +154,7 @@ export default function VaccinationDetailPage() {
           </Panel>
         </div>
 
-        <div className="rounded-2xl border border-border/70 bg-card p-5 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04)] xl:self-start">
+        <div className="rounded-xl border bg-card p-5 text-center shadow-xs xl:self-start">
           <Avatar person={v.person ?? { name: v.personName }} size={72} className="mx-auto" />
           <p className="mt-3 font-semibold">{v.person?.name ?? v.personName}</p>
           <p className="text-sm text-muted-foreground">

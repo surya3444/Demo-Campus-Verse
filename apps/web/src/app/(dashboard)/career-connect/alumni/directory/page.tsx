@@ -109,7 +109,7 @@ export default function AlumniDirectoryPage() {
                 <Link
                   key={a._id}
                   href={`/career-connect/alumni/directory/${a._id}`}
-                  className="group flex flex-col rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-border hover:shadow-md"
+                  className="group flex flex-col rounded-xl border bg-card p-5 shadow-xs transition hover:border-border hover:shadow-md"
                 >
                   <div className="flex items-start gap-3">
                     <Avatar person={{ name: a.studentName, photo: a.person?.photo }} size={52} />
@@ -162,7 +162,7 @@ export default function AlumniDirectoryPage() {
               );
             })}
           </div>
-          <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card">
+          <div className="mt-4 overflow-hidden rounded-xl border bg-card">
             <Pager page={page} total={total} limit={LIMIT} onPage={setPage} />
           </div>
         </>

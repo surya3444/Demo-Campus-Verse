@@ -154,7 +154,7 @@ export default function MentorshipDetailPage() {
               <Link
                 key={p.tag}
                 href={p.href ?? '#'}
-                className="flex items-center gap-4 rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
+                className="flex items-center gap-4 rounded-xl border bg-card p-5 shadow-xs transition hover:shadow-md"
               >
                 <Avatar person={p.person} size={56} />
                 <div className="min-w-0">
@@ -187,7 +187,7 @@ export default function MentorshipDetailPage() {
               <ol className="relative space-y-6 border-l border-border pl-6">
                 {sessions.map((s, i) => (
                   <li key={s._id ?? i} className="relative">
-                    <span className="absolute -left-[29px] top-1 h-2.5 w-2.5 rounded-full bg-[#1e4fd8] ring-4 ring-card" />
+                    <span className="absolute -left-[29px] top-1 h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-card" />
                     <p className="text-sm font-medium">
                       {fmtDate(s.date, { weekday: 'short', day: 'numeric', month: 'short' })}
                       {s.duration ? (
@@ -208,7 +208,7 @@ export default function MentorshipDetailPage() {
               <ul className="space-y-2.5">
                 {m.goals.map((g) => (
                   <li key={g} className="flex items-start gap-2.5 text-sm">
-                    <Target className="mt-0.5 h-4 w-4 shrink-0 text-[#1e4fd8]" />
+                    <Target className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     {g}
                   </li>
                 ))}

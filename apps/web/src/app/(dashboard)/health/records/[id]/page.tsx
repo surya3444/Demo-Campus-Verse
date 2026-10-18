@@ -162,7 +162,7 @@ export default function HealthRecordDetailPage() {
               </Button>
             )}
             {hasPermission('health.records', 'edit') && (
-              <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+              <Button size="sm" asChild>
                 <Link href={`/health/records/${id}/edit`}>
                   <Edit className="mr-1.5 h-4 w-4" />
                   Edit record
@@ -202,7 +202,7 @@ export default function HealthRecordDetailPage() {
                 </p>
               </div>
             </div>
-            <div className="mt-5 grid grid-cols-3 divide-x divide-border/70 rounded-xl border border-border/70 text-center">
+            <div className="mt-5 grid grid-cols-3 divide-x divide-border/70 rounded-xl border text-center">
               {[
                 ['Blood', record.bloodGroup ?? '—'],
                 ['BMI', bmi ? bmi.toFixed(1) : '—'],
@@ -257,7 +257,7 @@ export default function HealthRecordDetailPage() {
                     </div>
                     <a
                       href={`tel:${c.phone}`}
-                      className="text-sm tabular-nums text-teal-700 hover:underline dark:text-teal-300"
+                      className="text-sm tabular-nums text-success hover:underline "
                     >
                       {c.phone}
                     </a>
@@ -280,7 +280,7 @@ export default function HealthRecordDetailPage() {
                 ))}
                 {record.currentMedications?.map((m) => (
                   <li key={m.name} className="flex items-start gap-2">
-                    <PillIcon className="mt-0.5 h-4 w-4 text-teal-600" />
+                    <PillIcon className="mt-0.5 h-4 w-4 text-success" />
                     <span>
                       <span className="font-medium">{m.name}</span>
                       <span className="block text-xs text-muted-foreground">
@@ -300,7 +300,7 @@ export default function HealthRecordDetailPage() {
             action={
               <Link
                 href={`/health/visits?personId=${record.personId}`}
-                className="text-sm font-medium text-teal-700 hover:underline dark:text-teal-300"
+                className="text-sm font-medium text-success hover:underline "
               >
                 All
               </Link>
@@ -345,7 +345,7 @@ export default function HealthRecordDetailPage() {
                 hasPermission('health.checkups', 'create') ? (
                   <Link
                     href={`/health/checkups/new?${qs}`}
-                    className="text-sm font-medium text-teal-700 hover:underline dark:text-teal-300"
+                    className="text-sm font-medium text-success hover:underline "
                   >
                     Schedule
                   </Link>
@@ -390,7 +390,7 @@ export default function HealthRecordDetailPage() {
                 hasPermission('health.vaccinations', 'create') ? (
                   <Link
                     href={`/health/vaccinations/new?${qs}`}
-                    className="text-sm font-medium text-teal-700 hover:underline dark:text-teal-300"
+                    className="text-sm font-medium text-success hover:underline "
                   >
                     Add
                   </Link>

@@ -106,7 +106,7 @@ export default function CheckupDetailPage() {
           <>
             <StatusPill status={c.status} />
             {!done && hasPermission('health.checkups', 'edit') && (
-              <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+              <Button size="sm" asChild>
                 <Link href={`/health/checkups/${id}/complete`}>Record results</Link>
               </Button>
             )}
@@ -122,7 +122,7 @@ export default function CheckupDetailPage() {
                 {tiles.map(([label, value, sub]) => (
                   <div
                     key={label}
-                    className="rounded-2xl border border-border/70 bg-card p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+                    className="rounded-xl border bg-card p-4 shadow-xs"
                   >
                     <p className="text-xs text-muted-foreground">{label}</p>
                     <p className="mt-1 text-xl font-semibold tabular-nums">
@@ -137,7 +137,7 @@ export default function CheckupDetailPage() {
                 <ul className="divide-y divide-border/60">
                   {exams.map(([label, Icon, exam, detail]) => (
                     <li key={label} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-success/10 text-success  ">
                         <Icon className="h-4 w-4" />
                       </span>
                       <div className="min-w-0 flex-1">
@@ -194,7 +194,7 @@ export default function CheckupDetailPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-2xl border border-border/70 bg-card p-5 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+          <div className="rounded-xl border bg-card p-5 text-center shadow-xs">
             <Avatar person={c.person ?? { name: c.personName }} size={72} className="mx-auto" />
             <p className="mt-3 font-semibold">{c.person?.name ?? c.personName}</p>
             <p className="text-sm text-muted-foreground">
@@ -213,7 +213,7 @@ export default function CheckupDetailPage() {
                 ...(c.campaignId
                   ? [[
                       'Campaign',
-                      <Link key="c" href={`/health/checkups/campaigns/${c.campaignId}`} className="text-teal-700 hover:underline">
+                      <Link key="c" href={`/health/checkups/campaigns/${c.campaignId}`} className="text-success hover:underline">
                         View campaign
                       </Link>,
                     ] as [string, React.ReactNode]]

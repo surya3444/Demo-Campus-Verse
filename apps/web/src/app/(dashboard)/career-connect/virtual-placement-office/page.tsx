@@ -99,7 +99,7 @@ export default function VirtualPlacementOffice() {
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden rounded-3xl bg-[#06163f] text-white shadow-[0_30px_80px_-30px_rgba(6,22,63,0.7)]">
         <div className="vpo-grid pointer-events-none absolute inset-0 opacity-[0.18]" />
-        <div className="pointer-events-none absolute -left-32 -top-40 h-[28rem] w-[28rem] rounded-full bg-[#1e4fd8] opacity-50 blur-[120px]" />
+        <div className="pointer-events-none absolute -left-32 -top-40 h-[28rem] w-[28rem] rounded-full bg-primary opacity-50 blur-[120px]" />
         <div className="pointer-events-none absolute -bottom-40 right-0 h-[26rem] w-[26rem] rounded-full bg-cyan-400 opacity-25 blur-[120px]" />
         <div className="vpo-scan pointer-events-none absolute inset-x-0 h-24 bg-gradient-to-b from-transparent via-cyan-300/10 to-transparent" />
 
@@ -124,7 +124,7 @@ export default function VirtualPlacementOffice() {
               India-friendly job boards, round the clock — and puts every opening in front of your students.
             </p>
 
-            <div className="mt-7 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-1.5 pl-4 backdrop-blur-md focus-within:border-cyan-300/60 focus-within:bg-white/[0.14]">
+            <div className="mt-7 flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 p-1.5 pl-4 backdrop-blur-md focus-within:border-cyan-300/60 focus-within:bg-white/[0.14]">
               <Search className="h-5 w-5 shrink-0 text-blue-200" />
               <input
                 value={search}
@@ -163,7 +163,7 @@ export default function VirtualPlacementOffice() {
           </div>
 
           {/* Live wire */}
-          <div className="relative hidden h-[22rem] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] backdrop-blur-md lg:block">
+          <div className="relative hidden h-[22rem] overflow-hidden rounded-xl border border-white/10 bg-white/[0.06] backdrop-blur-md lg:block">
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
               <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-blue-100">
                 <Radio className="h-3.5 w-3.5 text-emerald-300" />
@@ -264,8 +264,8 @@ export default function VirtualPlacementOffice() {
                   className={cn(
                     'rounded-full border px-2.5 py-1 text-xs transition',
                     city === c.name
-                      ? 'border-[#1e4fd8] bg-[#1e4fd8] text-white'
-                      : 'border-border bg-card text-foreground hover:border-[#1e4fd8]/40'
+                      ? 'border-primary bg-primary text-white'
+                      : 'border-border bg-card text-foreground hover:border-primary/40'
                   )}
                 >
                   {c.name} <span className="tabular-nums opacity-60">{c.count}</span>
@@ -285,12 +285,12 @@ export default function VirtualPlacementOffice() {
                 </button>
               ))}
             </div>
-            <label className="mt-3 flex cursor-pointer items-center justify-between rounded-lg border border-border/70 bg-card px-3 py-2.5 text-sm">
+            <label className="mt-3 flex cursor-pointer items-center justify-between rounded-lg border bg-card px-3 py-2.5 text-sm">
               <span className="flex items-center gap-2">
                 <GraduationCap className="h-4 w-4 text-emerald-600" />
                 Fresher-friendly only
               </span>
-              <input type="checkbox" checked={fresher} onChange={(e) => setFresher(e.target.checked)} className="h-4 w-4 accent-[#1e4fd8]" />
+              <input type="checkbox" checked={fresher} onChange={(e) => setFresher(e.target.checked)} className="h-4 w-4 accent-primary" />
             </label>
           </FilterBlock>
           {first && (
@@ -336,7 +336,7 @@ export default function VirtualPlacementOffice() {
               <button
                 key={f.label}
                 onClick={f.clear}
-                className="inline-flex items-center gap-1 rounded-full bg-[#1e4fd8]/10 px-2.5 py-1 text-xs font-medium text-[#1e4fd8] hover:bg-[#1e4fd8]/15"
+                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary hover:bg-primary/15"
               >
                 {f.label}
                 <X className="h-3 w-3" />
@@ -355,11 +355,11 @@ export default function VirtualPlacementOffice() {
           {!first ? (
             <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
               {Array.from({ length: 6 }, (_, i) => (
-                <div key={i} className="h-48 animate-pulse rounded-2xl border border-border/60 bg-muted/40" />
+                <div key={i} className="h-48 animate-pulse rounded-xl border border-border/60 bg-muted/40" />
               ))}
             </div>
           ) : jobs.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+            <div className="rounded-xl border border-dashed border-border bg-card px-6 py-16 text-center">
               <Search className="mx-auto h-8 w-8 text-muted-foreground/50" />
               <p className="mt-3 font-medium">No openings match</p>
               <p className="mt-1 text-sm text-muted-foreground">Loosen a filter — new roles land here every few minutes.</p>
@@ -383,7 +383,7 @@ export default function VirtualPlacementOffice() {
                   <button
                     onClick={() => feed.fetchNextPage()}
                     disabled={feed.isFetchingNextPage}
-                    className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium shadow-sm transition hover:border-[#1e4fd8]/40 hover:shadow-md disabled:opacity-60"
+                    className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium shadow-sm transition hover:border-primary/40 hover:shadow-md disabled:opacity-60"
                   >
                     {feed.isFetchingNextPage ? 'Loading…' : `Show more · ${(first.total - jobs.length).toLocaleString('en-IN')} left`}
                   </button>
@@ -413,7 +413,7 @@ function JobCard({
   const tint = CATEGORY_TINT[j.category] ?? '#64748b';
   return (
     <article
-      className="vpo-card group relative flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-[0_18px_40px_-18px_rgba(30,79,216,0.45)]"
+      className="vpo-card group relative flex flex-col overflow-hidden rounded-xl border bg-card p-5 shadow-xs transition duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-[0_18px_40px_-18px_rgba(30,79,216,0.45)]"
       style={{ animationDelay: `${index * 35}ms`, ['--tint' as string]: tint }}
     >
       <span className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-[var(--tint)] transition-transform duration-500 group-hover:scale-x-100" />
@@ -465,7 +465,7 @@ function JobCard({
               <button
                 onClick={onShare}
                 disabled={sharing}
-                className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium transition hover:border-[#1e4fd8]/40 hover:text-[#1e4fd8] disabled:opacity-60"
+                className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium transition hover:border-primary/40 hover:text-primary disabled:opacity-60"
                 title="Post this opening on the campus job board"
               >
                 <Send className="h-3.5 w-3.5" />
@@ -476,7 +476,7 @@ function JobCard({
             href={j.url}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 rounded-lg bg-[#1e4fd8] px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-[#1840b8]"
+            className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-primary/90"
           >
             Apply
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -489,7 +489,7 @@ function JobCard({
 
 function FilterBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+    <div className="rounded-xl border bg-card p-4 shadow-xs">
       <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{title}</p>
       {children}
     </div>

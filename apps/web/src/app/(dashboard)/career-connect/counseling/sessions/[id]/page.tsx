@@ -47,7 +47,7 @@ const statusColors: Record<string, string> = {
 const audienceTypeColors: Record<string, string> = {
   individual: 'bg-blue-100 text-blue-800',
   group: 'bg-purple-100 text-purple-800',
-  section: 'bg-teal-100 text-teal-800',
+  section: 'bg-success/20 text-success',
   class: 'bg-amber-100 text-amber-800',
   workshop: 'bg-green-100 text-green-800',
 };

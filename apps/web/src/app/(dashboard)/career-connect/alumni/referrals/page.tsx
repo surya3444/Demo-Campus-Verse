@@ -143,7 +143,7 @@ export default function ReferralsPage() {
       {isLoading ? (
         <Skeleton rows={8} />
       ) : rows.length === 0 ? (
-        <div className="rounded-2xl border border-border/70 bg-card">
+        <div className="rounded-xl border bg-card">
           <Empty icon={Share2} title="No referral openings" text="Ask alumni to share one." />
         </div>
       ) : (
@@ -156,7 +156,7 @@ export default function ReferralsPage() {
                 <Link
                   key={r._id}
                   href={`/career-connect/alumni/referrals/${r._id}`}
-                  className="flex flex-col rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-md"
+                  className="flex flex-col rounded-xl border bg-card p-5 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md"
                 >
                   <div className="flex items-start gap-3">
                     <CompanyLogo name={r.companyName} size={40} />
@@ -203,7 +203,7 @@ export default function ReferralsPage() {
               );
             })}
           </div>
-          <div className="mt-4 rounded-2xl border border-border/70 bg-card">
+          <div className="mt-4 rounded-xl border bg-card">
             <Pager page={page} total={total} limit={LIMIT} onPage={setPage} />
           </div>
         </>

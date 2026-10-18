@@ -158,7 +158,7 @@ export default function StudentProfilesPage() {
                       <div className="flex w-32 items-center gap-2">
                         <Meter
                           value={pct}
-                          color={pct >= 70 ? '#16a34a' : pct >= 40 ? '#1e4fd8' : '#f59e0b'}
+                          color={pct >= 70 ? '#16a34a' : pct >= 40 ? 'hsl(var(--primary))' : '#f59e0b'}
                           className="flex-1"
                         />
                         <span className="w-9 text-right text-xs tabular-nums text-muted-foreground">

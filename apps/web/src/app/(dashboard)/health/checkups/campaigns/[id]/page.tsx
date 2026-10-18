@@ -117,7 +117,6 @@ export default function CampaignDetailPage() {
             {c.status === 'scheduled' && hasPermission('health.checkups', 'create') && (
               <Button
                 size="sm"
-                className="bg-teal-600 hover:bg-teal-700"
                 onClick={() => start.mutate()}
                 disabled={start.isPending}
               >

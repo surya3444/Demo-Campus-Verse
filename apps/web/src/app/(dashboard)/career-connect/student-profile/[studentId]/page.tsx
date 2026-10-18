@@ -451,7 +451,7 @@ export default function StudentProfileDetailPage() {
                 </Pill>
               </div>
             </div>
-            <div className="mt-5 grid grid-cols-3 divide-x divide-border/70 rounded-xl border border-border/70 text-center">
+            <div className="mt-5 grid grid-cols-3 divide-x divide-border/70 rounded-xl border text-center">
               {[
                 ['CGPA', person?.cgpa ? person.cgpa.toFixed(2) : '—'],
                 ['Skills', String(profile.skills.length)],
@@ -470,7 +470,7 @@ export default function StudentProfileDetailPage() {
               </div>
               <Meter
                 value={pct}
-                color={pct >= 70 ? '#16a34a' : pct >= 40 ? '#1e4fd8' : '#f59e0b'}
+                color={pct >= 70 ? '#16a34a' : pct >= 40 ? 'hsl(var(--primary))' : '#f59e0b'}
                 className="mt-1.5"
               />
             </div>
@@ -539,7 +539,7 @@ export default function StudentProfileDetailPage() {
                 {profile.skills.map((s) => (
                   <span
                     key={s._id}
-                    className="group inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background px-2.5 py-1.5 text-sm"
+                    className="group inline-flex items-center gap-1.5 rounded-lg border bg-background px-2.5 py-1.5 text-sm"
                   >
                     <span className="font-medium">{s.name}</span>
                     {s.proficiency && (

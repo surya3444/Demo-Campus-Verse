@@ -100,8 +100,15 @@ class AiController {
       emit('done', {});
     } catch (err) {
       logger.error({ err, tenantId: ctx.tenantId }, 'AI chat stream failed');
+      // Name the provider problems an admin can fix; everything else stays generic
+      const status = (err as { status?: number }).status;
       emit('error', {
-        message: 'Something went wrong while answering. Please try again.',
+        message:
+          status === 401
+            ? 'The AI assistant’s OpenAI key is invalid or revoked. Ask your administrator to update it.'
+            : status === 429
+              ? 'The AI assistant has hit its OpenAI usage limit. Please try again later.'
+              : 'Something went wrong while answering. Please try again.',
       });
     } finally {
       if (!res.writableEnded) res.end();

@@ -114,7 +114,7 @@ export default function MentorshipPage() {
           {isLoading ? (
             <Skeleton rows={8} />
           ) : rows.length === 0 ? (
-            <div className="rounded-2xl border border-border/70 bg-card">
+            <div className="rounded-xl border bg-card">
               <Empty icon={HeartHandshake} title="No pairings here" />
             </div>
           ) : (
@@ -126,7 +126,7 @@ export default function MentorshipPage() {
                     <Link
                       key={m._id}
                       href={`/career-connect/alumni/mentorship/${m._id}`}
-                      className="group rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-border hover:shadow-md"
+                      className="group rounded-xl border bg-card p-5 shadow-xs transition hover:border-border hover:shadow-md"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -164,14 +164,14 @@ export default function MentorshipPage() {
                   );
                 })}
               </div>
-              <div className="mt-4 rounded-2xl border border-border/70 bg-card">
+              <div className="mt-4 rounded-xl border bg-card">
                 <Pager page={page} total={total} limit={LIMIT} onPage={setPage} />
               </div>
             </>
           )}
         </div>
 
-        <aside className="rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] xl:self-start">
+        <aside className="rounded-xl border bg-card p-5 shadow-xs xl:self-start">
           <p className="font-semibold">Mentors</p>
           <p className="mt-0.5 text-sm text-muted-foreground">Alumni giving their time this term</p>
           <ul className="mt-4 space-y-3.5">

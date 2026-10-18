@@ -45,7 +45,7 @@ import { toast } from 'sonner';
 const typeColors: Record<string, string> = {
   aptitude: 'bg-blue-100 text-blue-800',
   interest: 'bg-purple-100 text-purple-800',
-  personality: 'bg-teal-100 text-teal-800',
+  personality: 'bg-success/20 text-success',
   skill: 'bg-orange-100 text-orange-800',
 };
 

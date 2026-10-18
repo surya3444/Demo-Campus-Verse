@@ -114,7 +114,7 @@ function Visits() {
         description="Every visit to the campus health room — what brought them in, what was done and where they went next."
         actions={
           hasPermission('health.visits', 'create') ? (
-            <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+            <Button size="sm" asChild>
               <Link href="/health/visits/new">
                 <Plus className="mr-1.5 h-4 w-4" />
                 Log a visit
