@@ -809,3 +809,16 @@
     animation: none !important;
   }
 }
+
+/* ───────────────────────── Health Connect — heartbeat ───────────────────── */
+@keyframes hc-ecg {
+  from { stroke-dashoffset: 1200; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes hc-beat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.14); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.1); }
+  70% { transform: scale(1); }
+}

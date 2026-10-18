@@ -5,6 +5,8 @@ import { requireBranch, requirePermission } from '../../middleware/rbac';
 import { requireModule } from '../../middleware/moduleGating';
 import { validateBody, validateQuery } from '../../middleware/validate';
 import { requireInstitutionType } from './middleware/institutionTypeGuard';
+import { careerHubService } from './reports/careerHub.service';
+import { success } from '../../utils/response';
 import { companyController } from './companies/company.controller';
 import { driveController } from './drives/drive.controller';
 import { offerController } from './drives/offer.controller';
@@ -778,6 +780,20 @@ router.post(
 // ============ Reports ============
 
 // Placement reports (College/University only)
+// Career Connect home: everything the hub page shows, in one read
+router.get(
+  '/hub',
+  requireInstitutionType('placement'),
+  requirePermission('careerConnect.drives', 'view'),
+  async (req, res, next) => {
+    try {
+      success(res, await careerHubService.get(req.tenantId!, req.branchId!));
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
 router.get(
   '/reports/placement-summary',
   requireInstitutionType('placement'),

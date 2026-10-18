@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   Activity,
+  Sparkles,
   PartyPopper,
   Compass,
   PlusCircle,
@@ -730,6 +731,14 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: Briefcase,
         premium: true,
         children: [
+          {
+            name: 'Overview',
+            href: '/career-connect',
+            icon: Sparkles,
+            exact: true,
+            institutionTypes: ['college', 'university'],
+            permission: { module: 'careerConnect.drives', action: 'view' },
+          },
           {
             name: 'Companies',
             href: '/career-connect/companies',

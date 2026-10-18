@@ -4219,6 +4219,11 @@ export const financeApi = {
 
 // Health API
 export const healthApi = {
+  /** Everything the Health Connect home shows, in one read. */
+  getHub: async () => {
+    const response = await api.get('/health/hub');
+    return response.data as { data: HealthHub };
+  },
   // Health Records
   getRecords: async (params?: {
     page?: number;
@@ -4361,7 +4366,7 @@ export const healthApi = {
       followUpDate?: string;
     }
   ) => {
-    const response = await api.put(`/health/checkups/${id}/complete`, data);
+    const response = await api.post(`/health/checkups/${id}/complete`, data);
     return response.data;
   },
 
@@ -4486,7 +4491,7 @@ export const healthApi = {
       nextDueDate?: string;
     }
   ) => {
-    const response = await api.put(`/health/vaccinations/${id}/administer`, data);
+    const response = await api.post(`/health/vaccinations/${id}/administer`, data);
     return response.data;
   },
 
@@ -5651,6 +5656,11 @@ export const teachingApi = {
 
 // Career Connect API
 export const careerConnectApi = {
+  /** Everything the Career Connect home shows, in one read. */
+  getHub: async () => {
+    const response = await api.get('/career-connect/hub');
+    return response.data as { data: CareerHub };
+  },
   // Companies
   getCompanies: async (params?: Record<string, unknown>) => {
     const response = await api.get('/career-connect/companies', { params });
@@ -7706,3 +7716,111 @@ export const clubsApi = {
     return response.data as { data: { memberCount: number; isMember: boolean } };
   },
 };
+
+// ============ Connect hubs ============
+type NameValue = { name: string; value: number };
+export interface CareerHub {
+  kpis: {
+    companies: number;
+    drives: number;
+    openDrives: number;
+    registered: number;
+    offers: number;
+    placed: number;
+    placementRate: number;
+    highestCtc: number;
+    averageCtc: number;
+    medianCtc: number;
+  };
+  recruiters: Array<{
+    name: string;
+    website?: string;
+    industry?: string;
+    offers: number;
+    accepted: number;
+    topCtc: number;
+  }>;
+  recentPlacements: Array<{
+    name: string;
+    photo: string | null;
+    program: string;
+    company: string;
+    website: string | null;
+    role: string;
+    ctc: number;
+    date: string;
+  }>;
+  departments: Array<{
+    name: string;
+    registered: number;
+    placed: number;
+    rate: number;
+    averageCtc: number;
+  }>;
+  ctcBands: Array<{ label: string; count: number }>;
+  timeline: Array<{ month: string; offers: number; accepted: number }>;
+  funnel: Array<{ stage: string; count: number }>;
+  upcoming: Array<{
+    _id: string;
+    title: string;
+    company: string;
+    website: string | null;
+    role: string;
+    ctc: number;
+    status: string;
+    deadline: string;
+    registered: number;
+  }>;
+  alumni: Array<{
+    name: string;
+    photo: string | null;
+    company: string;
+    role: string;
+    year: number;
+    mentor: boolean;
+  }>;
+}
+export interface HealthHub {
+  kpis: {
+    records: number;
+    studentRecords: number;
+    visitsToday: number;
+    inSickRoom: number;
+    visitsWeek: number;
+    visitsMonth: number;
+    checkupsDone: number;
+    checkupsTotal: number;
+    averageBmi: number;
+    vaccinationCompliance: number;
+    vaccinesGiven: number;
+    overdue: number;
+    allergyAlerts: number;
+  };
+  trend: Array<{ date: string; label: string; illness: number; injury: number; other: number }>;
+  byType: NameValue[];
+  complaints: NameValue[];
+  outcomes: NameValue[];
+  bmiBands: NameValue[];
+  vision: NameValue[];
+  coverage: Array<{ name: string; total: number; completed: number; rate: number }>;
+  today: Array<{
+    _id: string;
+    name: string;
+    photo: string | null;
+    subtitle: string;
+    complaint: string;
+    type: string;
+    status: string;
+    outcome: string | null;
+    time: string;
+  }>;
+  dueSoon: Array<{
+    _id: string;
+    name: string;
+    photo: string | null;
+    subtitle: string;
+    vaccine: string;
+    date: string;
+    overdue: boolean;
+  }>;
+}

@@ -14,7 +14,8 @@ import { connectDatabase, closeDatabase, collections } from '../../config/databa
  * Hand-picked from the set for a South Indian campus: plausible faces, plain
  * ID-style shots (no caps, sunglasses or joke poses).
  */
-const MEN = [4, 5, 7, 9, 11, 12, 20, 26, 30, 35, 37, 38, 39, 41, 45, 47, 48, 50, 56, 58, 65, 67, 69, 73, 77, 85, 86, 87, 90, 95, 97, 98, 61, 46];
+// men/69 is reserved for the group owner's portrait.
+const MEN = [4, 5, 7, 9, 11, 12, 20, 26, 30, 35, 37, 38, 39, 41, 45, 47, 48, 50, 56, 58, 65, 67, 73, 77, 85, 86, 87, 90, 95, 97, 98, 61, 46];
 const WOMEN = [1, 2, 8, 12, 13, 15, 19, 22, 26, 28, 29, 40, 42, 46, 53, 56, 61, 63, 70, 75, 76, 78, 79, 85, 88, 95, 98, 99, 17, 66];
 const url = (female: boolean, i: number) =>
   `https://randomuser.me/api/portraits/${female ? 'women' : 'men'}/${i}.jpg`;

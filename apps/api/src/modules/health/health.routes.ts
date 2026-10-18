@@ -9,6 +9,8 @@ import { vaccinationController } from './vaccination.controller';
 import { medicalVisitController } from './medicalVisit.controller';
 import { healthSettingsController } from './healthSettings.controller';
 import { healthReportController } from './healthReport.controller';
+import { healthHubService } from './healthHub.service';
+import { success } from '../../utils/response';
 import {
   createHealthRecordSchema,
   updateHealthRecordSchema,
@@ -289,6 +291,15 @@ router.post(
 );
 
 // ============ Reports ============
+
+// Health Connect home: everything the hub page shows, in one read
+router.get('/hub', requirePermission('health.records', 'view'), async (req, res, next) => {
+  try {
+    success(res, await healthHubService.get(req.tenantId!, req.branchId!));
+  } catch (e) {
+    next(e);
+  }
+});
 
 router.get(
   '/reports/dashboard',
