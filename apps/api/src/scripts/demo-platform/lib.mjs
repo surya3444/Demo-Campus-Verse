@@ -6,7 +6,8 @@ import path from 'path';
 export const API = process.env.DEMO_API ?? 'http://localhost:3001/api/v1';
 const ROOT = path.resolve(new URL('.', import.meta.url).pathname, '../../../../../..');
 // Line 1 is the shared demo password (later lines may hold changed ones).
-export const PASSWORD = fs.readFileSync(path.join(ROOT, 'demo-password.txt'), 'utf8').split('\n')[0].trim();
+export const PASSWORD =
+  process.env.DEMO_PASSWORD ?? fs.readFileSync(path.join(ROOT, 'demo-password.txt'), 'utf8').split('\n')[0].trim();
 export const STATE_DIR = path.join(ROOT, 'demo-state');
 fs.mkdirSync(STATE_DIR, { recursive: true });
 
@@ -74,8 +75,9 @@ export async function session(email, password = PASSWORD) {
         await login();
         continue;
       }
-      if (r.status >= 500 && attempt < 3) {
-        await sleep(2000);
+      if (r.status >= 500 && attempt < 8) {
+        // Database blips surface as 500s; give the connection time to recover.
+        await sleep(5000);
         continue;
       }
       const j = await r.json().catch(() => ({}));
@@ -146,11 +148,18 @@ const FIRST_M = ['Aarav','Vivaan','Aditya','Arjun','Sai','Reyansh','Krishna','Is
 const FIRST_F = ['Ananya','Diya','Saanvi','Aadhya','Isha','Kavya','Meera','Priya','Riya','Sneha','Pooja','Anjali','Divya','Lakshmi','Nisha','Shreya','Tanvi','Varsha','Neha','Aishwarya','Bhavana','Chitra','Deepika','Gayatri','Harini','Jyoti','Keerthi','Lavanya','Madhuri','Nandini','Pallavi','Radhika','Sahana','Swathi','Uma','Vidya','Yamini','Zoya','Rashmi','Sunita'];
 const LAST = ['Sharma','Verma','Iyer','Reddy','Nair','Rao','Patel','Gupta','Kulkarni','Deshpande','Joshi','Menon','Pillai','Shetty','Hegde','Kamath','Bhat','Naidu','Chowdary','Singh','Yadav','Mishra','Pandey','Agarwal','Malhotra','Kapoor','Bose','Das','Mukherjee','Banerjee','Ghosh','Sinha','Jain','Mehta','Shah','Desai','Pawar','Patil','Gowda','Krishnan'];
 
+const KERALA = {
+  m: ['Arjun','Abhijith','Akhil','Adarsh','Aswin','Gokul','Jithin','Joel','Sreehari','Nikhil','Rahul','Vishnu','Anand','Midhun','Sidharth','Alan','Allen','Christo','Jerin','Kevin','Melvin','Basil','Ebin','Muhammed','Fahad','Ajmal','Shahid','Hari','Govind','Navaneeth','Rohith','Sanjay','Amal','Athul','Anoop','Sooraj','Deepu','Febin','Tony','Bibin'],
+  f: ['Aleena','Anna','Anagha','Athira','Devika','Gopika','Sreelakshmi','Lakshmi','Meera','Nandana','Neha','Parvathy','Revathy','Aiswarya','Anjana','Ashna','Fathima','Hiba','Nidha','Sana','Ann Maria','Alphonsa','Liya','Mariya','Rose','Teresa','Jismi','Sneha','Divya','Keerthana','Krishnapriya','Malavika','Niranjana','Sruthi','Varsha','Amrutha','Gayathri','Haritha','Jyothi','Riya'],
+  last: ['Thomas','Joseph','George','Mathew','Varghese','Kurian','Philip','Abraham','John','Jacob','Chacko','Antony','Sebastian','Francis','Paul','Nair','Menon','Pillai','Kurup','Warrier','Namboothiri','Panicker','Unnithan','Krishnan','Rajan','Kumar','Babu','Das','Mohan','Suresh','Rasheed','Basheer','Haneefa','Ismail','Salim','Raveendran','Sasidharan','Gopinath','Vijayan','Radhakrishnan'],
+};
+
 export function person(i) {
   const female = rnd() < 0.48;
+  const kerala = process.env.DEMO_NAMES === 'kerala';
   return {
-    firstName: pick(female ? FIRST_F : FIRST_M),
-    lastName: pick(LAST),
+    firstName: pick(kerala ? KERALA[female ? 'f' : 'm'] : female ? FIRST_F : FIRST_M),
+    lastName: pick(kerala ? KERALA.last : LAST),
     gender: female ? 'female' : 'male',
     phone: `9${String(int(100000000, 999999999))}`,
   };

@@ -84,6 +84,8 @@ interface Collections {
   certificateRequests: Collection<Document>;
   idCardTemplates: Collection<Document>;
   idCardDesigns: Collection<Document>;
+  clubs: Collection<Document>;
+  clubMembers: Collection<Document>;
   auditLogs: Collection<Document>;
   aiConversations: Collection<Document>;
   settings: Collection<Document>;
@@ -346,6 +348,12 @@ export const collections: Collections = {
   },
   get idCardDesigns() {
     return getDb().collection('id_card_designs');
+  },
+  get clubs() {
+    return getDb().collection('clubs');
+  },
+  get clubMembers() {
+    return getDb().collection('club_members');
   },
   get auditLogs() {
     return getDb().collection('audit_logs');

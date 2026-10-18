@@ -46,6 +46,7 @@ import obeRoutes from './modules/obe/obe.routes';
 import aiRoutes from './modules/ai/ai.routes';
 import auditRoutes from './modules/audit/audit.routes';
 import centralRoutes from './modules/central/central.routes';
+import clubsRoutes from './modules/clubs/clubs.routes';
 import { auditLog } from './middleware/auditLog';
 
 const app: ReturnType<typeof express> = express();
@@ -175,6 +176,7 @@ app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/audit', auditRoutes);
 // Cross-institution ("All institutions") rollups — deliberately branch-less.
 app.use('/api/v1/central', centralRoutes);
+app.use('/api/v1/clubs', clubsRoutes);
 
 // 404 handler
 app.use((_req, res) => {

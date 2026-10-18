@@ -80,29 +80,36 @@ for (const org of ORGS.filter((o) => !only || o.key === only)) {
     };
 
     const base = `cvdemo-${org.key}-${c.code.toLowerCase()}`;
+    // Orgs on their own domain (Marian) get real-looking addresses.
+    const em = (local) => (org.key === 'marian' ? `${local}@${org.domain}` : `${base}-${local}@yopmail.com`);
     // Campus-level roles
     for (const [roleCode, slugName, n] of CAMPUS_ROLES(org.type === 'university')) {
       for (let i = 1; i <= n; i++) {
-        await make({ email: `${base}-${slugName}${n > 1 ? i : ''}@yopmail.com`, roleCode, title: roleCode === 'BRANCH_ADMIN' ? (org.type === 'school' ? 'Principal' : 'Campus Director') : slugName });
+        await make({ email: em(`${slugName}${n > 1 ? i : ''}`), roleCode, title: roleCode === 'BRANCH_ADMIN' ? (org.type === 'school' ? 'Principal' : 'Campus Director') : slugName });
       }
     }
 
     if (org.type === 'university') {
       for (const inst of c.institutions) {
         const is = cs.institutions[inst.code];
-        const ib = `${base}-${inst.code.toLowerCase()}`;
-        await make({ email: `${ib}-dean@yopmail.com`, roleCode: 'INSTITUTION_ADMIN', title: 'Dean', institutionCode: inst.code, accessScope: { type: 'institution', institutionIds: [is.id] } });
+        const ib = inst.code.toLowerCase();
+        await make({ email: em(`${ib}-dean`), roleCode: 'INSTITUTION_ADMIN', title: 'Dean', institutionCode: inst.code, accessScope: { type: 'institution', institutionIds: [is.id] } });
         const depts = inst.departments.map((d) => ({ code: d.code, id: is.departments[d.code].id }));
         for (const d of depts) {
-          await make({ email: `${ib}-${d.code.toLowerCase()}-hod@yopmail.com`, roleCode: 'HOD', title: 'HOD', teaching: true, departmentId: d.id, institutionCode: inst.code, accessScope: { type: 'department', departmentIds: [d.id] } });
+          await make({ email: em(`${ib}-${d.code.toLowerCase()}-hod`), roleCode: 'HOD', title: 'HOD', teaching: true, departmentId: d.id, institutionCode: inst.code, accessScope: { type: 'department', departmentIds: [d.id] } });
         }
         const specs = [];
-        for (let t = 1; t <= TEACHERS_PER_INSTITUTION; t++) {
+        // Marian: about one teacher per three section-subjects (min 6).
+        const load = cs.classes
+          .filter((k) => k.institutionCode === inst.code)
+          .reduce((n, k) => n + k.sections.length * k.subjectIds.length, 0);
+        const nTeachers = org.key === 'marian' ? Math.max(6, Math.ceil(load / 3)) : TEACHERS_PER_INSTITUTION;
+        for (let t = 1; t <= nTeachers; t++) {
           const d = depts[(t - 1) % depts.length];
-          specs.push({ email: `${ib}-${d.code.toLowerCase()}-t${String(t).padStart(3, '0')}@yopmail.com`, roleCode: 'TEACHER', title: t % 7 === 0 ? 'Associate Professor' : t % 3 === 0 ? 'Professor' : 'Assistant Professor', teaching: true, departmentId: d.id, institutionCode: inst.code, contract: t % 11 === 0 });
+          specs.push({ email: em(`${ib}-${d.code.toLowerCase()}-t${String(t).padStart(3, '0')}`), roleCode: 'TEACHER', title: t % 7 === 0 ? 'Associate Professor' : t % 3 === 0 ? 'Professor' : 'Assistant Professor', teaching: true, departmentId: d.id, institutionCode: inst.code, contract: t % 11 === 0 });
         }
-        for (let n = 1; n <= 12; n++) {
-          specs.push({ email: `${ib}-office${n}@yopmail.com`, title: n <= 6 ? 'Lab Assistant' : 'Office Assistant', departmentId: depts[n % depts.length].id, institutionCode: inst.code, contract: n % 3 === 0 });
+        for (let n = 1; n <= (org.key === 'marian' ? Math.min(12, 2 + depts.length) : 12); n++) {
+          specs.push({ email: em(`${ib}-office${n}`), title: n <= 6 ? 'Lab Assistant' : 'Office Assistant', departmentId: depts[n % depts.length].id, institutionCode: inst.code, contract: n % 3 === 0 });
         }
         await pool(specs, 4, make);
         saveState(org.key, st);
@@ -111,9 +118,9 @@ for (const org of ORGS.filter((o) => !only || o.key === only)) {
     } else {
       const specs = [];
       for (let t = 1; t <= SCHOOL_TEACHERS; t++) {
-        specs.push({ email: `${base}-t${String(t).padStart(3, '0')}@yopmail.com`, roleCode: 'TEACHER', title: t <= 5 ? 'Senior Teacher' : 'Teacher', teaching: true, contract: t % 9 === 0 });
+        specs.push({ email: em(`t${String(t).padStart(3, '0')}`), roleCode: 'TEACHER', title: t <= 5 ? 'Senior Teacher' : 'Teacher', teaching: true, contract: t % 9 === 0 });
       }
-      for (let n = 1; n <= 8; n++) specs.push({ email: `${base}-office${n}@yopmail.com`, title: n <= 3 ? 'Lab Assistant' : 'Support Staff' });
+      for (let n = 1; n <= 8; n++) specs.push({ email: em(`office${n}`), title: n <= 3 ? 'Lab Assistant' : 'Support Staff' });
       await pool(specs, 4, make);
     }
     saveState(org.key, st);

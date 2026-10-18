@@ -3,7 +3,7 @@
 import { session, loadState, saveState, log } from './lib.mjs';
 import { ORGS } from './spec.mjs';
 
-for (const org of ORGS.filter((o) => o.type === 'university')) {
+for (const org of ORGS.filter((o) => o.type === 'university' && (!process.argv[2] || o.key === process.argv[2]))) {
   const st = loadState(org.key);
   const owner = await session(org.owner);
   log(`== ${org.key}`);

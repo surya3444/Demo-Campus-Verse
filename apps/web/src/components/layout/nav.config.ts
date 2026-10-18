@@ -1,6 +1,9 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   Activity,
+  PartyPopper,
+  Compass,
+  PlusCircle,
   IdCard,
   ArrowLeftRight,
   ArrowRightLeft,
@@ -105,6 +108,8 @@ export interface NavModule {
   settings?: { href: string; permission: NavPermission };
   /** Visible regardless of the tenant's subscribed feature modules. */
   alwaysAvailable?: boolean;
+  /** Premium add-on: shown with a gold star in the sidebar. */
+  premium?: boolean;
   /**
    * Feature-module id used for the subscription gate when it differs from
    * `id` (My Workspace items live outside their source module).
@@ -580,9 +585,26 @@ export const NAV_SECTIONS: NavSection[] = [
         ],
       },
       {
+        id: 'clubs',
+        name: 'Clubs',
+        icon: PartyPopper,
+        alwaysAvailable: true,
+        children: [
+          { name: 'Explore Clubs', href: '/clubs', icon: Compass, exact: true },
+          { name: 'My Clubs', href: '/clubs/mine', icon: Heart },
+          {
+            name: 'Create Club',
+            href: '/clubs/new',
+            icon: PlusCircle,
+            permission: { module: 'communications.calendar', action: 'create' },
+          },
+        ],
+      },
+      {
         id: 'health',
-        name: 'Health',
+        name: 'Health Connect',
         icon: Heart,
+        premium: true,
         settings: {
           href: '/health/settings',
           permission: { module: 'health.settings', action: 'view' },
@@ -706,6 +728,7 @@ export const NAV_SECTIONS: NavSection[] = [
         id: 'careerConnect',
         name: 'Career Connect',
         icon: Briefcase,
+        premium: true,
         children: [
           {
             name: 'Companies',
@@ -1123,6 +1146,15 @@ export function getStudentNavSections(enabledModules: string[]): NavSection[] {
           name: 'Hostel',
           icon: Hotel,
           children: [{ name: 'My Allocation', href: '/student/hostel', icon: BedDouble }],
+        },
+        {
+          id: 'student-clubs',
+          name: 'Clubs',
+          icon: PartyPopper,
+          children: [
+            { name: 'Explore Clubs', href: '/clubs', icon: Compass, exact: true },
+            { name: 'My Clubs', href: '/clubs/mine', icon: Heart },
+          ],
         },
         {
           id: 'student-comms',

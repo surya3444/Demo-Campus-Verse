@@ -151,16 +151,24 @@ for (const org of ORGS.filter((o) => !only || o.key === only)) {
       // Aug + Sep runs: HR processes, owner finalises, HR records the bank transfer.
       const hr = await session(find((s) => s.role === 'HR_MANAGER').email);
       cs.salary.runs ??= {};
-      for (const month of [8, 9]) {
-        if (cs.salary.runs[month]?.allPaid) continue;
+      // Marian: May–Sep paid; October processed + finalised but unpaid for a live "Mark paid" demo.
+      const MONTH = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const months = org.key === 'marian' ? [5, 6, 7, 8, 9, 10] : [8, 9];
+      for (const month of months) {
+        if (cs.salary.runs[month]?.allPaid || cs.salary.runs[month]?.finalized) continue;
         const run = cs.salary.runs[month]?.id
           ? { _id: cs.salary.runs[month].id }
-          : await hr.call('POST', '/hr/payroll-runs', { month, year: 2026, remarks: `Payroll for ${month === 8 ? 'August' : 'September'} 2026` }, B);
+          : await hr.call('POST', '/hr/payroll-runs', { month, year: 2026, remarks: `Payroll for ${MONTH[month]} 2026` }, B);
         cs.salary.runs[month] = { id: run._id };
         saveState(org.key, st);
         await owner.call('PUT', `/hr/payroll-runs/${run._id}/finalize`, {}, B).catch((e) => {
           if (!/final/i.test(e.message)) throw e;
         });
+        if (org.key === 'marian' && month === 10) {
+          cs.salary.runs[month].finalized = true;
+          saveState(org.key, st);
+          continue;
+        }
         const ids = [];
         for (let page = 1; page <= 30; page++) {
           const slips = await hr.call('GET', `/hr/payslips?payrollRunId=${run._id}&limit=100&page=${page}`, undefined, B);

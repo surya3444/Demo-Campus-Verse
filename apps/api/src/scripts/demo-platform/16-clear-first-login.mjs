@@ -4,7 +4,7 @@
 import { session, pool, loadState, log, PASSWORD } from './lib.mjs';
 import { ORGS } from './spec.mjs';
 
-const staff = ORGS.flatMap((o) => Object.values(loadState(o.key).campuses ?? {}).flatMap((c) => c.staff ?? []))
+const staff = ORGS.filter((o) => !process.argv[2] || o.key === process.argv[2]).flatMap((o) => Object.values(loadState(o.key).campuses ?? {}).flatMap((c) => c.staff ?? []))
   .filter((s) => s.email && s.role !== 'STAFF (no login)' && s.email !== 'cvdemo-aranya-ablr-admin@yopmail.com');
 let cleared = 0, skipped = 0, failed = 0;
 await pool(staff, 6, async (s) => {

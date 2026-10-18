@@ -7635,3 +7635,74 @@ export interface IdCardDesign {
   isDefault: boolean;
   updatedAt: string;
 }
+
+// ============ Clubs ============
+export interface ClubFace {
+  name: string;
+  photo?: string | null;
+}
+export interface Club {
+  _id: string;
+  name: string;
+  category: string;
+  tagline: string;
+  description: string;
+  emoji: string;
+  icon: string;
+  theme: string;
+  institutionId: string | null;
+  institutionName: string | null;
+  coordinator: { staffId: string; name: string; photo?: string | null } | null;
+  meeting: { day?: string; time?: string; venue?: string };
+  tags: string[];
+  highlights: string[];
+  memberCount: number;
+  isMember: boolean;
+  faces?: ClubFace[];
+  members?: Array<{
+    _id: string;
+    name: string;
+    photo?: string | null;
+    subtitle: string;
+    kind: 'student' | 'staff';
+    role: 'member' | 'lead' | 'coordinator';
+    joinedAt: string;
+  }>;
+}
+export type ClubInput = {
+  name: string;
+  category: string;
+  tagline?: string;
+  description?: string;
+  emoji?: string;
+  icon?: string;
+  theme: string;
+  institutionId?: string | null;
+  coordinatorStaffId?: string | null;
+  meeting?: { day?: string; time?: string; venue?: string };
+  tags?: string[];
+  highlights?: string[];
+};
+
+export const clubsApi = {
+  list: async (params?: { search?: string; category?: string; mine?: boolean }) => {
+    const response = await api.get('/clubs', { params });
+    return response.data as { data: Club[] };
+  },
+  get: async (id: string) => {
+    const response = await api.get(`/clubs/${id}`);
+    return response.data as { data: Club };
+  },
+  save: async (data: ClubInput, id?: string) => {
+    const response = id ? await api.put(`/clubs/${id}`, data) : await api.post('/clubs', data);
+    return response.data as { data: Club };
+  },
+  join: async (id: string) => {
+    const response = await api.post(`/clubs/${id}/join`);
+    return response.data as { data: { memberCount: number; isMember: boolean } };
+  },
+  leave: async (id: string) => {
+    const response = await api.delete(`/clubs/${id}/join`);
+    return response.data as { data: { memberCount: number; isMember: boolean } };
+  },
+};

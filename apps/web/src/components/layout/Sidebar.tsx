@@ -11,7 +11,7 @@ import { useBranchStore } from '@/store/branchStore';
 import { useSidebarTheme } from '@/contexts/SidebarThemeContext';
 import { authApi } from '@/lib/api';
 import { toast } from 'sonner';
-import { ChevronDown, LogOut, PanelLeft, PanelLeftClose, Settings, X } from 'lucide-react';
+import { ChevronDown, LogOut, PanelLeft, PanelLeftClose, Settings, Star, X } from 'lucide-react';
 import { OrganizationSwitcher } from './OrganizationSwitcher';
 import { useVisibleNav, type VisibleModule } from './useVisibleNav';
 
@@ -165,7 +165,12 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileClose }: 
             className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110"
             style={{ color: isActive ? theme.iconActive : theme.icon }}
           />
-          {!isCollapsed && <span className="font-medium text-sm">{module.name}</span>}
+          {!isCollapsed && (
+            <span className="flex min-w-0 items-center gap-1 font-medium text-sm">
+              <span className="truncate">{module.name}</span>
+              {module.premium && <PremiumStar />}
+            </span>
+          )}
         </Link>
       );
     }
@@ -217,10 +222,13 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileClose }: 
             />
             {!isCollapsed && (
               <>
-                <span className="flex-1 font-medium text-sm text-left truncate">{module.name}</span>
+                <span className="flex min-w-0 flex-1 items-center gap-1 font-medium text-sm text-left">
+                  <span className="truncate">{module.name}</span>
+                  {module.premium && <PremiumStar />}
+                </span>
                 <ChevronDown
                   className={cn(
-                    'h-4 w-4 shrink-0 transition-transform duration-200',
+                    '-ml-1 h-4 w-4 shrink-0 transition-transform duration-200',
                     isExpanded && 'rotate-180'
                   )}
                   style={{ color: theme.textMuted }}
@@ -368,6 +376,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileClose }: 
           style={{ color: theme.textMuted }}
         >
           {module.name}
+          {module.premium && <PremiumStar className="ml-1 inline-block align-[-1px]" />}
         </p>
         {module.children.map((child, i) => {
           const ChildIcon = child.icon;
@@ -597,5 +606,20 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileClose }: 
         {sidebarContent}
       </aside>
     </>
+  );
+}
+
+/** Gold star marking a premium module. */
+function PremiumStar({ className }: { className?: string }) {
+  return (
+    <Star
+      aria-label="Premium"
+      className={cn(
+        'h-3 w-3 shrink-0 fill-amber-400 text-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.65)]',
+        className
+      )}
+    >
+      <title>Premium</title>
+    </Star>
   );
 }

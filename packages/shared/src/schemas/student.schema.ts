@@ -202,3 +202,47 @@ export const saveIdCardDesignSchema = z.object({
 
 export type IdCardDesignConfig = z.infer<typeof idCardDesignConfigSchema>;
 export type IdCardField = (typeof ID_CARD_FIELDS)[number];
+
+// ============ Clubs ============
+
+export const CLUB_CATEGORIES = [
+  'technical',
+  'cultural',
+  'arts',
+  'sports',
+  'social',
+  'professional',
+  'literary',
+  'wellness',
+] as const;
+export const CLUB_THEMES = ['ocean', 'sunset', 'forest', 'berry', 'aurora', 'ember', 'midnight', 'gold'] as const;
+
+export const saveClubSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  category: z.enum(CLUB_CATEGORIES),
+  tagline: z.string().trim().max(120).optional(),
+  description: z.string().trim().max(3000).optional(),
+  emoji: z.string().trim().max(8).optional(),
+  /** Crest icon key (see the web app's club icon set). */
+  icon: z.string().trim().max(24).optional(),
+  theme: z.enum(CLUB_THEMES),
+  institutionId: objectIdSchema.nullable().optional(),
+  coordinatorStaffId: objectIdSchema.nullable().optional(),
+  meeting: z
+    .object({
+      day: z.string().trim().max(40).optional(),
+      time: z.string().trim().max(40).optional(),
+      venue: z.string().trim().max(80).optional(),
+    })
+    .optional(),
+  tags: z.array(z.string().trim().min(1).max(30)).max(10).optional(),
+  highlights: z.array(z.string().trim().min(1).max(160)).max(8).optional(),
+});
+
+export const addClubMembersSchema = z.object({
+  studentIds: z.array(objectIdSchema).max(500).optional(),
+  staffIds: z.array(objectIdSchema).max(200).optional(),
+  role: z.enum(['member', 'lead']).default('member'),
+});
+
+export type SaveClubInput = z.infer<typeof saveClubSchema>;

@@ -61,7 +61,7 @@ export default function HealthDashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Health Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Health Connect</h1>
           <p className="text-muted-foreground">
             Overview of health records, checkups, and medical visits
           </p>

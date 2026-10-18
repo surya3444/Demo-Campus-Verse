@@ -13,7 +13,7 @@ const soft = (label) => (e) => log(`   ${label}:`, e.message.slice(0, 170));
 const TODAY = '2026-10-14';
 const COMPANIES = [['Infosys', 'Systems Engineer'], ['TCS', 'Assistant Consultant'], ['Wipro', 'Project Engineer'], ['Deloitte', 'Analyst'], ['Flipkart', 'SDE I'], ['Zoho', 'Member Technical Staff'], ['HDFC Bank', 'Management Trainee'], ['IISc', 'Research Scholar']];
 
-for (const org of ORGS) {
+for (const org of ORGS.filter((o) => !process.argv[2] || o.key === process.argv[2])) {
   const st = loadState(org.key);
   const owner = await session(org.owner);
   const uni = org.type === 'university';

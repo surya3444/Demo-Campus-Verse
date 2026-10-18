@@ -78,11 +78,14 @@ for (const org of ORGS.filter((o) => !only || o.key === only)) {
       }
     }
     log(`  ${c.code}: creating ${jobs.length} students`);
-    await pool(jobs, 5, async ({ k, sec, r }) => {
+    await pool(jobs, org.key === 'marian' ? 12 : 5, async ({ k, sec, r }) => {
       const p = person();
       const father = person();
       const n = ++seq;
-      const email = `cvdemo-${org.key}-${c.code.toLowerCase()}-s${String(n).padStart(4, '0')}@yopmail.com`;
+      const email =
+        org.key === 'marian'
+          ? `s${String(n).padStart(4, '0')}@${org.domain}`
+          : `cvdemo-${org.key}-${c.code.toLowerCase()}-s${String(n).padStart(4, '0')}@yopmail.com`;
       const age = uni ? 17 + k.year + int(0, 1) : 5 + k.year;
       const body = {
         firstName: p.firstName,
