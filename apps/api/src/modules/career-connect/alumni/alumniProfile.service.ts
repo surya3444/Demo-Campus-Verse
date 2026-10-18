@@ -2,6 +2,7 @@ import { ObjectId, Filter, Document } from 'mongodb';
 import { collections } from '../../../config/database';
 import { ApiError } from '../../../middleware/errorHandler';
 import { getPagination, buildPaginationMeta } from '../../../utils/pagination';
+import { withPeople } from '../../../utils/people';
 
 class AlumniProfileService {
   async list(
@@ -31,7 +32,11 @@ class AlumniProfileService {
       filter.studentName = { $regex: query.search, $options: 'i' };
     }
     if (query.graduationYear) filter.graduationYear = query.graduationYear;
-    if (query.company) filter.company = { $regex: query.company, $options: 'i' };
+    if (query.company) {
+      // Employer lives in `company` (self-edited) or `currentCompany` (imported).
+      const rx = { $regex: query.company, $options: 'i' };
+      filter.$or = [{ company: rx }, { currentCompany: rx }];
+    }
     if (query.isVerified !== undefined) filter.isVerified = query.isVerified === 'true';
     if (query.willingToMentor !== undefined) {
       filter['mentorshipInfo.willingToMentor'] = query.willingToMentor === 'true';
@@ -48,7 +53,7 @@ class AlumniProfileService {
     ]);
 
     return {
-      data: data.map(this.formatAlumni),
+      data: await withPeople(data.map(this.formatAlumni), 'studentId'),
       meta: buildPaginationMeta(page, limit, total),
     };
   }
@@ -63,7 +68,7 @@ class AlumniProfileService {
       throw new ApiError('ALUMNI_NOT_FOUND', 'Alumni profile not found', 404);
     }
 
-    return this.formatAlumni(alumni);
+    return (await withPeople([this.formatAlumni(alumni)], 'studentId'))[0];
   }
 
   // `id` is the signed-in alumnus's user id (or a student id).

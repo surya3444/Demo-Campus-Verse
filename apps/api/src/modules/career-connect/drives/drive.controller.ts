@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongodb';
+import { ApiError } from '../../../middleware/errorHandler';
 import { Request, Response, NextFunction } from 'express';
 import { driveService } from './drive.service';
 import { success, created, noContent } from '../../../utils/response';
@@ -110,10 +112,14 @@ class DriveController {
   async registerStudent(req: Request, res: Response, next: NextFunction) {
     try {
       const id = req.params.id as string;
+      const studentId = req.body?.studentId as string | undefined;
+      if (!studentId || !ObjectId.isValid(studentId)) {
+        throw new ApiError('STUDENT_REQUIRED', 'Choose a student to register', 400);
+      }
       const data = await driveService.registerStudent(
         req.tenantId!,
         id,
-        req.body.studentId,
+        studentId,
         req.body.studentName
       );
       success(res, data, undefined, 'Student registered successfully');

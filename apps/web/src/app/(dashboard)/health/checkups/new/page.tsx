@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { PageTitle } from '@/components/connect/kit';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { healthApi, studentApi, hrApi } from '@/lib/api';
@@ -8,16 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { DatePicker } from '@/components/ui/date-picker';
-import { ArrowLeft, Loader2, Search, X } from 'lucide-react';
+import { Loader2, Search, X } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -189,17 +184,11 @@ export default function NewCheckupPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/health/checkups">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Schedule Health Checkup</h1>
-          <p className="text-muted-foreground">Schedule a new health screening</p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Check-ups", href: "/health/checkups" }, { label: "Schedule health checkup" }]}
+        title="Schedule health checkup"
+        description="Schedule a new health screening"
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Person Selection */}

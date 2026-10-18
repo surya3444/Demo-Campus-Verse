@@ -6,14 +6,26 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createCompanySchema } from '@campus-verse/shared/schemas';
 import { careerConnectApi } from '@/lib/api';
+import {
+  Cell,
+  CompanyLogo,
+  Empty,
+  PageTitle,
+  Pager,
+  Panel,
+  Pill,
+  SearchBox,
+  Segmented,
+  Skeleton as ConnectSkeleton,
+  StatusPill,
+  Table as ConnectTable,
+  lpa,
+} from '@/components/connect/kit';
 import { usePermissions } from '@/hooks/usePermissions';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
@@ -21,20 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,13 +50,23 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { Building2, Plus, Search, MoreHorizontal, Eye, Edit, Trash2, MapPin } from 'lucide-react';
-import Link from 'next/link';
+import { Building2, Plus, Trash2, Pencil } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { z } from 'zod';
 
 type CompanyFormData = z.infer<typeof createCompanySchema>;
+
+interface Company {
+  _id: string;
+  name: string;
+  industry?: string;
+  website?: string;
+  locations?: string[];
+  status: string;
+  partnership?: { type?: string };
+  stats?: { drives: number; offers: number; hired: number; topCtc: number; avgCtc: number };
+}
 
 const INDUSTRIES = [
   'IT Services',
@@ -96,12 +104,6 @@ const SECTORS = [
   'Research & Development',
   'Other',
 ];
-
-const statusColors: Record<string, string> = {
-  active: 'bg-green-100 text-green-800',
-  inactive: 'bg-gray-100 text-gray-800',
-  blacklisted: 'bg-red-100 text-red-800',
-};
 
 export default function CompaniesPage() {
   const router = useRouter();
@@ -205,211 +207,131 @@ export default function CompaniesPage() {
   const companies = data?.data || [];
   const meta = data?.meta;
 
+  const totalHired = companies.reduce((n: number, c: Company) => n + (c.stats?.hired ?? 0), 0);
+  const premium = companies.filter(
+    (c: Company) => c.partnership?.type && c.partnership.type !== 'regular'
+  ).length;
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Companies</h1>
-          <p className="text-muted-foreground">Manage placement partner companies</p>
-        </div>
-        {hasPermission('careerConnect.companies', 'create') && (
-          <Button onClick={handleOpenDrawer}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Company
-          </Button>
-        )}
-      </div>
+      <PageTitle
+        title="Companies"
+        description={`${meta?.total ?? companies.length} recruiting partners${totalHired ? ` · ${totalHired} students hired this season` : ''}${premium ? ` · ${premium} premium partners` : ''}`}
+        actions={
+          hasPermission('careerConnect.companies', 'create') ? (
+            <Button size="sm" onClick={handleOpenDrawer}>
+              <Plus className="mr-1.5 h-4 w-4" />
+              Add company
+            </Button>
+          ) : null
+        }
+      />
 
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search companies..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                className="pl-9"
-              />
-            </div>
-            <Select
+      <Panel bodyClassName="p-0">
+        <div className="flex flex-wrap items-center gap-3 border-b border-border/70 px-5 py-3">
+          <SearchBox
+            value={search}
+            onChange={(v) => (setSearch(v), setPage(1))}
+            placeholder="Search companies"
+          />
+          <div className="ml-auto">
+            <Segmented
               value={statusFilter}
-              onValueChange={(val) => {
-                setStatusFilter(val === 'all' ? '' : val);
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="blacklisted">Blacklisted</SelectItem>
-              </SelectContent>
-            </Select>
+              onChange={(v) => (setStatusFilter(v), setPage(1))}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'active', label: 'Active' },
+                { value: 'inactive', label: 'Inactive' },
+                { value: 'blacklisted', label: 'Blacklisted' },
+              ]}
+            />
           </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Skeleton key={i} className="h-16 w-full" />
+        </div>
+        {isLoading ? (
+          <ConnectSkeleton rows={8} />
+        ) : companies.length === 0 ? (
+          <Empty
+            icon={Building2}
+            title="No companies yet"
+            text="Add the companies that recruit from your campus."
+          />
+        ) : (
+          <>
+            <ConnectTable
+              head={['Company', 'Partnership', 'Drives', 'Hired', 'Highest package', 'Status', '']}
+            >
+              {companies.map((company: Company) => (
+                <tr
+                  key={company._id}
+                  onClick={() => router.push(`/career-connect/companies/${company._id}`)}
+                  className="group cursor-pointer transition-colors hover:bg-muted/40"
+                >
+                  <Cell>
+                    <span className="flex items-center gap-3">
+                      <CompanyLogo name={company.name} website={company.website} size={36} />
+                      <span className="min-w-0">
+                        <span className="block truncate font-medium">{company.name}</span>
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {[company.industry, company.locations?.[0]].filter(Boolean).join(' · ')}
+                        </span>
+                      </span>
+                    </span>
+                  </Cell>
+                  <Cell>
+                    {company.partnership?.type && company.partnership.type !== 'regular' ? (
+                      <Pill tone="violet">
+                        {company.partnership.type === 'exclusive' ? 'Exclusive' : 'Premium'}
+                      </Pill>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">Regular</span>
+                    )}
+                  </Cell>
+                  <Cell className="tabular-nums">{company.stats?.drives ?? 0}</Cell>
+                  <Cell className="tabular-nums font-medium">{company.stats?.hired ?? 0}</Cell>
+                  <Cell className="tabular-nums">
+                    {company.stats?.topCtc ? lpa(company.stats.topCtc) : '—'}
+                  </Cell>
+                  <Cell>
+                    <StatusPill status={company.status} />
+                  </Cell>
+                  <Cell last>
+                    <span
+                      className="flex justify-end gap-1 opacity-0 transition group-hover:opacity-100"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {hasPermission('careerConnect.companies', 'edit') && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() =>
+                            router.push(`/career-connect/companies/${company._id}/edit`)
+                          }
+                          aria-label="Edit"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {hasPermission('careerConnect.companies', 'delete') && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-rose-600"
+                          onClick={() => setDeleteId(company._id)}
+                          aria-label="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </span>
+                  </Cell>
+                </tr>
               ))}
-            </div>
-          ) : companies.length === 0 ? (
-            <div className="text-center py-12">
-              <Building2 className="mx-auto h-12 w-12 text-muted-foreground/50" />
-              <h3 className="mt-4 text-lg font-medium">No companies found</h3>
-              <p className="text-muted-foreground">
-                {search || statusFilter
-                  ? 'Try adjusting your filters'
-                  : 'Add your first placement partner company'}
-              </p>
-            </div>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Industry</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>Locations</TableHead>
-                    <TableHead>Partnership</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="w-[60px]" />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {companies.map(
-                    (company: {
-                      _id: string;
-                      name: string;
-                      industry: string;
-                      size?: string;
-                      locations?: string[];
-                      partnership?: { type: string };
-                      status: string;
-                      hrContacts?: { _id: string }[];
-                    }) => (
-                      <TableRow key={company._id}>
-                        <TableCell>
-                          <Link
-                            href={`/career-connect/companies/${company._id}`}
-                            className="font-medium hover:underline"
-                          >
-                            {company.name}
-                          </Link>
-                          {company.hrContacts && company.hrContacts.length > 0 && (
-                            <p className="text-xs text-muted-foreground">
-                              {company.hrContacts.length} contact
-                              {company.hrContacts.length > 1 ? 's' : ''}
-                            </p>
-                          )}
-                        </TableCell>
-                        <TableCell>{company.industry}</TableCell>
-                        <TableCell className="capitalize">{company.size || '-'}</TableCell>
-                        <TableCell>
-                          {company.locations && company.locations.length > 0 ? (
-                            <div className="flex items-center gap-1 text-sm">
-                              <MapPin className="h-3 w-3" />
-                              {company.locations.slice(0, 2).join(', ')}
-                              {company.locations.length > 2 && (
-                                <span className="text-muted-foreground">
-                                  +{company.locations.length - 2}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            '-'
-                          )}
-                        </TableCell>
-                        <TableCell className="capitalize">
-                          {company.partnership?.type || 'regular'}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary" className={statusColors[company.status] || ''}>
-                            {company.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  router.push(`/career-connect/companies/${company._id}`)
-                                }
-                              >
-                                <Eye className="mr-2 h-4 w-4" />
-                                View
-                              </DropdownMenuItem>
-                              {hasPermission('careerConnect.companies', 'edit') && (
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    router.push(`/career-connect/companies/${company._id}/edit`)
-                                  }
-                                >
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  Edit
-                                </DropdownMenuItem>
-                              )}
-                              {hasPermission('careerConnect.companies', 'delete') && (
-                                <DropdownMenuItem
-                                  className="text-destructive"
-                                  onClick={() => setDeleteId(company._id)}
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  )}
-                </TableBody>
-              </Table>
-
-              {meta && meta.totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-sm text-muted-foreground">
-                    Showing {(page - 1) * 20 + 1}-{Math.min(page * 20, meta.total)} of {meta.total}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={page <= 1}
-                      onClick={() => setPage(page - 1)}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={!meta.hasMore}
-                      onClick={() => setPage(page + 1)}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
+            </ConnectTable>
+            <Pager page={page} total={meta?.total ?? 0} limit={20} onPage={setPage} />
+          </>
+        )}
+      </Panel>
 
       {/* ── Add Company Drawer ── */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>

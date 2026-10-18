@@ -1,297 +1,228 @@
 'use client';
 
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { healthApi } from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Heart, Search, Plus, MoreHorizontal, Eye, Edit, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { AlertTriangle, ChevronRight, FileHeart, Plus } from 'lucide-react';
+import { healthApi } from '@/lib/api';
+import { usePermissions } from '@/hooks/usePermissions';
+import { Button } from '@/components/ui/button';
+import {
+  Cell,
+  Empty,
+  PageTitle,
+  Pager,
+  Panel,
+  PersonCell,
+  Pill,
+  SearchBox,
+  Segmented,
+  Skeleton,
+  Stat,
+  Table,
+  fmtDate,
+  useDebounced,
+  type Person,
+} from '@/components/connect/kit';
+
+interface HealthRecord {
+  _id: string;
+  personName: string;
+  personType: 'student' | 'staff';
+  bloodGroup?: string;
+  bmi?: number;
+  allergies?: Array<{ name: string; severity?: string }>;
+  conditions?: Array<{ name: string; status?: string }>;
+  lastCheckupDate?: string;
+  hasOverdueVaccinations?: boolean;
+  person?: Person | null;
+}
+
+type Who = 'all' | 'student' | 'staff';
+type Flag = '' | 'allergies' | 'conditions';
+const LIMIT = 20;
 
 export default function HealthRecordsPage() {
+  const router = useRouter();
+  const { hasPermission } = usePermissions();
   const [search, setSearch] = useState('');
-  const [personType, setPersonType] = useState<string>('all');
+  const [who, setWho] = useState<Who>('all');
+  const [flag, setFlag] = useState<Flag>('');
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const q = useDebounced(search);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['health-records', search, personType, page],
+    queryKey: ['health-records', q, who, flag, page],
     queryFn: () =>
       healthApi.getRecords({
-        search: search || undefined,
-        personType: personType !== 'all' ? (personType as 'student' | 'staff') : undefined,
+        search: q || undefined,
+        personType: who === 'all' ? undefined : who,
+        ...(flag === 'allergies' && { hasAllergies: true }),
+        ...(flag === 'conditions' && { hasConditions: true }),
         page,
-        limit,
-      }),
+        limit: LIMIT,
+      } as Parameters<typeof healthApi.getRecords>[0]),
+    placeholderData: (prev) => prev,
   });
-
-  const { data: stats } = useQuery({
+  const { data: statsData } = useQuery({
     queryKey: ['health-records-stats'],
     queryFn: () => healthApi.getRecordStats(),
   });
-
-  const records = data?.data || [];
-  const meta = data?.meta || { total: 0, page: 1, limit: 20, totalPages: 1 };
+  const stats = (statsData?.data ?? {}) as {
+    totalRecords?: number;
+    studentRecords?: number;
+    staffRecords?: number;
+    recordsWithAllergies?: number;
+    alertCounts?: { vaccinationOverdue?: number };
+  };
+  const records = (data?.data ?? []) as HealthRecord[];
+  const total = (data?.meta as { total?: number } | undefined)?.total ?? 0;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Health Records</h1>
-          <p className="text-muted-foreground">Manage health profiles for students and staff</p>
-        </div>
-        <Button asChild>
-          <Link href="/health/records/new">
-            <Plus className="mr-2 h-4 w-4" /> New Record
-          </Link>
-        </Button>
+    <>
+      <PageTitle
+        title="Health records"
+        description="Medical history, allergies and check-ups for every student and staff member."
+        actions={
+          hasPermission('health.records', 'create') ? (
+            <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+              <Link href="/health/records/new">
+                <Plus className="mr-1.5 h-4 w-4" />
+                New record
+              </Link>
+            </Button>
+          ) : null
+        }
+      />
+
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Stat
+          accent="health"
+          label="Records on file"
+          value={stats.totalRecords ?? 0}
+          hint={`${stats.studentRecords ?? 0} students · ${stats.staffRecords ?? 0} staff`}
+        />
+        <Stat
+          accent="health"
+          label="With allergies"
+          value={stats.recordsWithAllergies ?? 0}
+          hint="Shown to the sick room on every visit"
+        />
+        <Stat accent="health" label="Students covered" value={stats.studentRecords ?? 0} />
+        <Stat
+          accent="health"
+          label="Vaccinations overdue"
+          value={stats.alertCounts?.vaccinationOverdue ?? 0}
+        />
       </div>
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Records</CardTitle>
-            <Heart className="h-4 w-4 text-rose-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.data?.totalRecords || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Student Records</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.data?.studentRecords || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Staff Records</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.data?.staffRecords || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Alerts</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-amber-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.data?.activeAlerts || 0}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by name..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                className="pl-10"
-              />
-            </div>
-            <Select
-              value={personType}
-              onValueChange={(value) => {
-                setPersonType(value);
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Person Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="student">Students</SelectItem>
-                <SelectItem value="staff">Staff</SelectItem>
-              </SelectContent>
-            </Select>
+      <Panel bodyClassName="p-0">
+        <div className="flex flex-wrap items-center gap-3 border-b border-border/70 px-5 py-3">
+          <SearchBox
+            value={search}
+            onChange={(v) => (setSearch(v), setPage(1))}
+            placeholder="Search by name"
+          />
+          <Segmented<Flag>
+            value={flag}
+            onChange={(v) => (setFlag(v), setPage(1))}
+            options={[
+              { value: '', label: 'All records' },
+              { value: 'allergies', label: 'Allergies' },
+              { value: 'conditions', label: 'Conditions' },
+            ]}
+          />
+          <div className="ml-auto">
+            <Segmented<Who>
+              value={who}
+              onChange={(v) => (setWho(v), setPage(1))}
+              options={[
+                { value: 'all', label: 'Everyone' },
+                { value: 'student', label: 'Students' },
+                { value: 'staff', label: 'Staff' },
+              ]}
+            />
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Records Table */}
-      <Card>
-        <CardContent className="pt-6">
-          {isLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Skeleton key={i} className="h-12" />
-              ))}
-            </div>
-          ) : records.length === 0 ? (
-            <div className="text-center py-8">
-              <Heart className="mx-auto h-12 w-12 text-muted-foreground/50" />
-              <h3 className="mt-4 text-lg font-medium">No health records found</h3>
-              <p className="text-muted-foreground">
-                {search
-                  ? 'Try adjusting your search criteria'
-                  : 'Create a new health record to get started'}
-              </p>
-              <Button asChild className="mt-4">
-                <Link href="/health/records/new">
-                  <Plus className="mr-2 h-4 w-4" /> Create Record
-                </Link>
-              </Button>
-            </div>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Blood Group</TableHead>
-                    <TableHead>Allergies</TableHead>
-                    <TableHead>Conditions</TableHead>
-                    <TableHead>Alerts</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {records.map(
-                    (record: {
-                      _id: string;
-                      personName: string;
-                      personType: string;
-                      bloodGroup?: string;
-                      allergies?: Array<{ allergen: string }>;
-                      medicalConditions?: Array<{ condition: string }>;
-                      alerts?: { hasOverdueVaccinations: boolean; hasOverdueCheckup: boolean };
-                    }) => (
-                      <TableRow key={record._id}>
-                        <TableCell className="font-medium">{record.personName}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="capitalize">
-                            {record.personType}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{record.bloodGroup || '-'}</TableCell>
-                        <TableCell>
-                          {record.allergies?.length ? (
-                            <Badge variant="destructive">
-                              {record.allergies.length} allergie(s)
-                            </Badge>
-                          ) : (
-                            '-'
+        {isLoading ? (
+          <Skeleton rows={10} />
+        ) : records.length === 0 ? (
+          <Empty icon={FileHeart} title="No records match" text="Try another name or filter." />
+        ) : (
+          <>
+            <Table
+              head={['Person', 'Blood group', 'Allergies & conditions', 'BMI', 'Last check-up', '']}
+            >
+              {records.map((r) => {
+                const flags = [
+                  ...(r.allergies ?? []).map((a) => ({ label: a.name, tone: 'red' as const })),
+                  ...(r.conditions ?? []).map((c) => ({ label: c.name, tone: 'amber' as const })),
+                ];
+                return (
+                  <tr
+                    key={r._id}
+                    onClick={() => router.push(`/health/records/${r._id}`)}
+                    className="cursor-pointer transition-colors hover:bg-muted/40"
+                  >
+                    <Cell>
+                      <PersonCell
+                        person={r.person ?? { name: r.personName }}
+                        sub={
+                          r.personType === 'staff' ? r.person?.designation || 'Staff' : undefined
+                        }
+                      />
+                    </Cell>
+                    <Cell>
+                      {r.bloodGroup ? (
+                        <span className="inline-flex min-w-9 justify-center rounded-md bg-rose-50 px-1.5 py-0.5 text-xs font-semibold text-rose-700 dark:bg-rose-500/10 dark:text-rose-300">
+                          {r.bloodGroup}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </Cell>
+                    <Cell>
+                      {flags.length ? (
+                        <div className="flex max-w-xs flex-wrap gap-1">
+                          {flags.slice(0, 3).map((f) => (
+                            <Pill key={f.label} tone={f.tone}>
+                              {f.label}
+                            </Pill>
+                          ))}
+                          {flags.length > 3 && (
+                            <span className="text-xs text-muted-foreground">
+                              +{flags.length - 3}
+                            </span>
                           )}
-                        </TableCell>
-                        <TableCell>
-                          {record.medicalConditions?.length ? (
-                            <Badge variant="secondary">
-                              {record.medicalConditions.length} condition(s)
-                            </Badge>
-                          ) : (
-                            '-'
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {record.alerts?.hasOverdueVaccinations ||
-                          record.alerts?.hasOverdueCheckup ? (
-                            <Badge variant="destructive">
-                              <AlertTriangle className="mr-1 h-3 w-3" />
-                              Alert
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline">None</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem asChild>
-                                <Link href={`/health/records/${record._id}`}>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  View Details
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem asChild>
-                                <Link href={`/health/records/${record._id}/edit`}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  Edit
-                                </Link>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  )}
-                </TableBody>
-              </Table>
-
-              {/* Pagination */}
-              {meta.totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-sm text-muted-foreground">
-                    Showing {(meta.page - 1) * meta.limit + 1} to{' '}
-                    {Math.min(meta.page * meta.limit, meta.total)} of {meta.total} records
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage(page - 1)}
-                      disabled={page === 1}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage(page + 1)}
-                      disabled={page >= meta.totalPages}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">None recorded</span>
+                      )}
+                    </Cell>
+                    <Cell className="tabular-nums">{r.bmi ? r.bmi.toFixed(1) : '—'}</Cell>
+                    <Cell>
+                      <span className="text-sm text-muted-foreground">
+                        {fmtDate(r.lastCheckupDate)}
+                      </span>
+                      {r.hasOverdueVaccinations && (
+                        <span className="mt-0.5 flex items-center gap-1 text-xs text-rose-600">
+                          <AlertTriangle className="h-3 w-3" /> Vaccination overdue
+                        </span>
+                      )}
+                    </Cell>
+                    <Cell last>
+                      <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
+                    </Cell>
+                  </tr>
+                );
+              })}
+            </Table>
+            <Pager page={page} total={total} limit={LIMIT} onPage={setPage} />
+          </>
+        )}
+      </Panel>
+    </>
   );
 }

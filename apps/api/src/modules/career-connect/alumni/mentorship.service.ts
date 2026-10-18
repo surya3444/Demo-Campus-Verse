@@ -1,5 +1,6 @@
 import { ObjectId, Filter, Document, UpdateFilter } from 'mongodb';
 import { collections } from '../../../config/database';
+import { alumniById, peopleById } from '../../../utils/people';
 import { ApiError } from '../../../middleware/errorHandler';
 import { getPagination, buildPaginationMeta } from '../../../utils/pagination';
 
@@ -38,7 +39,7 @@ class MentorshipService {
     ]);
 
     return {
-      data: data.map(this.formatMentorship),
+      data: await this.enrich(data.map(this.formatMentorship)),
       meta: buildPaginationMeta(page, limit, total),
     };
   }
@@ -53,7 +54,7 @@ class MentorshipService {
       throw new ApiError('MENTORSHIP_NOT_FOUND', 'Mentorship program not found', 404);
     }
 
-    return this.formatMentorship(mentorship);
+    return (await this.enrich([this.formatMentorship(mentorship)]))[0];
   }
 
   async create(tenantId: string, branchId: string, userId: string, data: Record<string, unknown>) {
@@ -74,7 +75,10 @@ class MentorshipService {
       tenantId: new ObjectId(tenantId),
       branchId: new ObjectId(branchId),
       mentorAlumniId: new ObjectId(data.mentorAlumniId as string),
-      menteeStudentId: new ObjectId(userId),
+      // The requester is a student user; store their student id so the mentee resolves
+      menteeStudentId:
+        (await collections.students.findOne({ userId: new ObjectId(userId) }, { projection: { _id: 1 } }))
+          ?._id ?? new ObjectId(userId),
       status: 'requested',
       sessions: [],
       startDate: null,
@@ -176,6 +180,19 @@ class MentorshipService {
     } as unknown as UpdateFilter<Document>);
 
     return this.getById(tenantId, id);
+  }
+
+  /** Mentor (alumnus) and mentee (student) cards for display. */
+  private async enrich<T extends { mentorAlumniId?: string; menteeStudentId?: string }>(rows: T[]) {
+    const [mentors, mentees] = await Promise.all([
+      alumniById(rows.map((r) => r.mentorAlumniId)),
+      peopleById(rows.map((r) => r.menteeStudentId)),
+    ]);
+    return rows.map((r) => ({
+      ...r,
+      mentor: mentors.get(String(r.mentorAlumniId)) ?? null,
+      mentee: mentees.get(String(r.menteeStudentId)) ?? null,
+    }));
   }
 
   private formatMentorship(doc: Document) {

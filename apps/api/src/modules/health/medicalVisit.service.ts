@@ -3,6 +3,7 @@ import { collections } from '../../config/database';
 import { logger } from '../../lib/logger';
 import { ApiError } from '../../middleware/errorHandler';
 import { CreateMedicalVisitInput, UpdateMedicalVisitInput, CloseMedicalVisitInput, MedicalVisitQueryInput } from '@campus-verse/shared/schemas';
+import { withPeople } from '../../utils/people';
 
 interface MedicalVisitDocument extends Document {
   _id: ObjectId;
@@ -125,7 +126,7 @@ class MedicalVisitService {
       throw new ApiError('VISIT_NOT_FOUND', 'Medical visit not found', 404);
     }
 
-    return this.formatVisit(visit);
+    return (await withPeople([this.formatVisit(visit)], 'personId'))[0];
   }
 
   async findAll(tenantId: string, branchId: string, params: MedicalVisitQueryInput) {
@@ -177,7 +178,7 @@ class MedicalVisitService {
     ]);
 
     return {
-      data: visits.map((v) => this.formatVisit(v)),
+      data: await withPeople(visits.map((v) => this.formatVisit(v)), 'personId'),
       meta: {
         page,
         limit,

@@ -4,6 +4,7 @@ import { logger } from '../../lib/logger';
 import { ApiError } from '../../middleware/errorHandler';
 import { CreateHealthCheckupInput, UpdateHealthCheckupInput, CompleteHealthCheckupInput, HealthCheckupQueryInput, CreateCheckupCampaignInput, UpdateCheckupCampaignInput, CheckupCampaignQueryInput } from '@campus-verse/shared/schemas';
 import { calculateBmi, calculateGrowthPercentiles } from './utils/bmiCalculator';
+import { withPeople } from '../../utils/people';
 
 interface HealthCheckupDocument extends Document {
   _id: ObjectId;
@@ -158,7 +159,7 @@ class HealthCheckupService {
       throw new ApiError('CHECKUP_NOT_FOUND', 'Health checkup not found', 404);
     }
 
-    return this.formatCheckup(checkup);
+    return (await withPeople([this.formatCheckup(checkup)], 'personId'))[0];
   }
 
   async findAllCheckups(tenantId: string, branchId: string, params: HealthCheckupQueryInput) {
@@ -199,7 +200,7 @@ class HealthCheckupService {
     ]);
 
     return {
-      data: checkups.map((c) => this.formatCheckup(c)),
+      data: await withPeople(checkups.map((c) => this.formatCheckup(c)), 'personId'),
       meta: {
         page,
         limit,

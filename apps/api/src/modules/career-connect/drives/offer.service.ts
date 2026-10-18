@@ -1,6 +1,8 @@
 import { ObjectId, Document } from 'mongodb';
 import { collections } from '../../../config/database';
 import { ApiError } from '../../../middleware/errorHandler';
+import { studentProfileService } from '../studentProfile/studentProfile.service';
+import { withPeople } from '../../../utils/people';
 
 class OfferService {
   async createOffer(
@@ -59,7 +61,7 @@ class OfferService {
       .sort({ createdAt: -1 })
       .toArray();
 
-    return offers.map(this.formatOffer);
+    return withPeople(offers.map(this.formatOffer), 'studentId');
   }
 
   async getOffersByStudent(tenantId: string, studentId: string) {
@@ -109,15 +111,22 @@ class OfferService {
     );
 
     if (status === 'accepted') {
-      // Update student career profile placement status
+      // Mark the student placed — creating their career profile if they never
+      // opened one, so no placement goes missing from Student Profiles.
+      await studentProfileService.getOrCreateProfile(tenantId, String(offer.studentId), '');
       await collections.studentCareerProfiles.updateOne(
-        {
-          studentId: offer.studentId,
-          tenantId: new ObjectId(tenantId),
-        },
+        { studentId: offer.studentId, tenantId: new ObjectId(tenantId) },
         {
           $set: {
             placementStatus: 'placed',
+            placement: {
+              offerId: String(offer._id),
+              company: offer.companyName,
+              role: offer.role,
+              ctc: offer.ctc,
+              location: offer.location ?? null,
+              acceptedAt: new Date(),
+            },
             updatedAt: new Date(),
           },
         }

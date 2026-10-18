@@ -4,6 +4,7 @@ import { logger } from '../../lib/logger';
 import { ApiError } from '../../middleware/errorHandler';
 import { CreateHealthRecordInput, UpdateHealthRecordInput, HealthRecordQueryInput } from '@campus-verse/shared/schemas';
 import { calculateBmi } from './utils/bmiCalculator';
+import { withPeople } from '../../utils/people';
 
 interface HealthRecordDocument extends Document {
   _id: ObjectId;
@@ -197,7 +198,7 @@ class HealthRecordService {
       throw new ApiError('RECORD_NOT_FOUND', 'Health record not found', 404);
     }
 
-    return this.formatRecord(record);
+    return (await withPeople([this.formatRecord(record)], 'personId'))[0];
   }
 
   async findByPerson(tenantId: string, personType: 'student' | 'staff', personId: string) {
@@ -262,7 +263,7 @@ class HealthRecordService {
     ]);
 
     return {
-      data: records.map((r) => this.formatRecord(r)),
+      data: await withPeople(records.map((r) => this.formatRecord(r)), 'personId'),
       meta: {
         page,
         limit,

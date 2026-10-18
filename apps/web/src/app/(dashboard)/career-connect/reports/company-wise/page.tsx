@@ -1,23 +1,15 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { PageTitle } from '@/components/connect/kit';
 import { careerConnectApi } from '@/lib/api';
 import { usePermissions } from '@/hooks/usePermissions';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Building2, ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Building2 } from 'lucide-react';
 
 interface CompanyReport {
   companyId: string;
@@ -31,7 +23,6 @@ interface CompanyReport {
 }
 
 export default function CompanyWiseReportPage() {
-  const router = useRouter();
   const { hasPermission } = usePermissions();
   const canView = hasPermission('careerConnect.reports', 'view');
 
@@ -57,15 +48,11 @@ export default function CompanyWiseReportPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/career-connect/reports')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Company-Wise Report</h1>
-          <p className="text-muted-foreground">Offers and CTC breakdown by company</p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Reports", href: "/career-connect/reports" }, { label: "Company-wise report" }]}
+        title="Company-wise report"
+        description="Offers and CTC breakdown by company"
+      />
 
       <Card>
         <CardHeader>

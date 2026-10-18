@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PageTitle } from '@/components/connect/kit';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { healthApi, studentApi, hrApi } from '@/lib/api';
@@ -8,16 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { DatePicker } from '@/components/ui/date-picker';
-import { ArrowLeft, Plus, X, Loader2, Search } from 'lucide-react';
+import { Plus, X, Loader2, Search } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -239,19 +234,11 @@ export default function NewHealthRecordPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/health/records">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Create Health Record</h1>
-          <p className="text-muted-foreground">
-            Create a new health profile for a student or staff member
-          </p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Health records", href: "/health/records" }, { label: "Create health record" }]}
+        title="Create health record"
+        description="Create a new health profile for a student or staff member"
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Person Selection */}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { PageTitle } from '@/components/connect/kit';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { healthApi, studentApi, hrApi } from '@/lib/api';
@@ -9,14 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DatePicker } from '@/components/ui/date-picker';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ArrowLeft, Loader2, Search, X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Search, X } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -187,17 +182,11 @@ export default function NewVaccinationPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/health/vaccinations">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Record Vaccination</h1>
-          <p className="text-muted-foreground">Add a new vaccination record</p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Vaccinations", href: "/health/vaccinations" }, { label: "Record vaccination" }]}
+        title="Record vaccination"
+        description="Add a new vaccination record"
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Person Selection */}

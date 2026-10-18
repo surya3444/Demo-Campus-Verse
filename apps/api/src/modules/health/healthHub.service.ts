@@ -149,6 +149,7 @@ class HealthHubService {
         )
         .map((v) => ({
           _id: String(v._id),
+          recordId: String(v.healthRecordId),
           name: v.personName,
           ...label(v.personId),
           complaint: v.chiefComplaint,
@@ -166,12 +167,84 @@ class HealthHubService {
         ...vaccinations.filter((v) => v.status === 'overdue').slice(0, 2),
       ].map((v) => ({
         _id: String(v._id),
+        recordId: String(v.healthRecordId),
         name: v.personName,
         ...label(v.personId),
         vaccine: v.vaccineName,
         date: v.scheduledDate,
         overdue: v.status === 'overdue',
       })),
+    };
+  }
+
+  /**
+   * Report-only analysis: where visits come from (department, place, hour),
+   * check-up coverage by department, and the allergy and blood-group mix.
+   */
+  async insights(tenantId: string, branchId: string) {
+    const base = { tenantId: new ObjectId(tenantId), branchId: new ObjectId(branchId) };
+    const [visits, checkups, records] = await Promise.all([
+      collections.medicalVisits
+        .find(base)
+        .project({ personId: 1, personType: 1, visitDate: 1, arrivalTime: 1, isIncident: 1, incidentLocation: 1, visitType: 1 })
+        .toArray(),
+      collections.healthCheckups.find({ ...base, personType: 'student' }).project({ personId: 1, status: 1 }).toArray(),
+      collections.healthRecords.find(base).project({ allergies: 1, bloodGroup: 1, conditions: 1 }).toArray(),
+    ]);
+    const ids = [...new Set([...visits, ...checkups].map((x) => String(x.personId)))]
+      .filter((id) => ObjectId.isValid(id))
+      .map((id) => new ObjectId(id));
+    const students = await collections.students
+      .find({ _id: { $in: ids } })
+      .project({ 'currentEnrollment.className': 1 })
+      .toArray();
+    const dept = new Map(
+      students.map((s) => [String(s._id), String(s.currentEnrollment?.className ?? '').split(' · ')[0] || 'Other'])
+    );
+    const count = <T>(xs: T[], key: (x: T) => string | null | undefined) => {
+      const m = new Map<string, number>();
+      for (const x of xs) {
+        const k = key(x);
+        if (k) m.set(k, (m.get(k) ?? 0) + 1);
+      }
+      return [...m].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+    };
+    // Campus hours are IST whatever the server's timezone
+    const hourOf = (v: Document) =>
+      new Date(new Date(v.arrivalTime ?? v.visitDate).getTime() + 330 * 60_000).getUTCHours();
+    const byHour = Array.from({ length: 10 }, (_, i) => {
+      const h = i + 8;
+      return {
+        name: `${h > 12 ? h - 12 : h}${h >= 12 ? 'pm' : 'am'}`,
+        value: visits.filter((v) => hourOf(v) === h).length,
+      };
+    });
+    const coverage = count(checkups, (c) => dept.get(String(c.personId))).map((d) => {
+      const inDept = checkups.filter((c) => dept.get(String(c.personId)) === d.name);
+      const done = inDept.filter((c) => c.status === 'completed').length;
+      return { name: d.name, total: inDept.length, completed: done, rate: Math.round((done / inDept.length) * 100) };
+    });
+    return {
+      visitsByDepartment: count(
+        visits.filter((v) => v.personType === 'student'),
+        (v) => dept.get(String(v.personId))
+      ).slice(0, 8),
+      staffVisits: visits.filter((v) => v.personType === 'staff').length,
+      incidentsByLocation: count(
+        visits.filter((v) => v.isIncident),
+        (v) => (v.incidentLocation as string) || 'Not recorded'
+      ),
+      byHour,
+      checkupCoverage: coverage.sort((a, b) => a.rate - b.rate),
+      allergies: count(
+        records.flatMap((r) => (r.allergies ?? []) as Array<{ name: string }>),
+        (a) => a.name
+      ).slice(0, 8),
+      conditions: count(
+        records.flatMap((r) => (r.conditions ?? []) as Array<{ name: string }>),
+        (c) => c.name
+      ).slice(0, 8),
+      bloodGroups: count(records, (r) => r.bloodGroup as string),
     };
   }
 }

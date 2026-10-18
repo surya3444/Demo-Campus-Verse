@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { studentProfileService } from './studentProfile.service';
 import { success, created } from '../../../utils/response';
+import { withPeople } from '../../../utils/people';
 
 class StudentProfileController {
   async getMyProfile(req: Request, res: Response, next: NextFunction) {
@@ -21,7 +22,7 @@ class StudentProfileController {
         studentId,
         (req.query.studentName as string) || ''
       );
-      success(res, data);
+      success(res, (await withPeople([data], 'studentId'))[0]);
     } catch (error) {
       next(error);
     }

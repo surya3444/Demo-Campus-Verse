@@ -1,49 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { PageTitle } from '@/components/connect/kit';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { careerConnectApi } from '@/lib/api';
 import { usePermissions } from '@/hooks/usePermissions';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import {
-  BookOpen,
-  Plus,
-  Search,
-  FileText,
-  Video,
-  File,
-  ExternalLink,
-  Presentation,
-  ArrowLeft,
-} from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { BookOpen, Plus, Search, FileText, Video, File, ExternalLink, Presentation } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -137,19 +106,11 @@ export default function ResourcesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push('/career-connect/counseling')}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Resources</h1>
-            <p className="text-muted-foreground">Career guidance materials and resources</p>
-          </div>
-        </div>
+        <PageTitle
+        crumbs={[{ label: "Counseling", href: "/career-connect/counseling" }, { label: "Resources" }]}
+        title="Resources"
+        description="Career guidance materials and resources"
+      />
         {hasPermission('careerConnect.counseling', 'create') && (
           <Button onClick={() => router.push('/career-connect/counseling/resources/new')}>
             <Plus className="mr-2 h-4 w-4" />

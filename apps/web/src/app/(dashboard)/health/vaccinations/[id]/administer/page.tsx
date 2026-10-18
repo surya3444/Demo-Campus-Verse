@@ -1,6 +1,7 @@
 'use client';
 
 import { use, useState } from 'react';
+import { PageTitle } from '@/components/connect/kit';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { healthApi } from '@/lib/api';
@@ -12,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { DatePicker } from '@/components/ui/date-picker';
-import { ArrowLeft, Loader2, Syringe } from 'lucide-react';
+import { Loader2, Syringe } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -94,17 +95,11 @@ export default function AdministerVaccinationPage({ params }: { params: Promise<
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/health/vaccinations">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Administer Vaccination</h1>
-          <p className="text-muted-foreground">Record vaccination administration details</p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Vaccinations", href: "/health/vaccinations" }, { label: "Administer vaccination" }]}
+        title="Administer vaccination"
+        description="Record vaccination administration details"
+      />
 
       {/* Vaccination Info */}
       <Card>

@@ -1,458 +1,229 @@
 'use client';
 
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { CalendarDays, Clock, MapPin, Video } from 'lucide-react';
 import { careerConnectApi } from '@/lib/api';
 import { usePermissions } from '@/hooks/usePermissions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import {
-  ArrowLeft,
-  CalendarDays,
-  MapPin,
-  Users,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  Send,
-  Trash2,
-  Mic,
-  ExternalLink,
-  Globe,
-} from 'lucide-react';
-import { toast } from 'sonner';
+  Avatar,
+  Empty,
+  Meter,
+  PageTitle,
+  Panel,
+  PersonCell,
+  Skeleton,
+  StatusPill,
+  fmtDate,
+  fmtTime,
+} from '@/components/connect/kit';
+import { EVENT_TYPE, type AlumniEvent } from '../types';
 
-const statusColors: Record<string, string> = {
-  draft: 'bg-gray-100 text-gray-800',
-  published: 'bg-green-100 text-green-800',
-  completed: 'bg-blue-100 text-blue-800',
-  cancelled: 'bg-red-100 text-red-800',
-};
-
-const typeLabels: Record<string, string> = {
-  reunion: 'Reunion',
-  workshop: 'Workshop',
-  guest_lecture: 'Guest Lecture',
-  networking: 'Networking',
-  career_fair: 'Career Fair',
-};
-
-const typeColors: Record<string, string> = {
-  reunion: 'bg-purple-100 text-purple-800',
-  workshop: 'bg-blue-100 text-blue-800',
-  guest_lecture: 'bg-teal-100 text-teal-800',
-  networking: 'bg-orange-100 text-orange-800',
-  career_fair: 'bg-indigo-100 text-indigo-800',
-};
-
-interface Registration {
-  userId: string;
-  userName: string;
-  registeredAt: string;
-}
-
-interface Speaker {
-  name: string;
-  designation?: string;
-  company?: string;
-}
-
-interface AlumniEventDetail {
-  _id: string;
-  eventNumber?: string;
-  title: string;
-  type: string;
-  description?: string;
-  eventDate: string;
-  endDate?: string;
-  venue?: string;
-  isVirtual?: boolean;
-  virtualLink?: string;
-  status: string;
-  speakers: Speaker[];
-  registrations: Registration[];
-  maxCapacity?: number;
-  createdBy: string;
-  createdAt: string;
-  updatedAt?: string;
-}
+type ApiErr = Error & { response?: { data?: { error?: { message?: string } } } };
 
 export default function AlumniEventDetailPage() {
-  const params = useParams();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { hasPermission } = usePermissions();
-  const id = params.id as string;
-
   const canEdit = hasPermission('careerConnect.alumni', 'edit');
-  const canDelete = hasPermission('careerConnect.alumni', 'delete');
-
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['alumni-event', id],
     queryFn: () => careerConnectApi.getAlumniEvent(id),
   });
-
-  const statusMutation = useMutation({
+  const refresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['alumni-event', id] });
+    queryClient.invalidateQueries({ queryKey: ['alumni-events'] });
+  };
+  const onErr = (f: string) => (e: ApiErr) => toast.error(e.response?.data?.error?.message || f);
+  const setStatus = useMutation({
     mutationFn: (status: string) => careerConnectApi.updateAlumniEventStatus(id, { status }),
-    onSuccess: () => {
-      toast.success('Event status updated successfully');
-      queryClient.invalidateQueries({ queryKey: ['alumni-event', id] });
-      queryClient.invalidateQueries({ queryKey: ['alumni-events'] });
-    },
-    onError: (error: Error & { response?: { data?: { error?: { message?: string } } } }) => {
-      toast.error(error.response?.data?.error?.message || 'Failed to update event status');
-    },
+    onSuccess: () => (toast.success('Event updated'), refresh()),
+    onError: onErr('Could not update the event'),
   });
-
-  const registerMutation = useMutation({
+  const register = useMutation({
     mutationFn: () => careerConnectApi.registerForAlumniEvent(id),
-    onSuccess: () => {
-      toast.success('Registered successfully');
-      queryClient.invalidateQueries({ queryKey: ['alumni-event', id] });
-    },
-    onError: (error: Error & { response?: { data?: { error?: { message?: string } } } }) => {
-      toast.error(error.response?.data?.error?.message || 'Failed to register');
-    },
+    onSuccess: () => (toast.success('You’re registered'), refresh()),
+    onError: onErr('Could not register'),
   });
-
-  const deleteMutation = useMutation({
+  const remove = useMutation({
     mutationFn: () => careerConnectApi.deleteAlumniEvent(id),
     onSuccess: () => {
-      toast.success('Event deleted successfully');
+      toast.success('Event deleted');
       queryClient.invalidateQueries({ queryKey: ['alumni-events'] });
       router.push('/career-connect/alumni/events');
     },
-    onError: (error: Error & { response?: { data?: { error?: { message?: string } } } }) => {
-      toast.error(error.response?.data?.error?.message || 'Failed to delete event');
-    },
+    onError: onErr('Could not delete'),
   });
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
-  }
-
-  const event: AlumniEventDetail | undefined = data?.data;
-
-  if (!event) {
-    return (
-      <div className="text-center py-12">
-        <CalendarDays className="mx-auto h-12 w-12 text-muted-foreground/50" />
-        <h3 className="mt-4 text-lg font-medium">Event not found</h3>
-        <Button
-          variant="outline"
-          className="mt-4"
-          onClick={() => router.push('/career-connect/alumni/events')}
-        >
-          Back to Events
-        </Button>
-      </div>
-    );
-  }
-
-  const isFull = event.maxCapacity
-    ? (event.registrations?.length || 0) >= event.maxCapacity
-    : false;
+  if (isLoading) return <Skeleton rows={10} />;
+  const e = data?.data as AlumniEvent | undefined;
+  if (!e) return <Empty icon={CalendarDays} title="Event not found" />;
+  const regs = [...(e.registrations ?? [])].sort(
+    (a, b) => new Date(b.registeredAt).getTime() - new Date(a.registeredAt).getTime()
+  );
+  const upcoming = new Date(e.eventDate).getTime() > Date.now();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">{event.title}</h1>
-              <Badge variant="secondary" className={statusColors[event.status] || ''}>
-                {event.status}
-              </Badge>
-              <Badge variant="secondary" className={typeColors[event.type] || ''}>
-                {typeLabels[event.type] || event.type}
-              </Badge>
-            </div>
-            <p className="text-muted-foreground">
-              {event.eventNumber || `Event ${event._id.slice(-6).toUpperCase()}`}
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          {event.status === 'published' && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => registerMutation.mutate()}
-              disabled={registerMutation.isPending || isFull}
-            >
-              <Send className="mr-2 h-4 w-4" />
-              {isFull ? 'Event Full' : registerMutation.isPending ? 'Registering...' : 'Register'}
-            </Button>
-          )}
-          {canEdit && event.status === 'draft' && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => statusMutation.mutate('published')}
-              disabled={statusMutation.isPending}
-            >
-              <Send className="mr-2 h-4 w-4" />
-              Publish
-            </Button>
-          )}
-          {canEdit && event.status === 'published' && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => statusMutation.mutate('completed')}
-                disabled={statusMutation.isPending}
-              >
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                Complete
+    <>
+      <PageTitle
+        crumbs={[
+          { label: 'Events', href: '/career-connect/alumni/events' },
+          { label: EVENT_TYPE[e.type] ?? 'Event' },
+        ]}
+        title={e.title}
+        description={`${EVENT_TYPE[e.type] ?? e.type} · ${fmtDate(e.eventDate, { weekday: 'long', day: 'numeric', month: 'long' })}`}
+        actions={
+          <>
+            <StatusPill status={e.status} />
+            {canEdit && e.status === 'draft' && (
+              <Button size="sm" onClick={() => setStatus.mutate('published')}>
+                Publish
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => statusMutation.mutate('cancelled')}
-                disabled={statusMutation.isPending}
-              >
-                <XCircle className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-            </>
-          )}
-          {canDelete && event.status === 'draft' && (
-            <Button variant="outline" size="sm" onClick={() => setShowDeleteDialog(true)}>
-              <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-              Delete
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Overview Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Date & Time</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <CalendarDays className="h-4 w-4 text-muted-foreground" />
-              <span>
-                {new Date(event.eventDate).toLocaleDateString('en-IN', {
-                  weekday: 'long',
-                  day: '2-digit',
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span>
-                {new Date(event.eventDate).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-                {event.endDate && (
-                  <>
-                    {' - '}
-                    {new Date(event.endDate).toLocaleTimeString('en-IN', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </>
-                )}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Venue</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {event.isVirtual ? (
-              <>
-                <div className="flex items-center gap-2 text-sm">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <span>Virtual Event</span>
-                </div>
-                {event.virtualLink && (
-                  <a
-                    href={event.virtualLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-sm text-blue-600 hover:underline"
-                  >
-                    Join Meeting <ExternalLink className="h-3 w-3" />
-                  </a>
-                )}
-              </>
-            ) : (
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>{event.venue || 'To be announced'}</span>
-              </div>
             )}
-          </CardContent>
-        </Card>
+            {canEdit && e.status === 'published' && !upcoming && (
+              <Button size="sm" onClick={() => setStatus.mutate('completed')}>
+                Mark completed
+              </Button>
+            )}
+            {e.status === 'published' && upcoming && (
+              <Button size="sm" variant="outline" onClick={() => register.mutate()}>
+                Register
+              </Button>
+            )}
+          </>
+        }
+      />
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Registrations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="text-2xl font-bold">{event.registrations?.length || 0}</span>
-              {event.maxCapacity && (
-                <span className="text-sm text-muted-foreground">/ {event.maxCapacity}</span>
-              )}
-            </div>
-            {isFull && <p className="text-xs text-orange-600 mt-1">Event is at full capacity</p>}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Description */}
-      {event.description && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Description</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm whitespace-pre-wrap">{event.description}</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Speakers */}
-      {event.speakers && event.speakers.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Mic className="h-4 w-4" />
-              Speakers ({event.speakers.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {event.speakers.map((speaker, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-1">
-                  <h4 className="font-medium">{speaker.name}</h4>
-                  {speaker.designation && (
-                    <p className="text-sm text-muted-foreground">{speaker.designation}</p>
-                  )}
-                  {speaker.company && (
-                    <p className="text-xs text-muted-foreground">{speaker.company}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Registrations */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Users className="h-4 w-4" />
-            Registrations ({event.registrations?.length || 0})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {!event.registrations || event.registrations.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">No registrations yet.</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Registered At</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {event.registrations.map((reg, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">{reg.userName || '-'}</TableCell>
-                    <TableCell>
-                      {new Date(reg.registeredAt).toLocaleDateString('en-IN', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="min-w-0 space-y-6">
+          {e.description && (
+            <Panel title="About">
+              <p className="whitespace-pre-line text-[15px] leading-7 text-foreground/85">{e.description}</p>
+            </Panel>
           )}
-        </CardContent>
-      </Card>
+          {e.speakers?.length ? (
+            <Panel title={e.speakers.length > 1 ? 'Speakers' : 'Speaker'}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {e.speakers.map((s) => {
+                  const body = (
+                    <>
+                      <Avatar person={s} size={52} />
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold">{s.name}</p>
+                        <p className="truncate text-sm text-muted-foreground">{s.designation}</p>
+                        <p className="truncate text-sm text-muted-foreground">{s.company}</p>
+                      </div>
+                    </>
+                  );
+                  return s.alumniId ? (
+                    <Link
+                      key={s.name}
+                      href={`/career-connect/alumni/directory/${s.alumniId}`}
+                      className="flex items-center gap-3.5 rounded-xl p-2 transition hover:bg-muted/50"
+                    >
+                      {body}
+                    </Link>
+                  ) : (
+                    <div key={s.name} className="flex items-center gap-3.5 p-2">
+                      {body}
+                    </div>
+                  );
+                })}
+              </div>
+            </Panel>
+          ) : null}
+          <Panel
+            title={e.status === 'completed' ? 'Attended' : 'Registered'}
+            description={`${regs.length} student${regs.length === 1 ? '' : 's'}`}
+          >
+            {regs.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No registrations yet.</p>
+            ) : (
+              <ul className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+                {regs.slice(0, 40).map((r) => (
+                  <li key={r.userId}>
+                    <PersonCell
+                      person={r.person ?? { name: r.userName ?? 'Student' }}
+                      href={r.studentId ? `/career-connect/student-profile/${r.studentId}` : undefined}
+                      size={32}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+            {regs.length > 40 && (
+              <p className="mt-4 text-sm text-muted-foreground">and {regs.length - 40} more</p>
+            )}
+          </Panel>
+        </div>
 
-      <Separator />
-
-      <div className="text-xs text-muted-foreground">
-        Created: {new Date(event.createdAt).toLocaleString('en-IN')}
-        {event.updatedAt && <> | Updated: {new Date(event.updatedAt).toLocaleString('en-IN')}</>}
-      </div>
-
-      {/* Delete Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Event</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this event? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => deleteMutation.mutate()}
+        <div className="space-y-6">
+          <Panel title="When & where">
+            <ul className="space-y-3.5 text-sm">
+              <li className="flex gap-3">
+                <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                {fmtDate(e.eventDate, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              </li>
+              <li className="flex gap-3">
+                <Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                {fmtTime(e.eventDate)}
+                {e.endDate ? ` – ${fmtTime(e.endDate)}` : ''}
+              </li>
+              <li className="flex gap-3">
+                {e.isVirtual ? (
+                  <Video className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                ) : (
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                )}
+                {e.isVirtual ? (
+                  e.virtualLink ? (
+                    <a href={e.virtualLink} target="_blank" rel="noreferrer" className="text-[#1e4fd8] hover:underline">
+                      Join online
+                    </a>
+                  ) : (
+                    'Online'
+                  )
+                ) : (
+                  e.venue || 'On campus'
+                )}
+              </li>
+            </ul>
+          </Panel>
+          {e.maxCapacity ? (
+            <Panel title="Seats">
+              <p className="text-3xl font-semibold tabular-nums tracking-tight">
+                {regs.length}
+                <span className="text-base font-normal text-muted-foreground"> / {e.maxCapacity}</span>
+              </p>
+              <Meter value={(regs.length / e.maxCapacity) * 100} className="mt-3" />
+              <p className="mt-2 text-xs text-muted-foreground">
+                {Math.max(0, e.maxCapacity - regs.length)} seats left
+              </p>
+            </Panel>
+          ) : null}
+          {canEdit && e.status !== 'cancelled' && e.status !== 'completed' && (
+            <button
+              className="text-sm text-muted-foreground hover:text-rose-600"
+              onClick={() => confirm('Cancel this event?') && setStatus.mutate('cancelled')}
+            >
+              Cancel event
+            </button>
+          )}
+          {hasPermission('careerConnect.alumni', 'delete') && (
+            <button
+              className="block text-sm text-muted-foreground hover:text-rose-600"
+              onClick={() => confirm('Delete this event?') && remove.mutate()}
             >
               Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+            </button>
+          )}
+        </div>
+      </div>
+    </>
   );
 }

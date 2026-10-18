@@ -1,382 +1,258 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Download } from 'lucide-react';
 import { healthApi } from '@/lib/api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Progress } from '@/components/ui/progress';
-import {} from '@/components/ui/table';
 import {
-  Heart,
-  Stethoscope,
-  Syringe,
-  Activity,
-  AlertTriangle,
-  CheckCircle,
-  Download,
-  FileText,
-} from 'lucide-react';
-import Link from 'next/link';
+  ACCENT,
+  Cell,
+  ChartTip,
+  Meter,
+  PageTitle,
+  Panel,
+  Skeleton,
+  Stat,
+  Table,
+} from '@/components/connect/kit';
+
+const TEAL = ACCENT.health.hex;
+
+interface Compliance {
+  totalHealthRecords: number;
+  vaccinationCompliance: Array<{ vaccineName: string; total: number; completed: number; overdue: number; complianceRate: number }>;
+  checkupCompliance: { totalRecords: number; withRecentCheckup: number; complianceRate: number };
+  dataCompleteness: { withAllergies: number; withEmergencyContacts: number; emergencyContactRate: number };
+}
+interface VisitStats {
+  totalVisits: number;
+  monthVisits: number;
+  incidentCount: number;
+  averageVisitDuration?: number;
+  byType: Record<string, number>;
+  byOutcome: Record<string, number>;
+}
+
+const OUTCOME: Record<string, string> = {
+  returned_to_class: 'Back in class',
+  sent_home: 'Sent home',
+  referred: 'Referred',
+  under_observation: 'Observation',
+  hospitalized: 'Hospitalised',
+};
+
+function Bars({ items, color = TEAL }: { items: Array<{ name: string; value: number }>; color?: string }) {
+  const max = Math.max(1, ...items.map((i) => i.value));
+  return (
+    <ul className="space-y-3">
+      {items.map((i) => (
+        <li key={i.name}>
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <span className="truncate">{i.name}</span>
+            <span className="tabular-nums text-muted-foreground">{i.value}</span>
+          </div>
+          <Meter value={(i.value / max) * 100} color={color} className="mt-1.5" />
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default function HealthReportsPage() {
-  const { data: dashboard, isLoading: dashboardLoading } = useQuery({
-    queryKey: ['health-reports-dashboard'],
-    queryFn: () => healthApi.getDashboard(),
-  });
-
-  const { data: compliance, isLoading: complianceLoading } = useQuery({
-    queryKey: ['health-reports-compliance'],
+  const { data: c } = useQuery({
+    queryKey: ['health-compliance'],
     queryFn: () => healthApi.getComplianceReport(),
   });
-
-  const { data: checkupStats } = useQuery({
-    queryKey: ['health-checkup-stats'],
-    queryFn: () => healthApi.getCheckupStats(),
-  });
-
-  const { data: vaccinationStats } = useQuery({
-    queryKey: ['health-vaccination-stats'],
-    queryFn: () => healthApi.getVaccinationStats(),
-  });
-
-  const { data: visitStats } = useQuery({
+  const { data: v } = useQuery({
     queryKey: ['health-visit-stats'],
     queryFn: () => healthApi.getVisitStats(),
   });
+  const { data: k } = useQuery({
+    queryKey: ['health-checkup-stats'],
+    queryFn: () => healthApi.getCheckupStats(),
+  });
+  const { data: ins } = useQuery({
+    queryKey: ['health-insights'],
+    queryFn: () => healthApi.getReportInsights(),
+  });
 
-  if (dashboardLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-48" />
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const comp = c?.data as Compliance | undefined;
+  const visits = v?.data as VisitStats | undefined;
+  const checkups = k?.data as { averageBmi?: number; visionIssues?: number; referralsMade?: number } | undefined;
+  const i = ins?.data;
+  if (!comp || !visits || !i) return <Skeleton rows={12} />;
 
-  const stats = dashboard?.data || {};
-  // API shape: checkupCompliance {totalRecords, withRecentCheckup, complianceRate}, vaccinationCompliance [{total, completed, overdue}]
-  const raw = compliance?.data || {};
-  const vacc: Array<{ total: number; completed: number; overdue: number }> = Array.isArray(
-    raw.vaccinationCompliance
-  )
-    ? raw.vaccinationCompliance
-    : [];
-  const vaccTotal = vacc.reduce((n, v) => n + (v.total || 0), 0);
-  const vaccDone = vacc.reduce((n, v) => n + (v.completed || 0), 0);
-  const checkupTotal = raw.checkupCompliance?.totalRecords || 0;
-  const checkupDone = raw.checkupCompliance?.withRecentCheckup || 0;
-  const complianceData = {
-    checkupCompliance: raw.checkupCompliance?.complianceRate || 0,
-    checkupCompletedCount: checkupDone,
-    checkupTotalCount: checkupTotal,
-    overdueCheckups: checkupTotal - checkupDone,
-    vaccinationCompliance: vaccTotal > 0 ? (vaccDone / vaccTotal) * 100 : 0,
-    vaccinationCompletedCount: vaccDone,
-    vaccinationTotalCount: vaccTotal,
-    overdueVaccinations: vacc.reduce((n, v) => n + (v.overdue || 0), 0),
+  const outcomes = Object.entries(visits.byOutcome ?? {})
+    .map(([name, value]) => ({ name: OUTCOME[name] ?? name, value }))
+    .sort((a, b) => b.value - a.value);
+  const busiest = [...i.byHour].sort((a, b) => b.value - a.value)[0];
+
+  const exportCsv = () => {
+    const rows = [
+      ['Section', 'Item', 'Value'],
+      ['Check-ups', 'Records with a check-up this year', `${comp.checkupCompliance.withRecentCheckup} of ${comp.checkupCompliance.totalRecords}`],
+      ...comp.vaccinationCompliance.map((x) => ['Vaccines', x.vaccineName, `${x.completed}/${x.total} (${x.complianceRate}%)`]),
+      ...i.checkupCoverage.map((x) => ['Check-up coverage', x.name, `${x.completed}/${x.total} (${x.rate}%)`]),
+      ...i.visitsByDepartment.map((x) => ['Visits by department', x.name, String(x.value)]),
+      ...i.incidentsByLocation.map((x) => ['Incidents by place', x.name, String(x.value)]),
+      ...i.allergies.map((x) => ['Allergies', x.name, String(x.value)]),
+    ];
+    const csv = rows.map((r) => r.map((x) => `"${String(x).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = 'health-report.csv';
+    a.click();
   };
-  const allClear = complianceData.overdueVaccinations === 0 && complianceData.overdueCheckups === 0;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Health Reports</h1>
-          <p className="text-muted-foreground">
-            Analytics and compliance reports for health module
-          </p>
-        </div>
-        <Button variant="outline">
-          <Download className="mr-2 h-4 w-4" />
-          Export Report
-        </Button>
+    <>
+      <PageTitle
+        title="Health reports"
+        description="Compliance, patterns and risk across the campus — for the medical officer and the management."
+        actions={
+          <Button size="sm" variant="outline" onClick={exportCsv}>
+            <Download className="mr-1.5 h-4 w-4" />
+            Export CSV
+          </Button>
+        }
+      />
+
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Stat
+          accent="health"
+          label="Check-up coverage"
+          value={comp.checkupCompliance.complianceRate}
+          format={(n) => `${Math.round(n)}%`}
+          hint={`${comp.checkupCompliance.withRecentCheckup} of ${comp.checkupCompliance.totalRecords} records this year`}
+        />
+        <Stat
+          accent="health"
+          label="Sick-room visits"
+          value={visits.totalVisits}
+          hint={`${visits.monthVisits} in the last 30 days`}
+        />
+        <Stat
+          accent="health"
+          label="Incidents"
+          value={visits.incidentCount}
+          hint="Injuries logged to the safety register"
+        />
+        <Stat
+          accent="health"
+          label="Average stay"
+          value={visits.averageVisitDuration ?? 0}
+          format={(n) => `${Math.round(n)} min`}
+          hint={busiest?.value ? `Busiest around ${busiest.name}` : undefined}
+        />
       </div>
 
-      {/* Overview Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Health Records</CardTitle>
-            <Heart className="h-4 w-4 text-rose-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalRecords || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.studentRecords || 0} students, {stats.staffRecords || 0} staff
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Checkups Completed</CardTitle>
-            <Stethoscope className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{checkupStats?.data?.completed || 0}</div>
-            <p className="text-xs text-muted-foreground">This academic year</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Vaccination Rate</CardTitle>
-            <Syringe className="h-4 w-4 text-amber-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {vaccinationStats?.data?.complianceRate
-                ? `${Math.round(vaccinationStats.data.complianceRate)}%`
-                : '-'}
-            </div>
-            <p className="text-xs text-muted-foreground">Overall compliance</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Visits</CardTitle>
-            <Activity className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{visitStats?.data?.thisMonth || 0}</div>
-            <p className="text-xs text-muted-foreground">Medical room visits</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Compliance Report */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Compliance Overview</CardTitle>
-              <CardDescription>Health checkup and vaccination compliance rates</CardDescription>
-            </div>
+      <div className="grid gap-6 xl:grid-cols-3">
+        <Panel title="When students come in" description="Visits by arrival time" className="xl:col-span-2">
+          <div className="h-60">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={i.byHour} margin={{ top: 4, right: 4, left: -26, bottom: 0 }} barCategoryGap="30%">
+                <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeDasharray="2 4" />
+                <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={11} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+                <YAxis tickLine={false} axisLine={false} fontSize={11} allowDecimals={false} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+                <Tooltip content={<ChartTip />} cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }} />
+                <Bar dataKey="value" name="Visits" fill={TEAL} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-        </CardHeader>
-        <CardContent>
-          {complianceLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-8 w-full" />
-              <Skeleton className="h-8 w-full" />
-              <Skeleton className="h-8 w-full" />
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Checkup Compliance */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Stethoscope className="h-4 w-4 text-blue-500" />
-                    <span className="font-medium">Annual Checkup Compliance</span>
-                  </div>
-                  <span className="text-sm font-medium">
-                    {`${Math.round(complianceData.checkupCompliance)}%`}
-                  </span>
-                </div>
-                <Progress value={complianceData.checkupCompliance} className="h-2" />
-                <p className="text-xs text-muted-foreground">
-                  {complianceData.checkupCompletedCount || 0} of{' '}
-                  {complianceData.checkupTotalCount || 0} students/staff have completed annual
-                  checkups
-                </p>
-              </div>
+        </Panel>
+        <Panel title="How visits ended">
+          <Bars items={outcomes} />
+        </Panel>
 
-              {/* Vaccination Compliance */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Syringe className="h-4 w-4 text-amber-500" />
-                    <span className="font-medium">Vaccination Compliance</span>
-                  </div>
-                  <span className="text-sm font-medium">
-                    {`${Math.round(complianceData.vaccinationCompliance)}%`}
-                  </span>
-                </div>
-                <Progress value={complianceData.vaccinationCompliance} className="h-2" />
-                <p className="text-xs text-muted-foreground">
-                  {complianceData.vaccinationCompletedCount || 0} of{' '}
-                  {complianceData.vaccinationTotalCount || 0} required vaccinations completed
-                </p>
-              </div>
-
-              {/* Alerts */}
-              {allClear ? (
-                <div className="mt-6 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400">
-                  <CheckCircle className="h-5 w-5" />
-                  <span className="font-medium">
-                    All health compliance requirements are up to date
-                  </span>
-                </div>
-              ) : (
-                <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-                    <AlertTriangle className="h-5 w-5" />
-                    <span className="font-medium">Attention Required</span>
-                  </div>
-                  <ul className="mt-2 space-y-1 text-sm text-amber-600 dark:text-amber-500">
-                    {complianceData.overdueVaccinations > 0 && (
-                      <li>
-                        {complianceData.overdueVaccinations} overdue vaccinations need attention
-                      </li>
-                    )}
-                    {complianceData.overdueCheckups > 0 && (
-                      <li>
-                        {complianceData.overdueCheckups} students/staff are due for health checkups
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Quick Reports */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Visit Summary */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Medical Visit Summary</CardTitle>
-            <CardDescription>Breakdown by visit type this month</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                {
-                  type: 'Illness',
-                  count: visitStats?.data?.byType?.illness || 0,
-                  color: 'bg-blue-500',
-                },
-                {
-                  type: 'Injury',
-                  count: visitStats?.data?.byType?.injury || 0,
-                  color: 'bg-amber-500',
-                },
-                {
-                  type: 'Emergency',
-                  count: visitStats?.data?.byType?.emergency || 0,
-                  color: 'bg-red-500',
-                },
-                {
-                  type: 'Routine',
-                  count: visitStats?.data?.byType?.routine || 0,
-                  color: 'bg-green-500',
-                },
-                {
-                  type: 'Other',
-                  count: visitStats?.data?.byType?.other || 0,
-                  color: 'bg-gray-500',
-                },
-              ].map((item) => (
-                <div key={item.type} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${item.color}`} />
-                    <span className="text-sm">{item.type}</span>
-                  </div>
-                  <span className="font-medium">{item.count}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Visit Outcomes */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Visit Outcomes</CardTitle>
-            <CardDescription>How visits were resolved this month</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                {
-                  outcome: 'Returned to Class',
-                  count: visitStats?.data?.byOutcome?.returned_to_class || 0,
-                  icon: CheckCircle,
-                  color: 'text-green-500',
-                },
-                {
-                  outcome: 'Sent Home',
-                  count: visitStats?.data?.byOutcome?.sent_home || 0,
-                  icon: Activity,
-                  color: 'text-amber-500',
-                },
-                {
-                  outcome: 'Referred',
-                  count: visitStats?.data?.byOutcome?.referred || 0,
-                  icon: FileText,
-                  color: 'text-blue-500',
-                },
-                {
-                  outcome: 'Under Observation',
-                  count: visitStats?.data?.byOutcome?.under_observation || 0,
-                  icon: AlertTriangle,
-                  color: 'text-purple-500',
-                },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.outcome} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Icon className={`h-4 w-4 ${item.color}`} />
-                      <span className="text-sm">{item.outcome}</span>
-                    </div>
-                    <span className="font-medium">{item.count}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+        <Panel title="Visits by department" description={`Students · plus ${i.staffVisits} staff visits`}>
+          <Bars items={i.visitsByDepartment} />
+        </Panel>
+        <Panel title="Where incidents happen" description="Plan first-aid kits and supervision">
+          <Bars items={i.incidentsByLocation} color="#f59e0b" />
+        </Panel>
+        <Panel title="Allergies on file" description={`${comp.dataCompleteness.withAllergies} people with at least one`}>
+          <Bars items={i.allergies} color="#e11d48" />
+        </Panel>
       </div>
 
-      {/* Report Links */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Available Reports</CardTitle>
-          <CardDescription>Generate detailed reports</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <Button variant="outline" className="h-auto flex-col py-4" asChild>
-              <Link href="/health/reports/checkups">
-                <Stethoscope className="h-6 w-6 mb-2 text-blue-500" />
-                <span className="font-medium">Checkup Report</span>
-                <span className="text-xs text-muted-foreground mt-1">
-                  Detailed health screening data
-                </span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto flex-col py-4" asChild>
-              <Link href="/health/reports/vaccinations">
-                <Syringe className="h-6 w-6 mb-2 text-amber-500" />
-                <span className="font-medium">Vaccination Report</span>
-                <span className="text-xs text-muted-foreground mt-1">
-                  Immunization compliance data
-                </span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto flex-col py-4" asChild>
-              <Link href="/health/reports/visits">
-                <Activity className="h-6 w-6 mb-2 text-green-500" />
-                <span className="font-medium">Visit Report</span>
-                <span className="text-xs text-muted-foreground mt-1">Medical visit analytics</span>
-              </Link>
-            </Button>
+      <div className="mt-6 grid gap-6 xl:grid-cols-2">
+        <Panel title="Check-up coverage by department" description="Lowest first — where to send the next camp" bodyClassName="p-0">
+          <Table head={['Department', 'Done', 'Coverage']}>
+            {i.checkupCoverage.map((d) => (
+              <tr key={d.name}>
+                <Cell className="text-sm">{d.name}</Cell>
+                <Cell className="whitespace-nowrap text-sm tabular-nums text-muted-foreground">
+                  {d.completed} / {d.total}
+                </Cell>
+                <Cell last className="w-48">
+                  <div className="flex items-center gap-3">
+                    <Meter value={d.rate} color={d.rate >= 75 ? TEAL : '#f59e0b'} className="flex-1" />
+                    <span className="w-9 text-right text-sm tabular-nums">{d.rate}%</span>
+                  </div>
+                </Cell>
+              </tr>
+            ))}
+          </Table>
+        </Panel>
+        <Panel title="Vaccine compliance" bodyClassName="p-0">
+          <Table head={['Vaccine', 'Given', 'Overdue', 'Compliance']}>
+            {comp.vaccinationCompliance.map((x) => (
+              <tr key={x.vaccineName}>
+                <Cell className="text-sm font-medium">{x.vaccineName}</Cell>
+                <Cell className="text-sm tabular-nums text-muted-foreground">
+                  {x.completed} / {x.total}
+                </Cell>
+                <Cell className={`text-sm tabular-nums ${x.overdue ? 'text-rose-600' : 'text-muted-foreground'}`}>
+                  {x.overdue}
+                </Cell>
+                <Cell last className="w-40">
+                  <div className="flex items-center gap-3">
+                    <Meter value={x.complianceRate} color={x.complianceRate >= 75 ? TEAL : '#f59e0b'} className="flex-1" />
+                    <span className="w-9 text-right text-sm tabular-nums">{x.complianceRate}%</span>
+                  </div>
+                </Cell>
+              </tr>
+            ))}
+          </Table>
+        </Panel>
+      </div>
+
+      <div className="mt-6 grid gap-6 md:grid-cols-3">
+        <Panel title="Blood groups">
+          <div className="grid grid-cols-4 gap-2">
+            {i.bloodGroups.map((b) => (
+              <div key={b.name} className="rounded-lg bg-rose-50 px-2 py-2.5 text-center dark:bg-rose-500/10">
+                <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">{b.name}</p>
+                <p className="text-xs tabular-nums text-muted-foreground">{b.value}</p>
+              </div>
+            ))}
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </Panel>
+        <Panel title="Chronic conditions">
+          {i.conditions.length ? <Bars items={i.conditions} color="#f59e0b" /> : <p className="text-sm text-muted-foreground">None recorded.</p>}
+        </Panel>
+        <Panel title="Screening flags">
+          <ul className="space-y-3 text-sm">
+            <li className="flex justify-between">
+              <span>Average BMI</span>
+              <span className="font-medium tabular-nums">{checkups?.averageBmi?.toFixed(1) ?? '—'}</span>
+            </li>
+            <li className="flex justify-between">
+              <span>Vision concerns</span>
+              <span className="font-medium tabular-nums">{checkups?.visionIssues ?? 0}</span>
+            </li>
+            <li className="flex justify-between">
+              <span>Specialist referrals</span>
+              <span className="font-medium tabular-nums">{checkups?.referralsMade ?? 0}</span>
+            </li>
+            <li className="flex justify-between">
+              <span>Emergency contacts on file</span>
+              <span className="font-medium tabular-nums">{comp.dataCompleteness.emergencyContactRate}%</span>
+            </li>
+          </ul>
+        </Panel>
+      </div>
+    </>
   );
 }

@@ -50,7 +50,7 @@ class JobPostingService {
     ]);
 
     return {
-      data: data.map(this.formatPosting),
+      data: await this.withWebsite(data.map(this.formatPosting)),
       meta: buildPaginationMeta(page, limit, total),
     };
   }
@@ -65,7 +65,7 @@ class JobPostingService {
       throw new ApiError('POSTING_NOT_FOUND', 'Job posting not found', 404);
     }
 
-    return this.formatPosting(posting);
+    return (await this.withWebsite([this.formatPosting(posting)]))[0];
   }
 
   async create(tenantId: string, branchId: string, userId: string, data: Record<string, unknown>) {
@@ -210,6 +210,17 @@ class JobPostingService {
       totalApplications: totalApps,
       applicationsByStatus,
     };
+  }
+
+  /** Company website, for the logo. */
+  private async withWebsite<T extends { companyId?: unknown; companyName?: unknown }>(rows: T[]) {
+    const ids = rows.map((r) => r.companyId).filter((id) => id && ObjectId.isValid(String(id)));
+    const companies = await collections.placementCompanies
+      .find({ _id: { $in: ids.map((id) => new ObjectId(String(id))) } })
+      .project({ website: 1 })
+      .toArray();
+    const site = new Map(companies.map((c) => [String(c._id), c.website as string]));
+    return rows.map((r) => ({ ...r, companyWebsite: site.get(String(r.companyId)) ?? null }));
   }
 
   private formatPosting(doc: Document) {

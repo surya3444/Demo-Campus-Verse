@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PageTitle } from '@/components/connect/kit';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { careerConnectApi } from '@/lib/api';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -9,38 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Heart, Plus, Search, MoreHorizontal, Eye, Edit, Trash2, ArrowLeft } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Heart, Plus, Search, MoreHorizontal, Eye, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -173,19 +147,11 @@ export default function CounselingSessionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push('/career-connect/counseling')}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Counseling Sessions</h1>
-            <p className="text-muted-foreground">Manage career counseling sessions</p>
-          </div>
-        </div>
+        <PageTitle
+        crumbs={[{ label: "Counseling", href: "/career-connect/counseling" }, { label: "Counseling sessions" }]}
+        title="Counseling sessions"
+        description="Manage career counseling sessions"
+      />
         {hasPermission('careerConnect.counseling', 'create') && (
           <Button onClick={() => router.push('/career-connect/counseling/sessions/new')}>
             <Plus className="mr-2 h-4 w-4" />

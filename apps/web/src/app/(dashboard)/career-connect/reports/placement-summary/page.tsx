@@ -1,23 +1,13 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { PageTitle } from '@/components/connect/kit';
 import { careerConnectApi } from '@/lib/api';
 import { usePermissions } from '@/hooks/usePermissions';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  BarChart3,
-  ArrowLeft,
-  Briefcase,
-  Users,
-  TrendingUp,
-  IndianRupee,
-  Target,
-  CheckCircle2,
-} from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { BarChart3, Briefcase, Users, TrendingUp, IndianRupee, Target, CheckCircle2 } from 'lucide-react';
 
 interface PlacementSummary {
   totalDrives: number;
@@ -34,7 +24,6 @@ interface PlacementSummary {
 }
 
 export default function PlacementSummaryPage() {
-  const router = useRouter();
   const { hasPermission } = usePermissions();
   const canView = hasPermission('careerConnect.reports', 'view');
 
@@ -60,15 +49,11 @@ export default function PlacementSummaryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/career-connect/reports')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Placement Summary</h1>
-          <p className="text-muted-foreground">Overall placement statistics and key metrics</p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Reports", href: "/career-connect/reports" }, { label: "Placement summary" }]}
+        title="Placement summary"
+        description="Overall placement statistics and key metrics"
+      />
 
       {isLoading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

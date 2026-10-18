@@ -1,488 +1,311 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { CalendarPlus, HeartHandshake, Star, Target } from 'lucide-react';
 import { careerConnectApi } from '@/lib/api';
 import { usePermissions } from '@/hooks/usePermissions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import {
-  ArrowLeft,
-  Users,
-  Calendar,
-  CheckCircle2,
-  XCircle,
-  Play,
-  Plus,
-  Trash2,
-  Clock,
-  Target,
-  MessageSquare,
-} from 'lucide-react';
-import { toast } from 'sonner';
+  Avatar,
+  Empty,
+  KeyValue,
+  PageTitle,
+  Panel,
+  Skeleton,
+  StatusPill,
+  fmtDate,
+} from '@/components/connect/kit';
+import type { Mentorship } from '../types';
 
-const statusColors: Record<string, string> = {
-  requested: 'bg-yellow-100 text-yellow-800',
-  active: 'bg-green-100 text-green-800',
-  completed: 'bg-blue-100 text-blue-800',
-  cancelled: 'bg-red-100 text-red-800',
+type ApiErr = Error & { response?: { data?: { error?: { message?: string } } } };
+const TYPE: Record<string, string> = {
+  one_on_one: 'One-on-one',
+  group: 'Group circle',
+  project_based: 'Project mentoring',
 };
 
-const programTypeLabels: Record<string, string> = {
-  one_on_one: 'One on One',
-  group: 'Group',
-  project_based: 'Project Based',
-};
-
-interface MentorshipSession {
-  _id: string;
-  date?: string;
-  duration?: number;
-  notes?: string;
-  conductedBy: string;
-  conductedAt: string;
-}
-
-interface MentorshipDetail {
-  _id: string;
-  mentorAlumniId: string;
-  menteeStudentId: string;
-  areaOfGuidance: string;
-  programType: string;
-  status: string;
-  goals: string[];
-  sessions: MentorshipSession[];
-  startDate?: string;
-  endDate?: string;
-  feedback?: {
-    mentorRating?: number;
-    menteeRating?: number;
-    comments?: string;
-  };
-  createdAt: string;
-  updatedAt?: string;
-}
-
-function formatDateTime(dateStr?: string): string {
-  if (!dateStr) return '-';
-  return new Date(dateStr).toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
-export default function MentorshipProgramDetailPage() {
-  const params = useParams();
+export default function MentorshipDetailPage() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { hasPermission } = usePermissions();
-  const id = params.id as string;
-
   const canEdit = hasPermission('careerConnect.alumni', 'edit');
-  const canDelete = hasPermission('careerConnect.alumni', 'delete');
-
-  const [addSessionOpen, setAddSessionOpen] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [sessionDate, setSessionDate] = useState('');
-  const [sessionDuration, setSessionDuration] = useState('');
-  const [sessionNotes, setSessionNotes] = useState('');
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState('');
+  const [duration, setDuration] = useState('45');
+  const [notes, setNotes] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['mentorship-program', id],
     queryFn: () => careerConnectApi.getMentorshipProgram(id),
   });
-
-  const updateMutation = useMutation({
-    mutationFn: (updateData: Record<string, unknown>) =>
-      careerConnectApi.updateMentorshipProgram(id, updateData),
-    onSuccess: () => {
-      toast.success('Program updated successfully');
-      queryClient.invalidateQueries({ queryKey: ['mentorship-program', id] });
-      queryClient.invalidateQueries({ queryKey: ['mentorship-programs'] });
-    },
-    onError: (error: Error & { response?: { data?: { error?: { message?: string } } } }) => {
-      toast.error(error.response?.data?.error?.message || 'Failed to update program');
-    },
+  const refresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['mentorship-program', id] });
+    queryClient.invalidateQueries({ queryKey: ['mentorship-programs'] });
+  };
+  const onErr = (f: string) => (e: ApiErr) => toast.error(e.response?.data?.error?.message || f);
+  const update = useMutation({
+    mutationFn: (d: Record<string, unknown>) => careerConnectApi.updateMentorshipProgram(id, d),
+    onSuccess: () => (toast.success('Mentorship updated'), refresh()),
+    onError: onErr('Could not update'),
   });
-
-  const addSessionMutation = useMutation({
-    mutationFn: (sessionData: Record<string, unknown>) =>
-      careerConnectApi.addMentorshipSession(id, sessionData),
+  const addSession = useMutation({
+    mutationFn: () =>
+      careerConnectApi.addMentorshipSession(id, {
+        date,
+        duration: duration ? Number(duration) : undefined,
+        notes: notes || undefined,
+      }),
     onSuccess: () => {
-      toast.success('Session added successfully');
-      queryClient.invalidateQueries({ queryKey: ['mentorship-program', id] });
-      setAddSessionOpen(false);
-      setSessionDate('');
-      setSessionDuration('');
-      setSessionNotes('');
+      toast.success('Session logged');
+      refresh();
+      setOpen(false);
+      setDate('');
+      setNotes('');
     },
-    onError: (error: Error & { response?: { data?: { error?: { message?: string } } } }) => {
-      toast.error(error.response?.data?.error?.message || 'Failed to add session');
-    },
+    onError: onErr('Could not log the session'),
   });
-
-  const deleteMutation = useMutation({
+  const remove = useMutation({
     mutationFn: () => careerConnectApi.deleteMentorshipProgram(id),
     onSuccess: () => {
-      toast.success('Program deleted successfully');
+      toast.success('Mentorship removed');
       queryClient.invalidateQueries({ queryKey: ['mentorship-programs'] });
       router.push('/career-connect/alumni/mentorship');
     },
-    onError: (error: Error & { response?: { data?: { error?: { message?: string } } } }) => {
-      toast.error(error.response?.data?.error?.message || 'Failed to delete program');
-    },
+    onError: onErr('Could not remove'),
   });
 
-  const handleAddSession = () => {
-    if (!sessionDate) {
-      toast.error('Session date is required');
-      return;
-    }
-    addSessionMutation.mutate({
-      date: sessionDate,
-      duration: sessionDuration ? Number(sessionDuration) : undefined,
-      notes: sessionNotes || undefined,
-    });
-  };
+  if (isLoading) return <Skeleton rows={10} />;
+  const m = data?.data as Mentorship | undefined;
+  if (!m) return <Empty icon={HeartHandshake} title="Mentorship not found" />;
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
-  }
-
-  const program: MentorshipDetail | undefined = data?.data;
-
-  if (!program) {
-    return (
-      <div className="text-center py-12">
-        <Users className="mx-auto h-12 w-12 text-muted-foreground/50" />
-        <h3 className="mt-4 text-lg font-medium">Program not found</h3>
-        <Button
-          variant="outline"
-          className="mt-4"
-          onClick={() => router.push('/career-connect/alumni/mentorship')}
-        >
-          Back to Programs
-        </Button>
-      </div>
-    );
-  }
+  const sessions = [...(m.sessions ?? [])].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+  const minutes = sessions.reduce((n, s) => n + (s.duration ?? 0), 0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">{program.areaOfGuidance}</h1>
-              <Badge variant="secondary" className={statusColors[program.status] || ''}>
-                {program.status}
-              </Badge>
-              <Badge variant="outline" className="text-xs">
-                {programTypeLabels[program.programType] || program.programType}
-              </Badge>
-            </div>
-            <p className="text-muted-foreground">Mentorship Program</p>
-          </div>
-        </div>
-        {canEdit && (
-          <div className="flex gap-2">
-            {program.status === 'requested' && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateMutation.mutate({ status: 'active' })}
-                disabled={updateMutation.isPending}
-              >
-                <Play className="mr-2 h-4 w-4" />
-                Activate
+    <>
+      <PageTitle
+        crumbs={[
+          { label: 'Mentorship', href: '/career-connect/alumni/mentorship' },
+          { label: m.mentee?.name ?? 'Pairing' },
+        ]}
+        title={m.areaOfGuidance}
+        description={`${TYPE[m.programType ?? ''] ?? 'Mentorship'}${m.startDate ? ` · since ${fmtDate(m.startDate)}` : ''}`}
+        actions={
+          <>
+            <StatusPill status={m.status} />
+            {canEdit && m.status === 'requested' && (
+              <Button size="sm" onClick={() => update.mutate({ status: 'active' })}>
+                Approve pairing
               </Button>
             )}
-            {program.status === 'active' && (
+            {canEdit && m.status === 'active' && (
               <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => updateMutation.mutate({ status: 'completed' })}
-                  disabled={updateMutation.isPending}
-                >
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  Complete
+                <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+                  <CalendarPlus className="mr-1.5 h-4 w-4" />
+                  Log a session
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => updateMutation.mutate({ status: 'cancelled' })}
-                  disabled={updateMutation.isPending}
-                >
-                  <XCircle className="mr-2 h-4 w-4" />
-                  Cancel
+                <Button size="sm" onClick={() => update.mutate({ status: 'completed' })}>
+                  Mark complete
                 </Button>
               </>
             )}
-            {canDelete && program.status === 'requested' && (
-              <Button variant="outline" size="sm" onClick={() => setShowDeleteDialog(true)}>
-                <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-                Delete
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
+          </>
+        }
+      />
 
-      {/* Overview Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Mentor</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm font-mono">{program.mentorAlumniId}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Duration</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>
-                Start: {program.startDate ? formatDateTime(program.startDate) : 'Not started'}
-              </span>
-            </div>
-            {program.endDate && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>End: {formatDateTime(program.endDate)}</span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Sessions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{program.sessions?.length || 0}</p>
-            <p className="text-xs text-muted-foreground">total sessions conducted</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Goals */}
-      {program.goals && program.goals.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Target className="h-4 w-4" />
-              Goals
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {program.goals.map((goal, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm">
-                  <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
-                  <span>{goal}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Sessions */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <MessageSquare className="h-4 w-4" />
-            Sessions
-          </CardTitle>
-          {canEdit && program.status === 'active' && (
-            <Button size="sm" onClick={() => setAddSessionOpen(true)}>
-              <Plus className="mr-1 h-4 w-4" />
-              Add Session
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          {!program.sessions || program.sessions.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">
-              No sessions conducted yet.
-            </p>
-          ) : (
-            <div className="space-y-4">
-              {program.sessions.map((session, index) => (
-                <div key={session._id || index} className="border rounded-lg p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        Session {index + 1}
-                      </Badge>
-                      {session.duration && (
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          {session.duration} min
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {session.date
-                        ? formatDateTime(session.date)
-                        : formatDateTime(session.conductedAt)}
-                    </span>
-                  </div>
-                  {session.notes && (
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                      {session.notes}
-                    </p>
-                  )}
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="min-w-0 space-y-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            {[
+              {
+                tag: 'Mentor',
+                href: m.mentor ? `/career-connect/alumni/directory/${m.mentor.id}` : undefined,
+                person: { name: m.mentor?.name ?? 'Mentor', photo: m.mentor?.photo },
+                line1: [m.mentor?.role, m.mentor?.company].filter(Boolean).join(' · '),
+                line2: [m.mentor?.program, m.mentor?.graduationYear && `Class of ${m.mentor.graduationYear}`]
+                  .filter(Boolean)
+                  .join(' · '),
+              },
+              {
+                tag: 'Mentee',
+                href: `/career-connect/student-profile/${m.menteeStudentId}`,
+                person: { name: m.mentee?.name ?? 'Student', photo: m.mentee?.photo },
+                line1: m.mentee?.program ?? '',
+                line2: m.mentee?.cgpa ? `CGPA ${m.mentee.cgpa.toFixed(2)}` : '',
+              },
+            ].map((p) => (
+              <Link
+                key={p.tag}
+                href={p.href ?? '#'}
+                className="flex items-center gap-4 rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
+              >
+                <Avatar person={p.person} size={56} />
+                <div className="min-w-0">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                    {p.tag}
+                  </p>
+                  <p className="truncate font-semibold">{p.person.name}</p>
+                  <p className="truncate text-sm text-muted-foreground">{p.line1}</p>
+                  {p.line2 && <p className="truncate text-xs text-muted-foreground">{p.line2}</p>}
                 </div>
-              ))}
-            </div>
+              </Link>
+            ))}
+          </div>
+
+          <Panel
+            title="Sessions"
+            description={
+              sessions.length
+                ? `${sessions.length} sessions · ${Math.round(minutes / 60)} hours together`
+                : undefined
+            }
+          >
+            {sessions.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {m.status === 'requested'
+                  ? 'Sessions start once the pairing is approved.'
+                  : 'No sessions logged yet.'}
+              </p>
+            ) : (
+              <ol className="relative space-y-6 border-l border-border pl-6">
+                {sessions.map((s, i) => (
+                  <li key={s._id ?? i} className="relative">
+                    <span className="absolute -left-[29px] top-1 h-2.5 w-2.5 rounded-full bg-[#1e4fd8] ring-4 ring-card" />
+                    <p className="text-sm font-medium">
+                      {fmtDate(s.date, { weekday: 'short', day: 'numeric', month: 'short' })}
+                      {s.duration ? (
+                        <span className="font-normal text-muted-foreground"> · {s.duration} min</span>
+                      ) : null}
+                    </p>
+                    {s.notes && <p className="mt-1 text-sm text-foreground/80">{s.notes}</p>}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </Panel>
+        </div>
+
+        <div className="space-y-6">
+          <Panel title="Goals">
+            {m.goals?.length ? (
+              <ul className="space-y-2.5">
+                {m.goals.map((g) => (
+                  <li key={g} className="flex items-start gap-2.5 text-sm">
+                    <Target className="mt-0.5 h-4 w-4 shrink-0 text-[#1e4fd8]" />
+                    {g}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">No goals set.</p>
+            )}
+          </Panel>
+          <Panel title="Details">
+            <KeyValue
+              cols={1}
+              items={[
+                ['Format', TYPE[m.programType ?? ''] ?? '—'],
+                ['Requested', fmtDate(m.createdAt)],
+                ['Started', fmtDate(m.startDate)],
+                ...(m.endDate ? [['Ended', fmtDate(m.endDate)] as [string, string]] : []),
+              ]}
+            />
+          </Panel>
+          {m.feedback?.menteeRating ? (
+            <Panel title="Feedback">
+              <div className="flex gap-0.5">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <Star
+                    key={i}
+                    className={
+                      i < (m.feedback?.menteeRating ?? 0)
+                        ? 'h-4 w-4 fill-amber-400 text-amber-400'
+                        : 'h-4 w-4 text-muted-foreground/30'
+                    }
+                  />
+                ))}
+              </div>
+              {m.feedback.comments && (
+                <p className="mt-2 text-sm text-foreground/80">“{m.feedback.comments}”</p>
+              )}
+            </Panel>
+          ) : null}
+          {canEdit && m.status !== 'cancelled' && m.status !== 'completed' && (
+            <button
+              className="text-sm text-muted-foreground hover:text-rose-600"
+              onClick={() => update.mutate({ status: 'cancelled' })}
+            >
+              Cancel this mentorship
+            </button>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Feedback */}
-      {program.feedback && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Feedback</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {program.feedback.mentorRating && (
-              <p className="text-sm">
-                <span className="font-medium">Mentor Rating:</span> {program.feedback.mentorRating}
-                /5
-              </p>
-            )}
-            {program.feedback.menteeRating && (
-              <p className="text-sm">
-                <span className="font-medium">Mentee Rating:</span> {program.feedback.menteeRating}
-                /5
-              </p>
-            )}
-            {program.feedback.comments && (
-              <p className="text-sm whitespace-pre-wrap">{program.feedback.comments}</p>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      <Separator />
-
-      <div className="text-xs text-muted-foreground">
-        Created: {new Date(program.createdAt).toLocaleString('en-IN')}
-        {program.updatedAt && (
-          <> | Updated: {new Date(program.updatedAt).toLocaleString('en-IN')}</>
-        )}
+          {hasPermission('careerConnect.alumni', 'delete') && (
+            <button
+              className="block text-sm text-muted-foreground hover:text-rose-600"
+              onClick={() => confirm('Delete this mentorship and its sessions?') && remove.mutate()}
+            >
+              Delete
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Add Session Dialog */}
-      <Dialog open={addSessionOpen} onOpenChange={setAddSessionOpen}>
-        <DialogContent>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Session</DialogTitle>
-            <DialogDescription>Record a new mentorship session.</DialogDescription>
+            <DialogTitle>Log a session</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Session Date *</Label>
-              <Input
-                type="datetime-local"
-                value={sessionDate}
-                onChange={(e) => setSessionDate(e.target.value)}
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="d">Date</Label>
+                <Input id="d" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="m">Minutes</Label>
+                <Input
+                  id="m"
+                  type="number"
+                  min={5}
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Duration (minutes)</Label>
-              <Input
-                type="number"
-                value={sessionDuration}
-                onChange={(e) => setSessionDuration(e.target.value)}
-                placeholder="e.g. 60"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Notes</Label>
-              <Textarea
-                value={sessionNotes}
-                onChange={(e) => setSessionNotes(e.target.value)}
-                placeholder="Session notes and discussion points..."
-                rows={4}
-              />
+            <div className="space-y-1.5">
+              <Label htmlFor="n">What you covered</Label>
+              <Textarea id="n" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAddSessionOpen(false)}>
+            <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddSession} disabled={addSessionMutation.isPending}>
-              {addSessionMutation.isPending ? 'Adding...' : 'Add Session'}
+            <Button
+              disabled={!date || addSession.isPending}
+              onClick={() => addSession.mutate()}
+            >
+              Save session
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Delete Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Mentorship Program</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this mentorship program? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => deleteMutation.mutate()}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+    </>
   );
 }

@@ -1,5 +1,6 @@
 import { ObjectId, Filter, Document, UpdateFilter } from 'mongodb';
 import { collections } from '../../../config/database';
+import { alumniById, peopleById } from '../../../utils/people';
 import { ApiError } from '../../../middleware/errorHandler';
 import { getPagination, buildPaginationMeta } from '../../../utils/pagination';
 
@@ -45,7 +46,7 @@ class ReferralService {
     ]);
 
     return {
-      data: data.map(this.formatReferral),
+      data: await this.enrich(data.map(this.formatReferral)),
       meta: buildPaginationMeta(page, limit, total),
     };
   }
@@ -60,7 +61,7 @@ class ReferralService {
       throw new ApiError('REFERRAL_NOT_FOUND', 'Referral not found', 404);
     }
 
-    return this.formatReferral(referral);
+    return (await this.enrich([this.formatReferral(referral)]))[0];
   }
 
   async create(tenantId: string, branchId: string, userId: string, data: Record<string, unknown>) {
@@ -150,6 +151,24 @@ class ReferralService {
     } as unknown as UpdateFilter<Document>);
 
     return this.getById(tenantId, id);
+  }
+
+  /** The referring alumnus and each referred student, with photos. */
+  private async enrich<T extends { alumniId?: string; studentsReferred?: unknown }>(rows: T[]) {
+    type Ref = { studentId?: unknown };
+    const refs = rows.flatMap((r) => (r.studentsReferred as Ref[] | undefined) ?? []);
+    const [alumni, people] = await Promise.all([
+      alumniById(rows.map((r) => r.alumniId)),
+      peopleById(refs.map((x) => x.studentId)),
+    ]);
+    return rows.map((r) => ({
+      ...r,
+      alumni: alumni.get(String(r.alumniId)) ?? null,
+      studentsReferred: ((r.studentsReferred as Ref[] | undefined) ?? []).map((x) => ({
+        ...x,
+        person: people.get(String(x.studentId)) ?? null,
+      })),
+    }));
   }
 
   private formatReferral(doc: Document) {

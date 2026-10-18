@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PageTitle } from '@/components/connect/kit';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -13,14 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ArrowLeft } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import type { z } from 'zod';
 
@@ -92,15 +86,11 @@ export default function NewResourcePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">New Resource</h1>
-          <p className="text-muted-foreground">Add a new career guidance resource</p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Resources", href: "/career-connect/counseling/resources" }, { label: "New resource" }]}
+        title="New resource"
+        description="Add a new career guidance resource"
+      />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Card>

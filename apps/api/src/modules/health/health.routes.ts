@@ -325,6 +325,14 @@ router.get(
   healthReportController.exportHealthCard
 );
 
+router.get('/reports/insights', requirePermission('health.reports', 'view'), async (req, res, next) => {
+  try {
+    success(res, await healthHubService.insights(req.tenantId!, req.branchId!));
+  } catch (e) {
+    next(e);
+  }
+});
+
 router.get(
   '/reports/compliance',
   requirePermission('health.reports', 'view'),

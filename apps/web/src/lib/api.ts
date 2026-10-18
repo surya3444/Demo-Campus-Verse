@@ -4627,6 +4627,22 @@ export const healthApi = {
     return response.data;
   },
 
+  getReportInsights: async () => {
+    const response = await api.get('/health/reports/insights');
+    return response.data as {
+      success: boolean;
+      data: {
+        visitsByDepartment: NameValue[];
+        staffVisits: number;
+        incidentsByLocation: NameValue[];
+        byHour: NameValue[];
+        checkupCoverage: Array<{ name: string; total: number; completed: number; rate: number }>;
+        allergies: NameValue[];
+        conditions: NameValue[];
+        bloodGroups: NameValue[];
+      };
+    };
+  },
   getComplianceReport: async () => {
     const response = await api.get('/health/reports/compliance');
     return response.data;
@@ -5744,8 +5760,8 @@ export const careerConnectApi = {
     const response = await api.delete(`/career-connect/drives/${driveId}/rounds/${roundId}`);
     return response.data;
   },
-  registerForDrive: async (driveId: string) => {
-    const response = await api.post(`/career-connect/drives/${driveId}/register`);
+  registerForDrive: async (driveId: string, studentId?: string) => {
+    const response = await api.post(`/career-connect/drives/${driveId}/register`, studentId ? { studentId } : {});
     return response.data;
   },
   unregisterFromDrive: async (driveId: string, studentId: string) => {
@@ -7719,6 +7735,17 @@ export const clubsApi = {
 
 // ============ Connect hubs ============
 type NameValue = { name: string; value: number };
+export interface CareerOffer {
+  studentId: string;
+  name: string;
+  photo: string | null;
+  program: string;
+  company: string;
+  website: string | null;
+  role: string;
+  ctc: number;
+  date: string;
+}
 export interface CareerHub {
   kpis: {
     companies: number;
@@ -7740,16 +7767,8 @@ export interface CareerHub {
     accepted: number;
     topCtc: number;
   }>;
-  recentPlacements: Array<{
-    name: string;
-    photo: string | null;
-    program: string;
-    company: string;
-    website: string | null;
-    role: string;
-    ctc: number;
-    date: string;
-  }>;
+  topOffers: CareerOffer[];
+  recentPlacements: CareerOffer[];
   departments: Array<{
     name: string;
     registered: number;
@@ -7805,6 +7824,7 @@ export interface HealthHub {
   coverage: Array<{ name: string; total: number; completed: number; rate: number }>;
   today: Array<{
     _id: string;
+    recordId: string;
     name: string;
     photo: string | null;
     subtitle: string;
@@ -7816,6 +7836,7 @@ export interface HealthHub {
   }>;
   dueSoon: Array<{
     _id: string;
+    recordId: string;
     name: string;
     photo: string | null;
     subtitle: string;

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PageTitle } from '@/components/connect/kit';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { healthApi } from '@/lib/api';
@@ -11,14 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePicker } from '@/components/ui/date-picker';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ArrowLeft, Loader2, Calendar, Users } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Calendar, Users } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -116,17 +111,11 @@ export default function NewCampaignPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/health/checkups?tab=campaigns">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">New Health Checkup Campaign</h1>
-          <p className="text-muted-foreground">Organize a mass health screening</p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Checkups?tab=campaigns", href: "/health/checkups?tab=campaigns" }, { label: "New health checkup campaign" }]}
+        title="New health checkup campaign"
+        description="Organize a mass health screening"
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Campaign Details */}

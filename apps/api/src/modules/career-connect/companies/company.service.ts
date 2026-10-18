@@ -2,6 +2,7 @@ import { ObjectId, Filter, Document, UpdateFilter } from 'mongodb';
 import { collections } from '../../../config/database';
 import { ApiError } from '../../../middleware/errorHandler';
 import { getPagination, buildPaginationMeta } from '../../../utils/pagination';
+import { withPeople } from '../../../utils/people';
 
 class CompanyService {
   async list(
@@ -47,7 +48,7 @@ class CompanyService {
     ]);
 
     return {
-      data: data.map(this.formatCompany),
+      data: await this.withHiring(tenantId, data.map(this.formatCompany)),
       meta: buildPaginationMeta(page, limit, total),
     };
   }
@@ -62,7 +63,24 @@ class CompanyService {
       throw new ApiError('COMPANY_NOT_FOUND', 'Company not found', 404);
     }
 
-    return this.formatCompany(company);
+    const [withStats] = await this.withHiring(tenantId, [this.formatCompany(company)]);
+    // The people this company hired, with photos — the company page shows them.
+    const offers = await collections.placementOffers
+      .find({ tenantId: new ObjectId(tenantId), companyId: company._id, status: 'accepted' })
+      .sort({ ctc: -1, _id: 1 })
+      .limit(60)
+      .toArray();
+    const hires = await withPeople(
+      offers.map((o) => ({
+        studentId: String(o.studentId),
+        role: o.role as string,
+        ctc: Number(o.ctc) || 0,
+        location: (o.location as string) ?? null,
+        offerDate: o.offerDate ?? o.createdAt,
+      })),
+      'studentId'
+    );
+    return { ...withStats, hires };
   }
 
   async create(tenantId: string, branchId: string, userId: string, data: Record<string, unknown>) {
@@ -266,6 +284,67 @@ class CompanyService {
       ...v,
       _id: (v._id as ObjectId)?.toString(),
       createdBy: (v.createdBy as ObjectId)?.toString(),
+    }));
+  }
+
+  /** Drives, offers, hires and packages per company for this tenant. */
+  private async withHiring<T extends { _id: string }>(tenantId: string, rows: T[]) {
+    if (!rows.length)
+      return rows.map((r) => ({
+        ...r,
+        stats: {
+          drives: 0,
+          offers: 0,
+          hired: 0,
+          topCtc: 0,
+          avgCtc: 0,
+          lastDrive: null as Date | null,
+        },
+      }));
+    const ids = rows.map((r) => new ObjectId(r._id));
+    const tenantOid = new ObjectId(tenantId);
+    const [offers, drives] = await Promise.all([
+      collections.placementOffers
+        .aggregate([
+          { $match: { tenantId: tenantOid, companyId: { $in: ids } } },
+          {
+            $group: {
+              _id: '$companyId',
+              offers: { $sum: 1 },
+              hired: { $sum: { $cond: [{ $eq: ['$status', 'accepted'] }, 1, 0] } },
+              topCtc: { $max: '$ctc' },
+              avgCtc: { $avg: { $cond: [{ $eq: ['$status', 'accepted'] }, '$ctc', null] } },
+            },
+          },
+        ])
+        .toArray(),
+      collections.placementDrives
+        .aggregate([
+          {
+            $match: { tenantId: tenantOid, companyId: { $in: ids }, status: { $ne: 'cancelled' } },
+          },
+          {
+            $group: {
+              _id: '$companyId',
+              drives: { $sum: 1 },
+              lastDrive: { $max: '$registrationDeadline' },
+            },
+          },
+        ])
+        .toArray(),
+    ]);
+    const o = new Map(offers.map((x) => [String(x._id), x]));
+    const d = new Map(drives.map((x) => [String(x._id), x]));
+    return rows.map((r) => ({
+      ...r,
+      stats: {
+        drives: d.get(r._id)?.drives ?? 0,
+        lastDrive: (d.get(r._id)?.lastDrive as Date | undefined) ?? null,
+        offers: o.get(r._id)?.offers ?? 0,
+        hired: o.get(r._id)?.hired ?? 0,
+        topCtc: o.get(r._id)?.topCtc ?? 0,
+        avgCtc: Math.round(o.get(r._id)?.avgCtc ?? 0),
+      },
     }));
   }
 

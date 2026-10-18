@@ -1,14 +1,13 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { PageTitle } from '@/components/connect/kit';
 import { careerConnectApi } from '@/lib/api';
 import { usePermissions } from '@/hooks/usePermissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Handshake, ArrowLeft, Users, Calendar, Target } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Handshake, Users, Calendar, Target } from 'lucide-react';
 
 interface GuidanceArea {
   area: string;
@@ -39,7 +38,6 @@ const statusColors: Record<string, string> = {
 };
 
 export default function MentorshipImpactPage() {
-  const router = useRouter();
   const { hasPermission } = usePermissions();
   const canView = hasPermission('careerConnect.reports', 'view');
 
@@ -69,17 +67,11 @@ export default function MentorshipImpactPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/career-connect/reports')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Mentorship Impact</h1>
-          <p className="text-muted-foreground">
-            Program statistics, session counts, and guidance areas
-          </p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Reports", href: "/career-connect/reports" }, { label: "Mentorship impact" }]}
+        title="Mentorship impact"
+        description="Program statistics, session counts, and guidance areas"
+      />
 
       {isLoading ? (
         <div className="space-y-4">

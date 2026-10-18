@@ -1,6 +1,7 @@
 import { ObjectId, Filter, Document } from 'mongodb';
 import { collections } from '../../../config/database';
 import { ApiError } from '../../../middleware/errorHandler';
+import { withPeople } from '../../../utils/people';
 import { getPagination, buildPaginationMeta } from '../../../utils/pagination';
 
 class JobApplicationService {
@@ -115,7 +116,7 @@ class JobApplicationService {
     ]);
 
     return {
-      data: data.map(this.formatApplication),
+      data: await withPeople(data.map(this.formatApplication), 'studentId'),
       meta: buildPaginationMeta(page, limit, total),
     };
   }

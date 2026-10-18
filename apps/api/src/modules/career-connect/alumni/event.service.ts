@@ -1,5 +1,6 @@
 import { ObjectId, Filter, Document, UpdateFilter } from 'mongodb';
 import { collections } from '../../../config/database';
+import { alumniById, peopleById } from '../../../utils/people';
 import { ApiError } from '../../../middleware/errorHandler';
 import { getPagination, buildPaginationMeta } from '../../../utils/pagination';
 import { generateAlumniEventNumber } from '../../../utils/generators';
@@ -59,7 +60,7 @@ class AlumniEventService {
     ]);
 
     return {
-      data: data.map(this.formatEvent),
+      data: await this.enrich(data.map(this.formatEvent)),
       meta: buildPaginationMeta(page, limit, total),
     };
   }
@@ -74,7 +75,7 @@ class AlumniEventService {
       throw new ApiError('EVENT_NOT_FOUND', 'Alumni event not found', 404);
     }
 
-    return this.formatEvent(event);
+    return (await this.enrich([this.formatEvent(event)]))[0];
   }
 
   async create(tenantId: string, branchId: string, userId: string, data: Record<string, unknown>) {
@@ -212,6 +213,31 @@ class AlumniEventService {
     } as unknown as UpdateFilter<Document>);
 
     return this.getById(tenantId, id);
+  }
+
+  /** Speaker photos (alumni) and attendee cards (students), for display. */
+  private async enrich<T extends { speakers?: unknown; registrations?: unknown }>(rows: T[]) {
+    type Sp = { alumniId?: unknown };
+    type Reg = { studentId?: unknown; userId?: unknown };
+    const sp = rows.flatMap((r) => (r.speakers as Sp[] | undefined) ?? []);
+    const regs = rows.flatMap((r) => (r.registrations as Reg[] | undefined) ?? []);
+    const [alumni, people] = await Promise.all([
+      alumniById(sp.map((s) => s.alumniId)),
+      peopleById(regs.map((x) => x.studentId)),
+    ]);
+    return rows.map((r) => ({
+      ...r,
+      speakers: ((r.speakers as Sp[] | undefined) ?? []).map((s) => ({
+        ...s,
+        alumniId: s.alumniId ? String(s.alumniId) : undefined,
+        photo: alumni.get(String(s.alumniId))?.photo ?? null,
+      })),
+      registrations: ((r.registrations as Reg[] | undefined) ?? []).map((x) => ({
+        ...x,
+        studentId: x.studentId ? String(x.studentId) : undefined,
+        person: people.get(String(x.studentId)) ?? null,
+      })),
+    }));
   }
 
   private formatEvent(doc: Document) {

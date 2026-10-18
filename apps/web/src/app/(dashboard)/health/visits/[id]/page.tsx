@@ -1,343 +1,288 @@
 'use client';
 
-import { use } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { healthApi } from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Activity, Clock, User, Pill, CheckCircle, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
+import { AlertTriangle, BellRing, CheckCircle2, Stethoscope } from 'lucide-react';
+import { healthApi } from '@/lib/api';
+import { usePermissions } from '@/hooks/usePermissions';
+import { Button } from '@/components/ui/button';
+import {
+  Avatar,
+  Empty,
+  KeyValue,
+  PageTitle,
+  Panel,
+  Pill,
+  Skeleton,
+  fmtDate,
+  fmtTime,
+  type Person,
+} from '@/components/connect/kit';
 
-export default function VisitDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+interface Visit {
+  _id: string;
+  healthRecordId: string;
+  personType: string;
+  personId: string;
+  personName: string;
+  visitType: string;
+  visitDate: string;
+  arrivalTime?: string;
+  departureTime?: string;
+  chiefComplaint: string;
+  symptoms?: string[];
+  painLevel?: number;
+  vitals?: {
+    temperatureCelsius?: number;
+    pulseRate?: number;
+    bloodPressureSystolic?: number;
+    bloodPressureDiastolic?: number;
+    oxygenSaturation?: number;
+    respiratoryRate?: number;
+  };
+  diagnosis?: string;
+  treatment?: string;
+  medicationsGiven?: Array<{ name: string; dosage?: string }>;
+  isIncident?: boolean;
+  incidentLocation?: string;
+  incidentDescription?: string;
+  outcome?: string;
+  outcomeNotes?: string;
+  followUpRequired?: boolean;
+  followUpDate?: string;
+  followUpInstructions?: string;
+  parentNotified?: boolean;
+  parentNotifiedAt?: string;
+  attendedByName?: string;
+  status: string;
+  notes?: string;
+  person?: Person | null;
+}
+
+const OUTCOME: Record<string, { label: string; tone: 'green' | 'amber' | 'violet' | 'blue' | 'red' }> = {
+  returned_to_class: { label: 'Back in class', tone: 'green' },
+  sent_home: { label: 'Sent home', tone: 'amber' },
+  referred: { label: 'Referred to hospital', tone: 'violet' },
+  under_observation: { label: 'Under observation', tone: 'blue' },
+  hospitalized: { label: 'Hospitalised', tone: 'red' },
+};
+
+export default function VisitDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const queryClient = useQueryClient();
+  const { hasPermission } = usePermissions();
+  const canEdit = hasPermission('health.visits', 'edit');
 
   const { data, isLoading } = useQuery({
-    queryKey: ['medical-visit', id],
+    queryKey: ['health-visit', id],
     queryFn: () => healthApi.getVisit(id),
   });
+  const v = data?.data as Visit | undefined;
+  const { data: recordData } = useQuery({
+    queryKey: ['health-record', v?.healthRecordId],
+    queryFn: () => healthApi.getRecord(v!.healthRecordId),
+    enabled: !!v?.healthRecordId,
+  });
+  const notify = useMutation({
+    mutationFn: () => healthApi.notifyParent(id),
+    onSuccess: () => {
+      toast.success('Marked as informed');
+      queryClient.invalidateQueries({ queryKey: ['health-visit', id] });
+    },
+    onError: () => toast.error('Could not update'),
+  });
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-96" />
-      </div>
-    );
-  }
+  if (isLoading) return <Skeleton rows={10} />;
+  if (!v) return <Empty icon={Stethoscope} title="Visit not found" />;
 
-  const visit = data?.data;
-
-  if (!visit) {
-    return (
-      <div className="text-center py-12">
-        <h2 className="text-xl font-semibold">Visit not found</h2>
-        <Button asChild className="mt-4">
-          <Link href="/health/visits">Back to Visits</Link>
-        </Button>
-      </div>
-    );
-  }
-
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-      completed: 'default',
-      in_progress: 'secondary',
-      waiting: 'outline',
-    };
-    return (
-      <Badge variant={variants[status] || 'outline'} className="capitalize">
-        {status.replace('_', ' ')}
-      </Badge>
-    );
-  };
-
-  const getOutcomeBadge = (outcome: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-      returned_to_class: 'default',
-      sent_home: 'secondary',
-      referred: 'destructive',
-      hospitalized: 'destructive',
-      under_observation: 'outline',
-    };
-    return (
-      <Badge variant={variants[outcome] || 'outline'} className="capitalize">
-        {outcome.replace(/_/g, ' ')}
-      </Badge>
-    );
-  };
+  const record = recordData?.data as
+    | { allergies?: Array<{ name: string; severity?: string }>; bloodGroup?: string; conditions?: Array<{ name: string }> }
+    | undefined;
+  const open = v.status === 'in_progress';
+  const o = OUTCOME[v.outcome ?? ''];
+  const vit = v.vitals ?? {};
+  const vitals: Array<[string, string | null, boolean]> = [
+    ['Temperature', vit.temperatureCelsius ? `${vit.temperatureCelsius} °C` : null, (vit.temperatureCelsius ?? 0) >= 37.8],
+    ['Pulse', vit.pulseRate ? `${vit.pulseRate} bpm` : null, (vit.pulseRate ?? 0) > 100],
+    [
+      'Blood pressure',
+      vit.bloodPressureSystolic ? `${vit.bloodPressureSystolic}/${vit.bloodPressureDiastolic}` : null,
+      (vit.bloodPressureSystolic ?? 0) >= 140,
+    ],
+    ['SpO₂', vit.oxygenSaturation ? `${vit.oxygenSaturation}%` : null, (vit.oxygenSaturation ?? 100) < 95],
+  ];
+  const minutes =
+    v.departureTime && v.arrivalTime
+      ? Math.round((new Date(v.departureTime).getTime() - new Date(v.arrivalTime).getTime()) / 60000)
+      : null;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/health/visits">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Medical Visit Details</h1>
-            <p className="text-muted-foreground">{visit.personName}</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          {visit.status !== 'completed' && (
-            <Button asChild>
-              <Link href={`/health/visits/${id}/close`}>
-                <CheckCircle className="mr-2 h-4 w-4" /> Close Visit
-              </Link>
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Visit Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-green-500" />
-              Visit Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Visit Type</p>
-                <Badge variant="secondary" className="capitalize">{visit.visitType}</Badge>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Status</p>
-                {getStatusBadge(visit.status)}
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Arrival Time</p>
-                <p className="font-medium">{new Date(visit.arrivalTime).toLocaleString()}</p>
-              </div>
-              {visit.departureTime && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Departure Time</p>
-                  <p className="font-medium">{new Date(visit.departureTime).toLocaleString()}</p>
-                </div>
-              )}
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Chief Complaint</p>
-              <p className="font-medium">{visit.chiefComplaint}</p>
-            </div>
-            {visit.symptoms?.length > 0 && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Symptoms</p>
-                <div className="flex flex-wrap gap-1">
-                  {visit.symptoms.map((symptom: string, index: number) => (
-                    <Badge key={index} variant="outline">{symptom}</Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Person Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-blue-500" />
-              Person Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Name</p>
-                <p className="font-medium">{visit.personName}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Type</p>
-                <Badge variant="outline" className="capitalize">{visit.personType}</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Vitals */}
-        {visit.vitals && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-rose-500" />
-                Vitals at Arrival
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                {visit.vitals.temperature && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Temperature</p>
-                    <p className="font-medium">{visit.vitals.temperature}°C</p>
-                  </div>
-                )}
-                {visit.vitals.bloodPressure && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Blood Pressure</p>
-                    <p className="font-medium">
-                      {visit.vitals.bloodPressure.systolic}/{visit.vitals.bloodPressure.diastolic} mmHg
-                    </p>
-                  </div>
-                )}
-                {visit.vitals.pulse && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Pulse</p>
-                    <p className="font-medium">{visit.vitals.pulse} bpm</p>
-                  </div>
-                )}
-                {visit.vitals.spo2 && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">SpO2</p>
-                    <p className="font-medium">{visit.vitals.spo2}%</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Incident Details */}
-        {visit.visitType === 'injury' && visit.incidentDetails && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-amber-500" />
-                Incident Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {visit.incidentDetails.location && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Location</p>
-                  <p className="font-medium">{visit.incidentDetails.location}</p>
-                </div>
-              )}
-              {visit.incidentDetails.time && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Time of Incident</p>
-                  <p className="font-medium">{new Date(visit.incidentDetails.time).toLocaleString()}</p>
-                </div>
-              )}
-              {visit.incidentDetails.description && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Description</p>
-                  <p className="font-medium">{visit.incidentDetails.description}</p>
-                </div>
-              )}
-              {visit.incidentDetails.witnesses?.length > 0 && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Witnesses</p>
-                  <p className="font-medium">{visit.incidentDetails.witnesses.join(', ')}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Diagnosis & Treatment (if completed) */}
-        {visit.status === 'completed' && (
+    <>
+      <PageTitle
+        crumbs={[{ label: 'Sick-room visits', href: '/health/visits' }, { label: v.personName }]}
+        title={v.chiefComplaint}
+        description={`${fmtDate(v.visitDate, { weekday: 'long', day: 'numeric', month: 'long' })} · arrived ${fmtTime(v.arrivalTime ?? v.visitDate)}${v.attendedByName ? ` · seen by ${v.attendedByName}` : ''}`}
+        actions={
           <>
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle>Diagnosis & Treatment</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  {visit.diagnosis && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Diagnosis</p>
-                      <p className="font-medium">{visit.diagnosis}</p>
-                    </div>
-                  )}
-                  {visit.treatment && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Treatment Given</p>
-                      <p className="font-medium">{visit.treatment}</p>
-                    </div>
-                  )}
-                </div>
-                {visit.outcome && (
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">Outcome</p>
-                    {getOutcomeBadge(visit.outcome)}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Medications Given */}
-            {visit.medicationsGiven?.length > 0 && (
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Pill className="h-5 w-5 text-purple-500" />
-                    Medications Given
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {visit.medicationsGiven.map((med: { name: string; dosage?: string; quantity?: number }, index: number) => (
-                      <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded-lg">
-                        <span className="font-medium">{med.name}</span>
-                        {med.dosage && (
-                          <span className="text-sm text-muted-foreground">{med.dosage}</span>
-                        )}
-                        {med.quantity && (
-                          <Badge variant="outline">Qty: {med.quantity}</Badge>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+            {open ? <Pill tone="red">In sick room</Pill> : o ? <Pill tone={o.tone}>{o.label}</Pill> : null}
+            {canEdit && !v.parentNotified && v.personType === 'student' && (
+              <Button size="sm" variant="outline" onClick={() => notify.mutate()} disabled={notify.isPending}>
+                <BellRing className="mr-1.5 h-4 w-4" />
+                Mark parent informed
+              </Button>
             )}
-
-            {/* Follow-up */}
-            {visit.followUpRequired && (
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Follow-up Required</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {visit.followUpDate && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">Follow-up Date</p>
-                        <p className="font-medium">{new Date(visit.followUpDate).toLocaleDateString()}</p>
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-sm text-muted-foreground">Parent/Guardian Notified</p>
-                      <p className="font-medium">{visit.parentNotified ? 'Yes' : 'No'}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            {canEdit && open && (
+              <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+                <Link href={`/health/visits/${id}/close`}>Close visit</Link>
+              </Button>
             )}
           </>
-        )}
+        }
+      />
 
-        {/* Notes */}
-        {visit.notes && (
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle>Additional Notes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>{visit.notes}</p>
-            </CardContent>
-          </Card>
-        )}
+      {record?.allergies?.length ? (
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>
+            <span className="font-semibold">Allergies:</span>{' '}
+            {record.allergies.map((a) => `${a.name}${a.severity ? ` (${a.severity})` : ''}`).join(', ')}
+          </span>
+        </div>
+      ) : null}
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="min-w-0 space-y-6">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {vitals.map(([label, value, high]) => (
+              <div
+                key={label}
+                className="rounded-2xl border border-border/70 bg-card p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+              >
+                <p className="text-xs text-muted-foreground">{label}</p>
+                <p className={`mt-1 text-xl font-semibold tabular-nums ${high ? 'text-rose-600' : ''}`}>
+                  {value ?? <span className="text-muted-foreground/60">—</span>}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <Panel title="Assessment">
+            <div className="space-y-5">
+              <div>
+                <p className="text-xs text-muted-foreground">Symptoms</p>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {(v.symptoms ?? []).length ? (
+                    v.symptoms!.map((s) => (
+                      <Pill key={s} tone="gray" dot={false}>
+                        {s}
+                      </Pill>
+                    ))
+                  ) : (
+                    <span className="text-sm text-muted-foreground">Not recorded</span>
+                  )}
+                  {v.painLevel ? (
+                    <Pill tone={v.painLevel >= 7 ? 'red' : 'amber'} dot={false}>
+                      Pain {v.painLevel}/10
+                    </Pill>
+                  ) : null}
+                </div>
+              </div>
+              <KeyValue
+                cols={2}
+                items={[
+                  ['Diagnosis', v.diagnosis || (open ? 'Pending' : '—')],
+                  ['Treatment', v.treatment || (open ? 'In progress' : '—')],
+                  ...(v.medicationsGiven?.length
+                    ? [['Medication', v.medicationsGiven.map((m) => `${m.name}${m.dosage ? ` ${m.dosage}` : ''}`).join(', ')] as [string, string]]
+                    : []),
+                  ...(v.notes ? [['Notes', v.notes] as [string, string]] : []),
+                ]}
+              />
+            </div>
+          </Panel>
+
+          {v.isIncident && (
+            <Panel title="Incident" description="Logged for the safety register">
+              <KeyValue
+                cols={2}
+                items={[
+                  ['Where', v.incidentLocation || '—'],
+                  ['What happened', v.incidentDescription || '—'],
+                ]}
+              />
+            </Panel>
+          )}
+
+          {!open && (
+            <Panel title="Outcome">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-600" />
+                <div className="space-y-1 text-sm">
+                  <p className="font-medium">
+                    {o?.label ?? 'Closed'}
+                    {v.departureTime ? ` at ${fmtTime(v.departureTime)}` : ''}
+                    {minutes ? <span className="font-normal text-muted-foreground"> · {minutes} min in the sick room</span> : null}
+                  </p>
+                  {v.outcomeNotes && <p className="text-muted-foreground">{v.outcomeNotes}</p>}
+                  {v.followUpRequired && (
+                    <p className="text-amber-700">
+                      Follow-up {v.followUpDate ? `on ${fmtDate(v.followUpDate)}` : 'needed'}
+                      {v.followUpInstructions ? ` — ${v.followUpInstructions}` : ''}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </Panel>
+          )}
+        </div>
+
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-border/70 bg-card p-5 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+            <Avatar person={v.person ?? { name: v.personName }} size={72} className="mx-auto" />
+            <p className="mt-3 font-semibold">{v.person?.name ?? v.personName}</p>
+            <p className="text-sm text-muted-foreground">
+              {v.person?.program ?? v.person?.designation ?? (v.personType === 'staff' ? 'Staff' : 'Student')}
+            </p>
+            {record?.bloodGroup && (
+              <span className="mt-3 inline-flex rounded-md bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-700 dark:bg-rose-500/10 dark:text-rose-300">
+                {record.bloodGroup}
+              </span>
+            )}
+            <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/health/records/${v.healthRecordId}`}>Health record</Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/health/visits?personId=${v.personId}`}>All visits</Link>
+              </Button>
+            </div>
+          </div>
+          <Panel title="Visit">
+            <KeyValue
+              cols={1}
+              items={[
+                ['Type', <span key="t" className="capitalize">{v.visitType.replace('-', ' ')}</span>],
+                ['Arrived', fmtTime(v.arrivalTime ?? v.visitDate)],
+                ['Left', v.departureTime ? fmtTime(v.departureTime) : open ? 'Still here' : '—'],
+                ['Parent informed', v.parentNotified ? `Yes${v.parentNotifiedAt ? `, ${fmtTime(v.parentNotifiedAt)}` : ''}` : 'Not yet'],
+              ]}
+            />
+          </Panel>
+          {record?.conditions?.length ? (
+            <Panel title="Known conditions">
+              <div className="flex flex-wrap gap-1.5">
+                {record.conditions.map((c) => (
+                  <Pill key={c.name} tone="amber">
+                    {c.name}
+                  </Pill>
+                ))}
+              </div>
+            </Panel>
+          ) : null}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

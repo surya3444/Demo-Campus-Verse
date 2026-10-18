@@ -2,6 +2,7 @@ import { ObjectId, Filter, Document, UpdateFilter } from 'mongodb';
 import { collections } from '../../../config/database';
 import { ApiError } from '../../../middleware/errorHandler';
 import { getPagination, buildPaginationMeta } from '../../../utils/pagination';
+import { withPeople } from '../../../utils/people';
 
 class StudentProfileService {
   // `id` is a student id, or (for "my profile") the signed-in student's user id.
@@ -45,7 +46,7 @@ class StudentProfileService {
       experience: [],
       resumes: [],
       placementPreferences: {},
-      placementStatus: 'not_placed',
+      placementStatus: 'unplaced',
       profileCompleteness: {
         percentage: 0,
         missingFields: ['skills', 'certifications', 'projects', 'experience', 'resumes'],
@@ -69,7 +70,7 @@ class StudentProfileService {
       throw new ApiError('PROFILE_NOT_FOUND', 'Student career profile not found', 404);
     }
 
-    return this.formatProfile(profile);
+    return (await withPeople([this.formatProfile(profile)], 'studentId'))[0];
   }
 
   async list(
@@ -115,7 +116,7 @@ class StudentProfileService {
     ]);
 
     return {
-      data: data.map(this.formatProfile),
+      data: await withPeople(data.map(this.formatProfile), 'studentId'),
       meta: buildPaginationMeta(page, limit, total),
     };
   }
@@ -128,6 +129,16 @@ class StudentProfileService {
 
     if (!profile) {
       throw new ApiError('PROFILE_NOT_FOUND', 'Student career profile not found', 404);
+    }
+
+    // List items need their own _id so they can be removed individually later
+    for (const key of ['skills', 'projects', 'experience', 'certifications']) {
+      if (Array.isArray(data[key])) {
+        data[key] = (data[key] as Record<string, unknown>[]).map((item) => ({
+          ...item,
+          _id: ObjectId.isValid(item._id as string) ? new ObjectId(item._id as string) : new ObjectId(),
+        }));
+      }
     }
 
     await collections.studentCareerProfiles.updateOne(

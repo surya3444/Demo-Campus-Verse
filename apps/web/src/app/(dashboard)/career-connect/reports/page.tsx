@@ -1,23 +1,10 @@
 'use client';
 
 import { usePermissions } from '@/hooks/usePermissions';
+import { PageTitle } from '@/components/connect/kit';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-  BarChart3,
-  Building2,
-  GraduationCap,
-  IndianRupee,
-  TrendingUp,
-  Heart,
-  ClipboardList,
-  Users,
-  Handshake,
-  ArrowLeft,
-  ArrowRight,
-} from 'lucide-react';
+import { BarChart3, Building2, GraduationCap, IndianRupee, TrendingUp, Heart, ClipboardList, Users, Handshake, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 const placementReports = [
   {
@@ -29,7 +16,7 @@ const placementReports = [
     bgColor: 'bg-blue-50',
   },
   {
-    title: 'Company-Wise Report',
+    title: 'Company-wise report',
     description: 'Breakdown of offers, acceptance rates, and CTC by company',
     href: '/career-connect/reports/company-wise',
     icon: Building2,
@@ -37,7 +24,7 @@ const placementReports = [
     bgColor: 'bg-indigo-50',
   },
   {
-    title: 'Department-Wise Report',
+    title: 'Department-wise report',
     description: 'Placement rates and average CTC across departments',
     href: '/career-connect/reports/department-wise',
     icon: GraduationCap,
@@ -135,7 +122,6 @@ function ReportCard({
 }
 
 export default function ReportsDashboardPage() {
-  const router = useRouter();
   const { hasPermission } = usePermissions();
   const canView = hasPermission('careerConnect.reports', 'view');
 
@@ -153,17 +139,11 @@ export default function ReportsDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/career-connect')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Reports &amp; Analytics</h1>
-          <p className="text-muted-foreground">
-            Placement statistics, counseling insights, and alumni analytics
-          </p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Career Connect", href: "/career-connect" }, { label: "Reports &amp; analytics" }]}
+        title="Reports &amp; analytics"
+        description="Placement statistics, counseling insights, and alumni analytics"
+      />
 
       <div className="space-y-6">
         <div>

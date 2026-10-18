@@ -1,38 +1,22 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { BadgeCheck, Briefcase, GraduationCap, MapPin } from 'lucide-react';
 import { careerConnectApi } from '@/lib/api';
-import { usePermissions } from '@/hooks/usePermissions';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { GraduationCap, Search, MoreHorizontal, Eye, CheckCircle2, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+  Avatar,
+  Empty,
+  PageTitle,
+  Pager,
+  Panel,
+  SearchBox,
+  Segmented,
+  Skeleton,
+  useDebounced,
+  type Person,
+} from '@/components/connect/kit';
 
 interface AlumniProfile {
   _id: string;
@@ -44,264 +28,145 @@ interface AlumniProfile {
   designation?: string;
   location?: string;
   isVerified: boolean;
-  mentorshipInfo?: {
-    willingToMentor: boolean;
-    areas?: string[];
-    expertise?: string[];
-    availability?: string;
-  };
+  mentorshipInfo?: { willingToMentor: boolean; expertise?: string[] };
+  person?: Person | null;
 }
 
-export default function AlumniDirectoryPage() {
-  const router = useRouter();
-  const { hasPermission } = usePermissions();
-  const [search, setSearch] = useState('');
-  const [graduationYearFilter, setGraduationYearFilter] = useState<string>('');
-  const [companyFilter, setCompanyFilter] = useState('');
-  const [verifiedFilter, setVerifiedFilter] = useState<string>('');
-  const [mentorFilter, setMentorFilter] = useState<string>('');
-  const [page, setPage] = useState(1);
+type Show = 'all' | 'mentors' | 'verified';
+const LIMIT = 24;
 
-  const canVerify = hasPermission('careerConnect.alumni', 'verify');
+export default function AlumniDirectoryPage() {
+  const [search, setSearch] = useState('');
+  const [company, setCompany] = useState('');
+  const [show, setShow] = useState<Show>('all');
+  const [page, setPage] = useState(1);
+  const q = useDebounced(search);
+  const c = useDebounced(company);
 
   const { data, isLoading } = useQuery({
-    queryKey: [
-      'alumni-profiles',
-      {
-        search,
-        graduationYear: graduationYearFilter,
-        company: companyFilter,
-        isVerified: verifiedFilter,
-        willingToMentor: mentorFilter,
-        page,
-      },
-    ],
+    queryKey: ['alumni-profiles', q, c, show, page],
     queryFn: () =>
       careerConnectApi.getAlumniProfiles({
-        search: search || undefined,
-        graduationYear: graduationYearFilter ? Number(graduationYearFilter) : undefined,
-        company: companyFilter || undefined,
-        isVerified: verifiedFilter || undefined,
-        willingToMentor: mentorFilter || undefined,
+        search: q || undefined,
+        company: c || undefined,
+        willingToMentor: show === 'mentors' ? 'true' : undefined,
+        isVerified: show === 'verified' ? 'true' : undefined,
         page,
-        limit: 20,
+        limit: LIMIT,
       }),
+    placeholderData: (prev) => prev,
   });
-
-  const profiles: AlumniProfile[] = data?.data || [];
-  const meta = data?.meta;
+  const alumni = (data?.data ?? []) as AlumniProfile[];
+  const total = (data?.meta as { total?: number } | undefined)?.total ?? 0;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/career-connect')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Alumni Directory</h1>
-            <p className="text-muted-foreground">Browse and connect with alumni</p>
-          </div>
+    <>
+      <PageTitle
+        title="Alumni network"
+        description="Graduates who stay connected — where they work today, and who’s open to mentoring current students."
+      />
+
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <SearchBox
+          value={search}
+          onChange={(v) => (setSearch(v), setPage(1))}
+          placeholder="Search alumni"
+        />
+        <input
+          value={company}
+          onChange={(e) => (setCompany(e.target.value), setPage(1))}
+          placeholder="Company"
+          className="h-9 w-48 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+        />
+        <div className="ml-auto">
+          <Segmented<Show>
+            value={show}
+            onChange={(v) => (setShow(v), setPage(1))}
+            options={[
+              { value: 'all', label: 'Everyone' },
+              { value: 'mentors', label: 'Mentors' },
+              { value: 'verified', label: 'Verified' },
+            ]}
+          />
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center flex-wrap">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search by name..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                className="pl-9"
-              />
-            </div>
-            <Input
-              placeholder="Graduation Year"
-              type="number"
-              value={graduationYearFilter}
-              onChange={(e) => {
-                setGraduationYearFilter(e.target.value);
-                setPage(1);
-              }}
-              className="w-[150px]"
-            />
-            <Input
-              placeholder="Filter by company..."
-              value={companyFilter}
-              onChange={(e) => {
-                setCompanyFilter(e.target.value);
-                setPage(1);
-              }}
-              className="w-[180px]"
-            />
-            <Select
-              value={verifiedFilter}
-              onValueChange={(val) => {
-                setVerifiedFilter(val === 'all' ? '' : val);
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Verified" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="true">Verified</SelectItem>
-                <SelectItem value="false">Unverified</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
-              value={mentorFilter}
-              onValueChange={(val) => {
-                setMentorFilter(val === 'all' ? '' : val);
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Mentor Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="true">Willing to Mentor</SelectItem>
-                <SelectItem value="false">Not Mentoring</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          ) : profiles.length === 0 ? (
-            <div className="text-center py-12">
-              <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground/50" />
-              <h3 className="mt-4 text-lg font-medium">No alumni found</h3>
-              <p className="text-muted-foreground">
-                {search || graduationYearFilter || companyFilter || verifiedFilter || mentorFilter
-                  ? 'Try adjusting your filters'
-                  : 'No alumni profiles have been created yet'}
-              </p>
-            </div>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Graduation Year</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Verified</TableHead>
-                    <TableHead className="w-[60px]" />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {profiles.map((profile) => (
-                    <TableRow key={profile._id}>
-                      <TableCell>
-                        <Link
-                          href={`/career-connect/alumni/directory/${profile._id}`}
-                          className="font-medium hover:underline"
-                        >
-                          {profile.studentName || 'Unnamed'}
-                        </Link>
-                        {profile.mentorshipInfo?.willingToMentor && (
-                          <Badge
-                            variant="outline"
-                            className="ml-2 text-xs bg-purple-50 text-purple-700"
-                          >
-                            Mentor
-                          </Badge>
+      {isLoading ? (
+        <Panel>
+          <Skeleton rows={6} />
+        </Panel>
+      ) : alumni.length === 0 ? (
+        <Panel>
+          <Empty icon={GraduationCap} title="No alumni found" text="Try another name or company." />
+        </Panel>
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {alumni.map((a) => {
+              const company = a.currentCompany || a.company;
+              const role = a.currentRole || a.designation;
+              return (
+                <Link
+                  key={a._id}
+                  href={`/career-connect/alumni/directory/${a._id}`}
+                  className="group flex flex-col rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-border hover:shadow-md"
+                >
+                  <div className="flex items-start gap-3">
+                    <Avatar person={{ name: a.studentName, photo: a.person?.photo }} size={52} />
+                    <div className="min-w-0 flex-1">
+                      <p className="flex items-center gap-1 truncate font-semibold">
+                        {a.studentName}
+                        {a.isVerified && (
+                          <BadgeCheck
+                            className="h-4 w-4 shrink-0 text-blue-600"
+                            aria-label="Verified"
+                          />
                         )}
-                      </TableCell>
-                      <TableCell>{profile.graduationYear || '-'}</TableCell>
-                      <TableCell>{profile.currentCompany || profile.company || '-'}</TableCell>
-                      <TableCell>{profile.currentRole || profile.designation || '-'}</TableCell>
-                      <TableCell>{profile.location || '-'}</TableCell>
-                      <TableCell>
-                        {profile.isVerified ? (
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">
-                            <CheckCircle2 className="mr-1 h-3 w-3" />
-                            Verified
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="bg-gray-100 text-gray-600">
-                            Pending
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() =>
-                                router.push(`/career-connect/alumni/directory/${profile._id}`)
-                              }
-                            >
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Profile
-                            </DropdownMenuItem>
-                            {canVerify && !profile.isVerified && (
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  router.push(`/career-connect/alumni/directory/${profile._id}`)
-                                }
-                              >
-                                <CheckCircle2 className="mr-2 h-4 w-4" />
-                                Verify
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {meta && meta.totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-sm text-muted-foreground">
-                    Showing {(page - 1) * 20 + 1}-{Math.min(page * 20, meta.total)} of {meta.total}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={page <= 1}
-                      onClick={() => setPage(page - 1)}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={!meta.hasMore}
-                      onClick={() => setPage(page + 1)}
-                    >
-                      Next
-                    </Button>
+                      </p>
+                      <p className="truncate text-sm text-muted-foreground">{role || 'Alumnus'}</p>
+                    </div>
                   </div>
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+                  <div className="mt-4 space-y-1.5 text-sm">
+                    {company && (
+                      <p className="flex items-center gap-2 truncate">
+                        <Briefcase className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        {company}
+                      </p>
+                    )}
+                    {a.location && (
+                      <p className="flex items-center gap-2 truncate text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        {a.location}
+                      </p>
+                    )}
+                    <p className="flex items-center gap-2 truncate text-muted-foreground">
+                      <GraduationCap className="h-3.5 w-3.5 shrink-0" />
+                      {[a.person?.program, a.graduationYear && `Class of ${a.graduationYear}`]
+                        .filter(Boolean)
+                        .join(' · ') || '—'}
+                    </p>
+                  </div>
+                  {a.mentorshipInfo?.willingToMentor && (
+                    <div className="mt-4 border-t border-border/70 pt-3">
+                      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+                        Open to mentoring
+                      </span>
+                      {a.mentorshipInfo.expertise?.length ? (
+                        <p className="mt-1.5 truncate text-xs text-muted-foreground">
+                          {a.mentorshipInfo.expertise.join(' · ')}
+                        </p>
+                      ) : null}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+          <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card">
+            <Pager page={page} total={total} limit={LIMIT} onPage={setPage} />
+          </div>
+        </>
+      )}
+    </>
   );
 }

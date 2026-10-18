@@ -1,17 +1,15 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { PageTitle } from '@/components/connect/kit';
 import { careerConnectApi } from '@/lib/api';
 import { usePermissions } from '@/hooks/usePermissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Heart, ClipboardList, BookOpen, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Heart, ClipboardList, BookOpen, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 export default function CounselingDashboardPage() {
-  const router = useRouter();
   const { hasPermission } = usePermissions();
 
   const { data: sessionsData, isLoading: sessionsLoading } = useQuery({
@@ -73,17 +71,11 @@ export default function CounselingDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/career-connect')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Career Counseling</h1>
-          <p className="text-muted-foreground">
-            Manage counseling sessions, assessments, and career resources for students
-          </p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Career Connect", href: "/career-connect" }, { label: "Career counseling" }]}
+        title="Career counseling"
+        description="Manage counseling sessions, assessments, and career resources for students"
+      />
 
       <div className="grid gap-6 md:grid-cols-3">
         {sections.map((section) => (

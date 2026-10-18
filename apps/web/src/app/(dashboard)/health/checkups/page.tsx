@@ -1,395 +1,268 @@
 'use client';
 
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { healthApi } from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Stethoscope,
-  Search,
-  Plus,
-  MoreHorizontal,
-  Eye,
-  Edit,
-  CheckCircle,
-  Calendar,
-  Users,
-} from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { CalendarDays, ChevronRight, ClipboardCheck, Plus } from 'lucide-react';
+import { healthApi } from '@/lib/api';
+import { usePermissions } from '@/hooks/usePermissions';
+import { Button } from '@/components/ui/button';
+import {
+  ACCENT,
+  Cell,
+  Empty,
+  Meter,
+  PageTitle,
+  Pager,
+  Panel,
+  PersonCell,
+  SearchBox,
+  Segmented,
+  Skeleton,
+  Stat,
+  StatusPill,
+  Table,
+  fmtDate,
+  useDebounced,
+  type Person,
+} from '@/components/connect/kit';
 
-export default function HealthCheckupsPage() {
-  const [activeTab, setActiveTab] = useState('checkups');
+interface Checkup {
+  _id: string;
+  personName: string;
+  checkupType: string;
+  checkupDate: string;
+  status: string;
+  vitals?: { bmi?: number; bloodPressureSystolic?: number; bloodPressureDiastolic?: number };
+  visionExam?: { result?: string } | null;
+  findings?: string[];
+  person?: Person | null;
+}
+interface Campaign {
+  _id: string;
+  name: string;
+  personType: string;
+  checkupType?: string;
+  scheduledDate: string;
+  scheduledEndDate?: string;
+  venue?: string;
+  status: string;
+  totalTarget?: number;
+  completedCount?: number;
+}
+
+type Show = '' | 'scheduled' | 'completed';
+const LIMIT = 20;
+
+export default function CheckupsPage() {
+  const router = useRouter();
+  const { hasPermission } = usePermissions();
+  const canCreate = hasPermission('health.checkups', 'create');
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<string>('all');
+  const [show, setShow] = useState<Show>('');
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const q = useDebounced(search);
 
-  const { data: checkupsData, isLoading: checkupsLoading } = useQuery({
-    queryKey: ['health-checkups', search, status, page],
+  const { data, isLoading } = useQuery({
+    queryKey: ['health-checkups', q, show, page],
     queryFn: () =>
       healthApi.getCheckups({
-        search: search || undefined,
-        status: status !== 'all' ? status : undefined,
+        search: q || undefined,
+        status: show || undefined,
         page,
-        limit,
+        limit: LIMIT,
       }),
-    enabled: activeTab === 'checkups',
+    placeholderData: (prev) => prev,
   });
-
-  const { data: campaignsData, isLoading: campaignsLoading } = useQuery({
-    queryKey: ['health-campaigns', search, status, page],
-    queryFn: () =>
-      healthApi.getCampaigns({
-        search: search || undefined,
-        status: status !== 'all' ? status : undefined,
-        page,
-        limit,
-      }),
-    enabled: activeTab === 'campaigns',
+  const { data: campaignsData } = useQuery({
+    queryKey: ['health-campaigns'],
+    queryFn: () => healthApi.getCampaigns({ limit: 6 }),
   });
-
-  const { data: stats } = useQuery({
-    queryKey: ['health-checkups-stats'],
+  const { data: statsData } = useQuery({
+    queryKey: ['health-checkup-stats'],
     queryFn: () => healthApi.getCheckupStats(),
   });
-
-  const checkups = checkupsData?.data || [];
-  const campaigns = campaignsData?.data || [];
-
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-      completed: 'default',
-      in_progress: 'secondary',
-      scheduled: 'outline',
-      cancelled: 'destructive',
-      draft: 'outline',
-    };
-    return (
-      <Badge variant={variants[status] || 'outline'} className="capitalize">
-        {status.replace('_', ' ')}
-      </Badge>
-    );
+  const stats = (statsData?.data ?? {}) as {
+    totalCheckups?: number;
+    completedCheckups?: number;
+    pendingCheckups?: number;
+    referralsMade?: number;
+    averageBmi?: number;
   };
+  const checkups = (data?.data ?? []) as Checkup[];
+  const campaigns = (campaignsData?.data ?? []) as Campaign[];
+  const total = (data?.meta as { total?: number } | undefined)?.total ?? 0;
+  const rate = stats.totalCheckups
+    ? Math.round(((stats.completedCheckups ?? 0) / stats.totalCheckups) * 100)
+    : 0;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Health Checkups</h1>
-          <p className="text-muted-foreground">
-            Schedule and manage health screenings and checkup campaigns
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link href="/health/checkups/campaigns/new">
-              <Users className="mr-2 h-4 w-4" /> New Campaign
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/health/checkups/new">
-              <Plus className="mr-2 h-4 w-4" /> New Checkup
-            </Link>
-          </Button>
-        </div>
+    <>
+      <PageTitle
+        title="Health check-ups"
+        description="Annual and routine check-ups — run individually or as campus-wide campaigns."
+        actions={
+          canCreate ? (
+            <>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/health/checkups/campaigns/new">New campaign</Link>
+              </Button>
+              <Button size="sm" asChild className="bg-teal-600 hover:bg-teal-700">
+                <Link href="/health/checkups/new">
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  Schedule check-up
+                </Link>
+              </Button>
+            </>
+          ) : null
+        }
+      />
+
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Stat
+          accent="health"
+          label="Completed"
+          value={stats.completedCheckups ?? 0}
+          hint={`${rate}% of ${stats.totalCheckups ?? 0} scheduled`}
+        />
+        <Stat accent="health" label="Still to do" value={stats.pendingCheckups ?? 0} />
+        <Stat
+          accent="health"
+          label="Average BMI"
+          value={stats.averageBmi ?? 0}
+          format={(n) => n.toFixed(1)}
+        />
+        <Stat
+          accent="health"
+          label="Referrals"
+          value={stats.referralsMade ?? 0}
+          hint="Sent on to a specialist"
+        />
       </div>
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Checkups</CardTitle>
-            <Stethoscope className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.data?.totalCheckups || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.data?.thisMonth || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Scheduled</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.data?.scheduled || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Campaigns</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.data?.activeCampaigns || 0}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="checkups">Individual Checkups</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-        </TabsList>
-
-        {/* Filters */}
-        <Card className="mt-4">
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search..."
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(1);
-                  }}
-                  className="pl-10"
-                />
-              </div>
-              <Select
-                value={status}
-                onValueChange={(value) => {
-                  setStatus(value);
-                  setPage(1);
-                }}
+      {campaigns.length > 0 && (
+        <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {campaigns.map((c) => {
+            const pct = c.totalTarget
+              ? Math.round(((c.completedCount ?? 0) / c.totalTarget) * 100)
+              : 0;
+            return (
+              <Link
+                key={c._id}
+                href={`/health/checkups/campaigns/${c._id}`}
+                className="rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-border hover:shadow-sm"
               >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="scheduled">Scheduled</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold leading-snug">{c.name}</p>
+                  <StatusPill status={c.status} />
+                </div>
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <CalendarDays className="h-3.5 w-3.5" />
+                  {fmtDate(c.scheduledDate, { day: 'numeric', month: 'short' })}
+                  {c.scheduledEndDate
+                    ? ` – ${fmtDate(c.scheduledEndDate, { day: 'numeric', month: 'short' })}`
+                    : ''}
+                  {c.venue ? ` · ${c.venue}` : ''}
+                </p>
+                <div className="mt-4 flex items-baseline justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    {c.completedCount ?? 0} of {c.totalTarget ?? 0}{' '}
+                    {c.personType === 'staff' ? 'staff' : 'students'}
+                  </span>
+                  <span className="font-medium tabular-nums">{pct}%</span>
+                </div>
+                <Meter value={pct} color={ACCENT.health.hex} className="mt-1.5" />
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
-        <TabsContent value="checkups">
-          <Card>
-            <CardContent className="pt-6">
-              {checkupsLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Skeleton key={i} className="h-12" />
-                  ))}
-                </div>
-              ) : checkups.length === 0 ? (
-                <div className="text-center py-8">
-                  <Stethoscope className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                  <h3 className="mt-4 text-lg font-medium">No checkups found</h3>
-                  <p className="text-muted-foreground">
-                    Schedule a new health checkup to get started
-                  </p>
-                  <Button asChild className="mt-4">
-                    <Link href="/health/checkups/new">
-                      <Plus className="mr-2 h-4 w-4" /> Schedule Checkup
-                    </Link>
-                  </Button>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Person</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Examiner</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {checkups.map(
-                      (checkup: {
-                        _id: string;
-                        personName: string;
-                        personType: string;
-                        checkupType: string;
-                        checkupDate: string;
-                        status: string;
-                        examinerName?: string;
-                      }) => (
-                        <TableRow key={checkup._id}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">{checkup.personName}</p>
-                              <p className="text-xs text-muted-foreground capitalize">
-                                {checkup.personType}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="capitalize">
-                            {checkup.checkupType.replace('-', ' ')}
-                          </TableCell>
-                          <TableCell>
-                            {new Date(checkup.checkupDate).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>{getStatusBadge(checkup.status)}</TableCell>
-                          <TableCell>{checkup.examinerName || '-'}</TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem asChild>
-                                  <Link href={`/health/checkups/${checkup._id}`}>
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    View Details
-                                  </Link>
-                                </DropdownMenuItem>
-                                {checkup.status !== 'completed' && (
-                                  <DropdownMenuItem asChild>
-                                    <Link href={`/health/checkups/${checkup._id}/complete`}>
-                                      <CheckCircle className="mr-2 h-4 w-4" />
-                                      Complete
-                                    </Link>
-                                  </DropdownMenuItem>
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      )
+      <Panel bodyClassName="p-0">
+        <div className="flex flex-wrap items-center gap-3 border-b border-border/70 px-5 py-3">
+          <SearchBox
+            value={search}
+            onChange={(v) => (setSearch(v), setPage(1))}
+            placeholder="Search by name"
+          />
+          <div className="ml-auto">
+            <Segmented<Show>
+              value={show}
+              onChange={(v) => (setShow(v), setPage(1))}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'scheduled', label: 'Scheduled' },
+                { value: 'completed', label: 'Completed' },
+              ]}
+            />
+          </div>
+        </div>
+        {isLoading ? (
+          <Skeleton rows={10} />
+        ) : checkups.length === 0 ? (
+          <Empty
+            icon={ClipboardCheck}
+            title="No check-ups here"
+            text="Schedule one, or start a campaign for a whole year."
+          />
+        ) : (
+          <>
+            <Table head={['Person', 'Check-up', 'Date', 'Results', 'Status', '']}>
+              {checkups.map((c) => (
+                <tr
+                  key={c._id}
+                  onClick={() =>
+                    router.push(
+                      c.status === 'scheduled' && canCreate
+                        ? `/health/checkups/${c._id}/complete`
+                        : `/health/checkups/${c._id}`
+                    )
+                  }
+                  className="cursor-pointer transition-colors hover:bg-muted/40"
+                >
+                  <Cell>
+                    <PersonCell person={c.person ?? { name: c.personName }} />
+                  </Cell>
+                  <Cell className="text-sm capitalize">{c.checkupType.replace('-', ' ')}</Cell>
+                  <Cell className="whitespace-nowrap text-sm text-muted-foreground">
+                    {fmtDate(c.checkupDate)}
+                  </Cell>
+                  <Cell>
+                    {c.status === 'completed' ? (
+                      <span className="text-sm">
+                        {[
+                          c.vitals?.bmi && `BMI ${c.vitals.bmi}`,
+                          c.vitals?.bloodPressureSystolic &&
+                            `BP ${c.vitals.bloodPressureSystolic}/${c.vitals.bloodPressureDiastolic}`,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ') || '—'}
+                        {c.findings?.length ? (
+                          <span className="block max-w-[240px] truncate text-xs text-muted-foreground">
+                            {c.findings.join(' · ')}
+                          </span>
+                        ) : null}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        {canCreate ? 'Record results →' : 'Awaiting'}
+                      </span>
                     )}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="campaigns">
-          <Card>
-            <CardContent className="pt-6">
-              {campaignsLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Skeleton key={i} className="h-12" />
-                  ))}
-                </div>
-              ) : campaigns.length === 0 ? (
-                <div className="text-center py-8">
-                  <Users className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                  <h3 className="mt-4 text-lg font-medium">No campaigns found</h3>
-                  <p className="text-muted-foreground">
-                    Create a campaign for batch health checkups
-                  </p>
-                  <Button asChild className="mt-4">
-                    <Link href="/health/checkups/campaigns/new">
-                      <Plus className="mr-2 h-4 w-4" /> Create Campaign
-                    </Link>
-                  </Button>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Campaign Name</TableHead>
-                      <TableHead>Target</TableHead>
-                      <TableHead>Scheduled Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Progress</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {campaigns.map(
-                      (campaign: {
-                        _id: string;
-                        name: string;
-                        personType: string;
-                        scheduledDate: string;
-                        status: string;
-                        targetCount?: number;
-                        completedCount?: number;
-                      }) => (
-                        <TableRow key={campaign._id}>
-                          <TableCell className="font-medium">{campaign.name}</TableCell>
-                          <TableCell className="capitalize">{campaign.personType}s</TableCell>
-                          <TableCell>
-                            {new Date(campaign.scheduledDate).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>{getStatusBadge(campaign.status)}</TableCell>
-                          <TableCell>
-                            {campaign.completedCount || 0} / {campaign.targetCount || 0}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem asChild>
-                                  <Link href={`/health/checkups/campaigns/${campaign._id}`}>
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    View Details
-                                  </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                  <Link href={`/health/checkups/campaigns/${campaign._id}/edit`}>
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    Edit
-                                  </Link>
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+                  </Cell>
+                  <Cell>
+                    <StatusPill status={c.status} />
+                  </Cell>
+                  <Cell last>
+                    <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
+                  </Cell>
+                </tr>
+              ))}
+            </Table>
+            <Pager page={page} total={total} limit={LIMIT} onPage={setPage} />
+          </>
+        )}
+      </Panel>
+    </>
   );
 }

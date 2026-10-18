@@ -2,8 +2,23 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { careerConnectApi } from '@/lib/api';
+import {
+  Cell,
+  CompanyLogo,
+  KeyValue,
+  Meter,
+  PageTitle,
+  Panel,
+  PersonCell,
+  Stat,
+  StatusPill,
+  Table as ConnectTable,
+  fmtDate,
+  lpa,
+  type Person,
+} from '@/components/connect/kit';
 import { usePermissions } from '@/hooks/usePermissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,39 +51,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  ArrowLeft,
-  Briefcase,
-  Plus,
-  CalendarDays,
-  MapPin,
-  Users,
-  IndianRupee,
-  Trophy,
-  TrendingUp,
-  CheckCircle2,
-  XCircle,
-  Clock,
-} from 'lucide-react';
+import { Briefcase, Plus, Users, Trophy, TrendingUp, CheckCircle2, Clock } from 'lucide-react';
 import { toast } from 'sonner';
-
-const statusColors: Record<string, string> = {
-  draft: 'bg-gray-100 text-gray-800',
-  registration_open: 'bg-blue-100 text-blue-800',
-  registration_closed: 'bg-yellow-100 text-yellow-800',
-  in_progress: 'bg-orange-100 text-orange-800',
-  completed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
-};
-
-const statusLabels: Record<string, string> = {
-  draft: 'Draft',
-  registration_open: 'Registration Open',
-  registration_closed: 'Registration Closed',
-  in_progress: 'In Progress',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-};
 
 const roundTypeLabels: Record<string, string> = {
   aptitude: 'Aptitude',
@@ -85,20 +69,6 @@ const roundStatusColors: Record<string, string> = {
   completed: 'bg-green-100 text-green-800',
 };
 
-const offerStatusColors: Record<string, string> = {
-  offered: 'bg-blue-100 text-blue-800',
-  accepted: 'bg-green-100 text-green-800',
-  declined: 'bg-red-100 text-red-800',
-};
-
-function formatCTC(ctc?: number): string {
-  if (!ctc) return '-';
-  if (ctc >= 10000000) return `${(ctc / 10000000).toFixed(2)} Cr`;
-  if (ctc >= 100000) return `${(ctc / 100000).toFixed(2)} LPA`;
-  if (ctc >= 1000) return `${(ctc / 1000).toFixed(0)}K`;
-  return String(ctc);
-}
-
 interface Round {
   _id: string;
   roundNumber: number;
@@ -108,12 +78,18 @@ interface Round {
   venue?: string;
   status: string;
   qualifiedCount?: number;
+  qualifiedStudentIds?: string[];
 }
 
 interface Registration {
-  _id: string;
+  _id?: string;
   studentId: string;
   studentName: string;
+  person?: Person | null;
+  roundsCleared?: number;
+  roundsTotal?: number;
+  lastRound?: string | null;
+  offer?: { status: string; ctc: number; role: string } | null;
   enrollmentNumber?: string;
   registeredAt: string;
   isEligible: boolean;
@@ -122,7 +98,8 @@ interface Registration {
 interface Offer {
   _id: string;
   studentId: string;
-  studentName: string;
+  studentName?: string;
+  person?: Person | null;
   role: string;
   ctc: number;
   location?: string;
@@ -132,7 +109,6 @@ interface Offer {
 
 export default function DriveDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const queryClient = useQueryClient();
   const { hasPermission } = usePermissions();
   const id = params.id as string;
@@ -200,7 +176,7 @@ export default function DriveDetailPage() {
   });
 
   const registerMutation = useMutation({
-    mutationFn: () => careerConnectApi.registerForDrive(id),
+    mutationFn: () => careerConnectApi.registerForDrive(id, registerStudentId),
     onSuccess: () => {
       toast.success('Registered for drive');
       queryClient.invalidateQueries({ queryKey: ['drive', id] });
@@ -266,7 +242,6 @@ export default function DriveDetailPage() {
   const rounds: Round[] = drive.rounds || [];
   const registrations: Registration[] = registrationsData?.data || [];
   const offers: Offer[] = offersData?.data || [];
-  const stats = drive.stats || {};
 
   const statusActions: Record<string, { label: string; next: string }[]> = {
     draft: [{ label: 'Open Registration', next: 'registration_open' }],
@@ -277,244 +252,182 @@ export default function DriveDetailPage() {
 
   const availableActions = statusActions[drive.status] || [];
 
+  const STAGES = ['draft', 'registration_open', 'registration_closed', 'in_progress', 'completed'];
+  const stageIdx = STAGES.indexOf(drive.status);
+  const STAGE_LABEL = ['Draft', 'Registration', 'Shortlisting', 'Interviews', 'Completed'];
+  const accepted = offers.filter((o) => o.status === 'accepted');
+  const acceptedCtcs = accepted.map((o) => o.ctc).filter(Boolean);
+  const sortedRounds = [...rounds].sort((a, b) => a.roundNumber - b.roundNumber);
+  const funnel = [
+    { label: 'Registered', count: registrations.length },
+    ...sortedRounds.map((r) => ({
+      label: r.name || r.type,
+      count: r.qualifiedStudentIds?.length ?? 0,
+      pending: r.status !== 'completed',
+    })),
+    { label: 'Offers', count: offers.length },
+    { label: 'Accepted', count: accepted.length },
+  ];
+  const top = Math.max(1, funnel[0].count);
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="font-mono">
-                {drive.driveNumber}
-              </Badge>
-              <h1 className="text-2xl font-bold tracking-tight">{drive.title}</h1>
-              <Badge variant="secondary" className={statusColors[drive.status] || ''}>
-                {statusLabels[drive.status] || drive.status}
-              </Badge>
-            </div>
-            <p className="text-muted-foreground">{drive.companyName}</p>
-          </div>
+      <PageTitle
+        crumbs={[
+          { label: 'Placement drives', href: '/career-connect/drives' },
+          { label: drive.driveNumber },
+        ]}
+        title={
+          <span className="flex items-center gap-3">
+            <CompanyLogo name={drive.companyName} website={drive.companyWebsite} size={44} />
+            <span>
+              {drive.companyName} · {drive.jobProfile?.role}
+            </span>
+          </span>
+        }
+        description={[
+          lpa(drive.jobProfile?.ctc ?? 0),
+          drive.jobProfile?.location,
+          drive.type?.replace(/_/g, ' '),
+          `Registration closes ${fmtDate(drive.registrationDeadline)}`,
+        ]
+          .filter(Boolean)
+          .join(' · ')}
+        actions={
+          canEdit ? (
+            <>
+              {drive.status !== 'cancelled' && drive.status !== 'completed' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-rose-600"
+                  onClick={() => statusMutation.mutate('cancelled')}
+                  disabled={statusMutation.isPending}
+                >
+                  Cancel drive
+                </Button>
+              )}
+              {availableActions.map((action) => (
+                <Button
+                  key={action.next}
+                  size="sm"
+                  onClick={() => statusMutation.mutate(action.next)}
+                  disabled={statusMutation.isPending}
+                >
+                  {action.label}
+                </Button>
+              ))}
+            </>
+          ) : null
+        }
+      />
+
+      {drive.status === 'cancelled' ? (
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+          This drive was cancelled.
         </div>
-        {canEdit && (
-          <div className="flex gap-2">
-            {availableActions.map((action) => (
-              <Button
-                key={action.next}
-                variant="outline"
-                size="sm"
-                onClick={() => statusMutation.mutate(action.next)}
-                disabled={statusMutation.isPending}
+      ) : (
+        <ol className="grid grid-cols-5 gap-2">
+          {STAGE_LABEL.map((label, i) => (
+            <li key={label}>
+              <div className={`h-1.5 rounded-full ${i <= stageIdx ? 'bg-blue-600' : 'bg-muted'}`} />
+              <p
+                className={`mt-2 text-xs font-medium ${i === stageIdx ? 'text-foreground' : 'text-muted-foreground'}`}
               >
-                {action.label}
-              </Button>
-            ))}
-            {drive.status !== 'cancelled' && drive.status !== 'completed' && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-destructive"
-                onClick={() => statusMutation.mutate('cancelled')}
-                disabled={statusMutation.isPending}
-              >
-                Cancel Drive
-              </Button>
-            )}
-          </div>
-        )}
+                {label}
+              </p>
+            </li>
+          ))}
+        </ol>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Stat label="Registered" value={registrations.length} icon={Users} />
+        <Stat
+          label="Offers made"
+          value={offers.length}
+          icon={Trophy}
+          hint={`${accepted.length} accepted`}
+        />
+        <Stat
+          label="Highest offer"
+          value={acceptedCtcs.length ? Math.max(...acceptedCtcs) : (drive.jobProfile?.ctc ?? 0)}
+          format={lpa}
+          icon={TrendingUp}
+        />
+        <Stat
+          label="Conversion"
+          value={
+            registrations.length ? Math.round((accepted.length / registrations.length) * 100) : 0
+          }
+          format={(n) => `${Math.round(n)}%`}
+          icon={CheckCircle2}
+          hint="Registered → accepted"
+        />
       </div>
 
-      {/* Tabs */}
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="rounds">Rounds ({rounds.length})</TabsTrigger>
-          <TabsTrigger value="registrations">Registrations ({registrations.length})</TabsTrigger>
+          <TabsTrigger value="registrations">Students ({registrations.length})</TabsTrigger>
           <TabsTrigger value="offers">Offers ({offers.length})</TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="mt-4 space-y-6">
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Drive Info
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Type</span>
-                  <Badge variant="outline" className="capitalize">
-                    {drive.type?.replace(/_/g, ' ')}
-                  </Badge>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Registration Deadline</span>
-                  <span className="flex items-center gap-1">
-                    <CalendarDays className="h-3 w-3" />
-                    {drive.registrationDeadline
-                      ? new Date(drive.registrationDeadline).toLocaleDateString()
-                      : '-'}
-                  </span>
-                </div>
-                {drive.eligibility?.minCGPA && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Min CGPA</span>
-                    <span>{drive.eligibility.minCGPA}</span>
-                  </div>
-                )}
-                {drive.eligibility?.maxBacklogs !== undefined && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Max Backlogs</span>
-                    <span>{drive.eligibility.maxBacklogs}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Job Profile
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Role</span>
-                  <span className="font-medium">{drive.jobProfile?.role || '-'}</span>
-                </div>
-                {drive.jobProfile?.ctc && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">CTC</span>
-                    <span className="flex items-center gap-0.5 font-medium">
-                      <IndianRupee className="h-3 w-3" />
-                      {formatCTC(drive.jobProfile.ctc)}
+        <TabsContent value="overview" className="mt-4">
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+            <Panel
+              title="Selection funnel"
+              description="How many students made it through each step"
+            >
+              <ul className="space-y-3">
+                {funnel.map((f) => (
+                  <li
+                    key={f.label}
+                    className="grid grid-cols-[150px_minmax(0,1fr)_56px] items-center gap-3 text-sm"
+                  >
+                    <span className="truncate capitalize text-muted-foreground">{f.label}</span>
+                    <Meter value={(f.count / top) * 100} color="#1e4fd8" />
+                    <span className="text-right font-medium tabular-nums">
+                      {'pending' in f && f.pending ? '—' : f.count}
                     </span>
-                  </div>
-                )}
-                {drive.jobProfile?.location && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Location</span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {drive.jobProfile.location}
-                    </span>
-                  </div>
-                )}
-                {drive.jobProfile?.jobType && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Type</span>
-                    <span className="capitalize">{drive.jobProfile.jobType}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Statistics
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <Users className="h-3 w-3" /> Registered
-                  </span>
-                  <span className="font-medium">
-                    {stats.totalRegistered ?? registrations.length}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <CheckCircle2 className="h-3 w-3" /> Eligible
-                  </span>
-                  <span className="font-medium">{stats.totalEligible ?? '-'}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <Trophy className="h-3 w-3" /> Placed
-                  </span>
-                  <span className="font-medium">{stats.totalPlaced ?? '-'}</span>
-                </div>
-                {stats.highestCTC && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <TrendingUp className="h-3 w-3" /> Highest CTC
-                    </span>
-                    <span className="font-medium">{formatCTC(stats.highestCTC)}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+            <Panel title="Role">
+              <KeyValue
+                cols={1}
+                items={[
+                  ['Role', drive.jobProfile?.role ?? '—'],
+                  ['Package', lpa(drive.jobProfile?.ctc ?? 0)],
+                  ['Location', drive.jobProfile?.location ?? '—'],
+                  [
+                    'Employment',
+                    drive.jobProfile?.jobType === 'internship' ? 'Internship' : 'Full-time',
+                  ],
+                  [
+                    'Eligibility',
+                    [
+                      drive.eligibility?.minCGPA ? `CGPA ${drive.eligibility.minCGPA}+` : null,
+                      drive.eligibility?.maxBacklogs !== undefined
+                        ? `≤ ${drive.eligibility.maxBacklogs} backlogs`
+                        : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ') || 'Open to all final-year students',
+                  ],
+                ]}
+              />
+              {drive.jobProfile?.description && (
+                <p className="mt-4 border-t border-border/70 pt-4 text-sm leading-relaxed text-muted-foreground">
+                  {drive.jobProfile.description}
+                </p>
+              )}
+            </Panel>
           </div>
-
-          {drive.jobProfile?.description && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Job Description</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{drive.jobProfile.description}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {drive.jobProfile?.ctcBreakdown && (
-            <Card>
-              <CardHeader>
-                <CardTitle>CTC Breakdown</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-5">
-                  {drive.jobProfile.ctcBreakdown.baseSalary && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Base Salary</span>
-                      <p className="font-medium">
-                        {formatCTC(drive.jobProfile.ctcBreakdown.baseSalary)}
-                      </p>
-                    </div>
-                  )}
-                  {drive.jobProfile.ctcBreakdown.hra && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">HRA</span>
-                      <p className="font-medium">{formatCTC(drive.jobProfile.ctcBreakdown.hra)}</p>
-                    </div>
-                  )}
-                  {drive.jobProfile.ctcBreakdown.specialAllowance && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Special Allowance</span>
-                      <p className="font-medium">
-                        {formatCTC(drive.jobProfile.ctcBreakdown.specialAllowance)}
-                      </p>
-                    </div>
-                  )}
-                  {drive.jobProfile.ctcBreakdown.bonus && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Bonus</span>
-                      <p className="font-medium">
-                        {formatCTC(drive.jobProfile.ctcBreakdown.bonus)}
-                      </p>
-                    </div>
-                  )}
-                  {drive.jobProfile.ctcBreakdown.other && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Other</span>
-                      <p className="font-medium">
-                        {formatCTC(drive.jobProfile.ctcBreakdown.other)}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </TabsContent>
 
-        {/* Rounds Tab */}
         <TabsContent value="rounds" className="mt-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -710,32 +623,40 @@ export default function DriveDetailPage() {
                   <p className="mt-2 text-muted-foreground">No registrations yet</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Student Name</TableHead>
-                      <TableHead>Enrollment No.</TableHead>
-                      <TableHead>Registered At</TableHead>
-                      <TableHead>Eligible</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <div className="-mx-6 -mb-6 border-t border-border/70">
+                  <ConnectTable head={['Student', 'CGPA', 'Progress', 'Result']}>
                     {registrations.map((reg) => (
-                      <TableRow key={reg._id}>
-                        <TableCell className="font-medium">{reg.studentName}</TableCell>
-                        <TableCell>{reg.enrollmentNumber || reg.studentId}</TableCell>
-                        <TableCell>{new Date(reg.registeredAt).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          {reg.isEligible ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-red-500" />
+                      <tr key={reg.studentId} className="transition-colors hover:bg-muted/40">
+                        <Cell>
+                          <PersonCell
+                            person={reg.person ?? { name: reg.studentName }}
+                            href={`/career-connect/student-profile/${reg.studentId}`}
+                          />
+                        </Cell>
+                        <Cell className="tabular-nums">{reg.person?.cgpa ?? '—'}</Cell>
+                        <Cell>
+                          <span className="text-sm">
+                            {reg.roundsTotal
+                              ? `${reg.roundsCleared ?? 0} of ${reg.roundsTotal} rounds`
+                              : 'Registered'}
+                          </span>
+                          {reg.lastRound && (
+                            <span className="block text-xs text-muted-foreground">
+                              Cleared {reg.lastRound}
+                            </span>
                           )}
-                        </TableCell>
-                      </TableRow>
+                        </Cell>
+                        <Cell last>
+                          {reg.offer ? (
+                            <StatusPill status={reg.offer.status} />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </Cell>
+                      </tr>
                     ))}
-                  </TableBody>
-                </Table>
+                  </ConnectTable>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -838,77 +759,67 @@ export default function DriveDetailPage() {
                   <p className="mt-2 text-muted-foreground">No offers yet</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Student</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>CTC</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Offer Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      {canEdit && <TableHead className="w-[120px]" />}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <div className="-mx-6 -mb-6 border-t border-border/70">
+                  <ConnectTable
+                    head={[
+                      'Student',
+                      'Role',
+                      'Package',
+                      'Offered',
+                      'Status',
+                      canEdit ? 'Response' : '',
+                    ]}
+                  >
                     {offers.map((offer) => (
-                      <TableRow key={offer._id}>
-                        <TableCell className="font-medium">{offer.studentName}</TableCell>
-                        <TableCell>{offer.role}</TableCell>
-                        <TableCell>
-                          <span className="flex items-center gap-0.5">
-                            <IndianRupee className="h-3 w-3" />
-                            {formatCTC(offer.ctc)}
-                          </span>
-                        </TableCell>
-                        <TableCell>{offer.location || '-'}</TableCell>
-                        <TableCell>{new Date(offer.offerDate).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="secondary"
-                            className={offerStatusColors[offer.status] || ''}
-                          >
-                            {offer.status}
-                          </Badge>
-                        </TableCell>
-                        {canEdit && (
-                          <TableCell>
-                            {offer.status === 'offered' && (
-                              <div className="flex gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-green-600 h-7 px-2"
-                                  onClick={() =>
-                                    respondOfferMutation.mutate({
-                                      offerId: offer._id,
-                                      status: 'accepted',
-                                    })
-                                  }
-                                >
-                                  Accept
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-red-600 h-7 px-2"
-                                  onClick={() =>
-                                    respondOfferMutation.mutate({
-                                      offerId: offer._id,
-                                      status: 'declined',
-                                    })
-                                  }
-                                >
-                                  Decline
-                                </Button>
-                              </div>
-                            )}
-                          </TableCell>
-                        )}
-                      </TableRow>
+                      <tr key={offer._id} className="transition-colors hover:bg-muted/40">
+                        <Cell>
+                          <PersonCell
+                            person={offer.person ?? { name: offer.studentName ?? 'Student' }}
+                            href={`/career-connect/student-profile/${offer.studentId}`}
+                          />
+                        </Cell>
+                        <Cell>{offer.role}</Cell>
+                        <Cell className="font-medium tabular-nums">{lpa(offer.ctc)}</Cell>
+                        <Cell className="text-muted-foreground">{fmtDate(offer.offerDate)}</Cell>
+                        <Cell>
+                          <StatusPill status={offer.status} />
+                        </Cell>
+                        <Cell last>
+                          {canEdit && offer.status === 'offered' ? (
+                            <span className="flex justify-end gap-1">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7"
+                                onClick={() =>
+                                  respondOfferMutation.mutate({
+                                    offerId: offer._id,
+                                    status: 'accepted',
+                                  })
+                                }
+                              >
+                                Accepted
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-muted-foreground"
+                                onClick={() =>
+                                  respondOfferMutation.mutate({
+                                    offerId: offer._id,
+                                    status: 'declined',
+                                  })
+                                }
+                              >
+                                Declined
+                              </Button>
+                            </span>
+                          ) : null}
+                        </Cell>
+                      </tr>
                     ))}
-                  </TableBody>
-                </Table>
+                  </ConnectTable>
+                </div>
               )}
             </CardContent>
           </Card>

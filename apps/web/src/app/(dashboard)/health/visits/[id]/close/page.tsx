@@ -1,6 +1,7 @@
 'use client';
 
 import { use, useState } from 'react';
+import { PageTitle } from '@/components/connect/kit';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { healthApi } from '@/lib/api';
@@ -13,14 +14,8 @@ import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { DatePicker } from '@/components/ui/date-picker';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ArrowLeft, Loader2, Activity, Plus, X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Activity, Plus, X } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -154,17 +149,11 @@ export default function CloseVisitPage({ params }: { params: Promise<{ id: strin
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/health/visits">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Close Medical Visit</h1>
-          <p className="text-muted-foreground">Record the outcome and close this visit</p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "Sick-room visits", href: "/health/visits" }, { label: "Close medical visit" }]}
+        title="Close medical visit"
+        description="Record the outcome and close this visit"
+      />
 
       {/* Visit Info */}
       <Card>

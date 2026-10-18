@@ -4,6 +4,18 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { careerConnectApi } from '@/lib/api';
+import {
+  CompanyLogo,
+  Empty,
+  KeyValue,
+  PageTitle,
+  Panel,
+  PersonCell,
+  Stat,
+  StatusPill,
+  lpa,
+  type Person,
+} from '@/components/connect/kit';
 import { usePermissions } from '@/hooks/usePermissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,25 +41,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  ArrowLeft,
   Edit,
   Building2,
-  MapPin,
-  Globe,
   Phone,
   Mail,
   User,
   Plus,
   Trash2,
   CalendarDays,
+  Users,
+  TrendingUp,
+  IndianRupee,
 } from 'lucide-react';
 import { toast } from 'sonner';
-
-const statusColors: Record<string, string> = {
-  active: 'bg-green-100 text-green-800',
-  inactive: 'bg-gray-100 text-gray-800',
-  blacklisted: 'bg-red-100 text-red-800',
-};
 
 interface Contact {
   _id: string;
@@ -160,25 +166,34 @@ export default function CompanyDetailPage() {
     );
   }
 
+  const stats = company.stats ?? { drives: 0, offers: 0, hired: 0, topCtc: 0, avgCtc: 0 };
+  const hires = (company.hires ?? []) as Array<{
+    studentId: string;
+    role: string;
+    ctc: number;
+    location?: string | null;
+    person: Person | null;
+  }>;
+  const canEdit = hasPermission('careerConnect.companies', 'edit');
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">{company.name}</h1>
-              <Badge variant="secondary" className={statusColors[company.status] || ''}>
-                {company.status}
-              </Badge>
-            </div>
-            <p className="text-muted-foreground">{company.industry}</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          {hasPermission('careerConnect.companies', 'edit') && (
+      <PageTitle
+        crumbs={[
+          { label: 'Companies', href: '/career-connect/companies' },
+          { label: company.name },
+        ]}
+        title={
+          <span className="flex items-center gap-3">
+            <CompanyLogo name={company.name} website={company.website} size={44} />
+            {company.name}
+          </span>
+        }
+        description={[company.industry, company.sector, company.locations?.join(', ')]
+          .filter(Boolean)
+          .join(' · ')}
+        actions={
+          canEdit ? (
             <>
               {company.status === 'active' && (
                 <Button
@@ -195,81 +210,105 @@ export default function CompanyDetailPage() {
                 </Button>
               )}
               <Button size="sm" onClick={() => router.push(`/career-connect/companies/${id}/edit`)}>
-                <Edit className="mr-2 h-4 w-4" />
+                <Edit className="mr-1.5 h-4 w-4" />
                 Edit
               </Button>
             </>
-          )}
-        </div>
+          ) : null
+        }
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Stat
+          label="Students hired"
+          value={stats.hired}
+          icon={Users}
+          hint={`${stats.offers} offers made`}
+        />
+        <Stat label="Highest package" value={stats.topCtc} format={lpa} icon={TrendingUp} />
+        <Stat label="Average package" value={stats.avgCtc} format={lpa} icon={IndianRupee} />
+        <Stat
+          label="Campus drives"
+          value={stats.drives}
+          icon={CalendarDays}
+          hint={
+            company.partnership?.type && company.partnership.type !== 'regular'
+              ? `${company.partnership.type} partner`
+              : 'Regular partner'
+          }
+        />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-3">
-              {company.size && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="capitalize">{company.size}</span>
-                </div>
-              )}
-              {company.locations?.length > 0 && (
-                <div className="flex items-start gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <span>{company.locations.join(', ')}</span>
-                </div>
-              )}
-              {company.website && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <a
-                    href={company.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    {company.website}
-                  </a>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <Panel
+          title="Students hired"
+          description={hires.length ? `${hires.length} from your campus` : undefined}
+          bodyClassName="px-0 pb-2"
+        >
+          {hires.length ? (
+            <ul className="grid divide-y divide-border/60 sm:grid-cols-2 sm:divide-y-0">
+              {hires.map((h, i) => (
+                <li
+                  key={i}
+                  className="flex items-center gap-3 px-5 py-2.5 sm:border-b sm:border-border/60"
+                >
+                  <div className="min-w-0 flex-1">
+                    <PersonCell
+                      person={h.person ?? { name: 'Student' }}
+                      href={`/career-connect/student-profile/${h.studentId}`}
+                      sub={[h.person?.program, h.role].filter(Boolean).join(' · ')}
+                    />
+                  </div>
+                  <span className="text-sm font-semibold tabular-nums">{lpa(h.ctc)}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Empty
+              icon={Users}
+              title="No hires yet"
+              text="Students placed with this company will appear here."
+            />
+          )}
+        </Panel>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Partnership</span>
-                <span className="capitalize">{company.partnership?.type || 'Regular'}</span>
-              </div>
-              {company.sector && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Sector</span>
-                  <span>{company.sector}</span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Contacts</span>
-                <span>{company.hrContacts?.length || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Visits</span>
-                <span>{company.visitHistory?.length || 0}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
+        <div className="space-y-6">
+          <Panel title="About">
             {company.description ? (
-              <p className="text-sm">{company.description}</p>
-            ) : (
-              <p className="text-sm text-muted-foreground">No description added</p>
-            )}
-          </CardContent>
-        </Card>
+              <p className="text-sm leading-relaxed text-muted-foreground">{company.description}</p>
+            ) : null}
+            <div className={company.description ? 'mt-4 border-t border-border/70 pt-4' : ''}>
+              <KeyValue
+                cols={1}
+                items={[
+                  [
+                    'Website',
+                    company.website ? (
+                      <a
+                        href={company.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        {company.website.replace(/^https?:\/\//, '')}
+                      </a>
+                    ) : (
+                      '—'
+                    ),
+                  ],
+                  ['Size', company.size ? <span className="capitalize">{company.size}</span> : '—'],
+                  [
+                    'Partnership',
+                    <span key="p" className="capitalize">
+                      {company.partnership?.type || 'Regular'}
+                    </span>,
+                  ],
+                  ['Status', <StatusPill key="s" status={company.status} />],
+                ]}
+              />
+            </div>
+          </Panel>
+        </div>
       </div>
 
       <Tabs defaultValue="contacts">

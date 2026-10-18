@@ -3,6 +3,7 @@ import { collections } from '../../../config/database';
 import { ApiError } from '../../../middleware/errorHandler';
 import { getPagination, buildPaginationMeta } from '../../../utils/pagination';
 import { generateDriveNumber } from '../../../utils/generators';
+import { withPeople } from '../../../utils/people';
 
 const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
   draft: ['registration_open', 'cancelled'],
@@ -55,7 +56,7 @@ class DriveService {
     ]);
 
     return {
-      data: data.map(this.formatDrive),
+      data: await this.enrich(tenantId, data.map(this.formatDrive), false),
       meta: buildPaginationMeta(page, limit, total),
     };
   }
@@ -70,7 +71,7 @@ class DriveService {
       throw new ApiError('DRIVE_NOT_FOUND', 'Placement drive not found', 404);
     }
 
-    return this.formatDrive(drive);
+    return (await this.enrich(tenantId, [this.formatDrive(drive)], true))[0];
   }
 
   async create(tenantId: string, branchId: string, userId: string, data: Record<string, unknown>) {
@@ -290,7 +291,16 @@ class DriveService {
     return this.getById(tenantId, id);
   }
 
-  async registerStudent(tenantId: string, id: string, studentId: string, studentName: string) {
+  async registerStudent(tenantId: string, id: string, studentId: string, studentName?: string) {
+    if (!studentName) {
+      const st = await collections.students.findOne(
+        { _id: new ObjectId(studentId), tenantId: new ObjectId(tenantId) },
+        { projection: { displayName: 1, firstName: 1, lastName: 1 } }
+      );
+      if (!st) throw new ApiError('STUDENT_NOT_FOUND', 'Student not found', 404);
+      studentName =
+        (st.displayName as string) || [st.firstName, st.lastName].filter(Boolean).join(' ');
+    }
     const drive = await collections.placementDrives.findOne({
       _id: new ObjectId(id),
       tenantId: new ObjectId(tenantId),
@@ -405,10 +415,24 @@ class DriveService {
       throw new ApiError('DRIVE_NOT_FOUND', 'Placement drive not found', 404);
     }
 
-    return ((drive.registrations as Array<Record<string, unknown>>) || []).map((r) => ({
-      ...r,
-      studentId: (r.studentId as ObjectId)?.toString(),
-    }));
+    // How far each student got: the last round whose results include them.
+    const rounds = ((drive.rounds as Array<Record<string, unknown>>) || [])
+      .filter((r) => r.status === 'completed')
+      .sort((a, b) => (Number(a.roundNumber) || 0) - (Number(b.roundNumber) || 0));
+    const rows = ((drive.registrations as Array<Record<string, unknown>>) || []).map((r) => {
+      const sid = (r.studentId as ObjectId)?.toString();
+      const cleared = rounds.filter((x) =>
+        ((x.qualifiedStudentIds as ObjectId[]) || []).some((q) => String(q) === sid)
+      );
+      return {
+        ...r,
+        studentId: sid,
+        roundsCleared: cleared.length,
+        lastRound: (cleared.at(-1)?.name as string) ?? null,
+        roundsTotal: ((drive.rounds as unknown[]) || []).length,
+      };
+    });
+    return withPeople(rows, 'studentId');
   }
 
   async submitRoundResults(
@@ -494,6 +518,63 @@ class DriveService {
       averageCTC: Math.round((stats.averageCTC || 0) * 100) / 100,
       highestCTC: stats.highestCTC || 0,
     };
+  }
+
+  /**
+   * Company website (for logos), offer counts, and — for a single drive — each
+   * registrant's photo, programme and CGPA plus their offer, so the drive page
+   * shows real students rather than bare names.
+   */
+  private async enrich<
+    T extends { _id: string; companyId?: string; registrations?: Array<{ studentId: string }> },
+  >(tenantId: string, rows: T[], withPeopleData: boolean) {
+    if (!rows.length) return rows;
+    const tenantOid = new ObjectId(tenantId);
+    const companyIds = [...new Set(rows.map((r) => r.companyId).filter(Boolean))].map(
+      (id) => new ObjectId(id as string)
+    );
+    const [companies, offers] = await Promise.all([
+      collections.placementCompanies
+        .find({ _id: { $in: companyIds } })
+        .project({ website: 1 })
+        .toArray(),
+      collections.placementOffers
+        .find({ tenantId: tenantOid, driveId: { $in: rows.map((r) => new ObjectId(r._id)) } })
+        .project({ driveId: 1, studentId: 1, status: 1, ctc: 1, role: 1 })
+        .toArray(),
+    ]);
+    const site = new Map(companies.map((c) => [String(c._id), c.website as string | undefined]));
+    return Promise.all(
+      rows.map(async (r) => {
+        const mine = offers.filter((o) => String(o.driveId) === r._id);
+        const base = {
+          ...r,
+          companyWebsite: r.companyId ? (site.get(String(r.companyId)) ?? null) : null,
+          offerCounts: {
+            offered: mine.length,
+            accepted: mine.filter((o) => o.status === 'accepted').length,
+          },
+        };
+        if (!withPeopleData || !r.registrations?.length) return base;
+        const offerOf = new Map(mine.map((o) => [String(o.studentId), o]));
+        const regs = await withPeople(
+          r.registrations.map((x) => ({ ...x, studentId: String(x.studentId) })),
+          'studentId'
+        );
+        return {
+          ...base,
+          registrations: regs.map((x) => {
+            const o = offerOf.get(x.studentId);
+            return {
+              ...x,
+              offer: o
+                ? { status: o.status as string, ctc: Number(o.ctc) || 0, role: o.role as string }
+                : null,
+            };
+          }),
+        };
+      })
+    );
   }
 
   private formatDrive(doc: Document) {

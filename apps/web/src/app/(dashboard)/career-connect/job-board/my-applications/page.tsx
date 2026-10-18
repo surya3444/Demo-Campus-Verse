@@ -1,21 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { PageTitle } from '@/components/connect/kit';
 import { useQuery } from '@tanstack/react-query';
 import { careerConnectApi } from '@/lib/api';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { ArrowLeft, FileText, Building2 } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { FileText, Building2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const statusColors: Record<string, string> = {
@@ -73,15 +67,11 @@ export default function MyApplicationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">My Applications</h1>
-          <p className="text-muted-foreground">Track your job and internship applications</p>
-        </div>
-      </div>
+      <PageTitle
+        crumbs={[{ label: "My applications", href: "/career-connect/job-board/my-applications" }, { label: "My applications" }]}
+        title="My applications"
+        description="Track your job and internship applications"
+      />
 
       <Card>
         <CardHeader />

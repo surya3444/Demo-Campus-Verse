@@ -149,6 +149,21 @@ class CareerHubService {
       .toArray();
     const alumniPhoto = new Map(alumniStudents.map((s) => [String(s._id), s.photo]));
 
+    const card = (o: Document) => {
+      const s = studentById.get(String(o.studentId));
+      return {
+        studentId: String(o.studentId),
+        name: nameOf(s),
+        photo: (s?.photo as string) ?? null,
+        program: shortClass(s?.currentEnrollment?.className),
+        company: o.companyName as string,
+        website: siteOf.get(String(o.companyId)) ?? null,
+        role: o.role as string,
+        ctc: Number(o.ctc) || 0,
+        date: o.offerDate ?? o.createdAt,
+      };
+    };
+
     return {
       kpis: {
         companies: companies.length,
@@ -170,7 +185,7 @@ class CareerHubService {
         (a, b) => b.accepted - a.accepted || b.topCtc - a.topCtc
       ),
       // The season's best: highest packages first, at most two per company.
-      recentPlacements: (() => {
+      topOffers: (() => {
         const perCompany = new Map<string, number>();
         return [...accepted]
           .sort((a, b) => (Number(b.ctc) || 0) - (Number(a.ctc) || 0))
@@ -179,21 +194,17 @@ class CareerHubService {
             perCompany.set(String(o.companyId), n + 1);
             return n < 2;
           })
-          .slice(0, 14)
-          .map((o) => {
-            const s = studentById.get(String(o.studentId));
-            return {
-              name: nameOf(s),
-              photo: s?.photo ?? null,
-              program: shortClass(s?.currentEnrollment?.className),
-              company: o.companyName as string,
-              website: siteOf.get(String(o.companyId)) ?? null,
-              role: o.role as string,
-              ctc: Number(o.ctc) || 0,
-              date: o.offerDate ?? o.createdAt,
-            };
-          });
+          .slice(0, 8)
+          .map(card);
       })(),
+      recentPlacements: [...accepted]
+        .sort(
+          (a, b) =>
+            +new Date(b.respondedAt ?? b.offerDate ?? b.createdAt) -
+            +new Date(a.respondedAt ?? a.offerDate ?? a.createdAt)
+        )
+        .slice(0, 10)
+        .map(card),
       departments: [...dept.entries()]
         .map(([name, d]) => ({
           name,

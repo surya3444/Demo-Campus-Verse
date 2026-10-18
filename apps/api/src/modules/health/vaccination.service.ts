@@ -3,6 +3,7 @@ import { collections } from '../../config/database';
 import { logger } from '../../lib/logger';
 import { ApiError } from '../../middleware/errorHandler';
 import { CreateVaccinationInput, UpdateVaccinationInput, AdministerVaccinationInput, VaccinationQueryInput } from '@campus-verse/shared/schemas';
+import { withPeople } from '../../utils/people';
 
 interface VaccinationDocument extends Document {
   _id: ObjectId;
@@ -113,7 +114,7 @@ class VaccinationService {
       throw new ApiError('VACCINATION_NOT_FOUND', 'Vaccination record not found', 404);
     }
 
-    return this.formatVaccination(vaccination);
+    return (await withPeople([this.formatVaccination(vaccination)], 'personId'))[0];
   }
 
   async findAll(tenantId: string, branchId: string, params: VaccinationQueryInput) {
@@ -160,7 +161,7 @@ class VaccinationService {
     ]);
 
     return {
-      data: vaccinations.map((v) => this.formatVaccination(v)),
+      data: await withPeople(vaccinations.map((v) => this.formatVaccination(v)), 'personId'),
       meta: {
         page,
         limit,
@@ -312,8 +313,7 @@ class VaccinationService {
       collections.vaccinations.countDocuments({ ...baseFilter, status: 'scheduled' }),
       collections.vaccinations.countDocuments({
         ...baseFilter,
-        status: 'scheduled',
-        scheduledDate: { $lt: now },
+        $or: [{ status: 'overdue' }, { status: 'scheduled', scheduledDate: { $lt: now } }],
       }),
       collections.vaccinations.countDocuments({ ...baseFilter, status: 'exempt' }),
       collections.vaccinations.aggregate([
