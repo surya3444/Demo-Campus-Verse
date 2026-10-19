@@ -4,7 +4,7 @@ import {
   FeeCollectedCelebration,
   type FeeCollectedDetails,
 } from '@/components/finance/FeeCollectedCelebration';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -389,18 +389,33 @@ export default function FeeCounterPage() {
   };
 
   // Fetch functions
+  // Only the latest request may update the list: typing fires several, and a
+  // slow early response used to overwrite (or blank) the newer one.
+  const studentsSeq = useRef(0);
+  const [studentsError, setStudentsError] = useState(false);
+  const [isFetchingStudents, setIsFetchingStudents] = useState(false);
   const fetchStudents = useCallback(async () => {
+    const seq = ++studentsSeq.current;
+    setIsFetchingStudents(true);
     try {
       const response = await financeApi.searchStudentsForFeeCounter({
         search: searchQuery || undefined,
         classId: filterClassId !== 'all' ? filterClassId : undefined,
         sectionId: filterSectionId !== 'all' ? filterSectionId : undefined,
       });
+      if (seq !== studentsSeq.current) return;
       if (response.success) {
         setStudents(response.data || []);
+        setStudentsError(false);
+      } else {
+        setStudentsError(true);
       }
     } catch (error) {
+      if (seq !== studentsSeq.current) return;
       console.error('Failed to fetch students:', error);
+      setStudentsError(true);
+    } finally {
+      if (seq === studentsSeq.current) setIsFetchingStudents(false);
     }
   }, [searchQuery, filterClassId, filterSectionId]);
 
@@ -449,14 +464,17 @@ export default function FeeCounterPage() {
     }
   }, [dateRange, paymentModeFilter, statusFilter, filterClassId, filterSectionId]);
 
-  // Initial load
+  // Initial load — once. Search and filter changes go through the debounced
+  // effect below (this used to re-run on every keystroke, doubling requests).
+  const loaded = useRef(false);
   useEffect(() => {
-    const loadData = async () => {
+    if (loaded.current) return;
+    loaded.current = true;
+    (async () => {
       setIsLoading(true);
       await Promise.all([fetchStudents(), fetchStats()]);
       setIsLoading(false);
-    };
-    loadData();
+    })();
   }, [fetchStudents, fetchStats]);
 
   // Load tab data on tab change
@@ -473,15 +491,16 @@ export default function FeeCounterPage() {
     }
   }, [dateRange, paymentModeFilter, statusFilter, filterClassId, filterSectionId]);
 
-  // Debounced search
+  // Debounced search / class / section changes (after the first load)
+  const firstFilterRun = useRef(true);
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!isLoading) {
-        fetchStudents();
-      }
-    }, 300);
+    if (firstFilterRun.current) {
+      firstFilterRun.current = false;
+      return;
+    }
+    const timer = setTimeout(() => fetchStudents(), 300);
     return () => clearTimeout(timer);
-  }, [searchQuery, fetchStudents, isLoading]);
+  }, [fetchStudents]);
 
   // Handlers
   const getInitials = (name: string) =>
@@ -1173,8 +1192,20 @@ export default function FeeCounterPage() {
               </div>
             </CardHeader>
             <CardContent>
-              {students.length === 0 ? (
-                searchQuery ? (
+              {studentsError && students.length === 0 ? (
+                <div className="space-y-3 py-12 text-center">
+                  <p className="font-medium">Couldn’t load the student list</p>
+                  <p className="text-sm text-muted-foreground">
+                    The connection timed out or the server is busy.
+                  </p>
+                  <Button variant="outline" size="sm" onClick={() => fetchStudents()} disabled={isFetchingStudents}>
+                    {isFetchingStudents ? 'Retrying…' : 'Try again'}
+                  </Button>
+                </div>
+              ) : students.length === 0 ? (
+                isFetchingStudents ? (
+                  <div className="py-12 text-center text-muted-foreground">Searching…</div>
+                ) : searchQuery ? (
                   <div className="text-center py-12 text-muted-foreground">
                     No students found matching your search
                   </div>

@@ -33,6 +33,15 @@ async function dropIndexIfExists(db: Db, collection: string, indexName: string) 
   console.log('=== Live classes ===');
   await createLiveClassIndexes(db);
 
+  console.log('\n=== Students & fees (fee counter) ===');
+  await db.collection('students').createIndex({ tenantId: 1, branchId: 1, status: 1 });
+  await db
+    .collection('students')
+    .createIndex({ tenantId: 1, 'currentEnrollment.classId': 1, 'currentEnrollment.sectionId': 1 });
+  await db.collection('fee_assignments').createIndex({ tenantId: 1, studentId: 1, status: 1 });
+  await db.collection('fee_transactions').createIndex({ tenantId: 1, branchId: 1, receiptDate: -1 });
+  console.log('student and fee indexes ensured');
+
   console.log('\n=== Bulk upload history ===');
   // Cascade delete + per-batch live count query students by their batch id.
   await db.collection('students').createIndex({ tenantId: 1, bulkUploadId: 1 });

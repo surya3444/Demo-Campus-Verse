@@ -56,150 +56,112 @@ class FeeCounterController {
       const visibility = await getStudentVisibilityFilter(req);
       if (visibility) studentMatch.$and = [visibility];
 
-      // Get students with their fee assignments (supports multiple assignments per student)
-      const pipeline = [
-        { $match: studentMatch },
-        // Lookup all active fee assignments
-        {
-          $lookup: {
-            from: 'fee_assignments',
-            let: { studentId: '$_id' },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $and: [{ $eq: ['$studentId', '$$studentId'] }, { $eq: ['$status', 'active'] }],
-                  },
-                },
-              },
-              { $sort: { createdAt: -1 } },
-            ],
-            as: 'feeAssignments',
+      // Name / admission no. / roll no. / phone search runs on students first
+      if (search) {
+        const rx = { $regex: String(search).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
+        studentMatch.$or = [
+          { displayName: rx },
+          { admissionNumber: rx },
+          { rollNumber: rx },
+          { 'contact.phone': rx },
+        ];
+      }
+
+      // One indexed aggregation that returns only this page. Index-backed
+      // $lookup (students → fee_assignments by studentId) keeps it ~1s for
+      // 3,000+ students; shipping every student to the API took 10–30s.
+      const tenantObjId = new ObjectId(req.tenantId!);
+      const [facet] = await db
+        .collection('students')
+        .aggregate([
+          { $match: studentMatch },
+          {
+            $project: { displayName: 1, firstName: 1, lastName: 1, admissionNumber: 1, photo: 1, currentEnrollment: 1 },
           },
-        },
-        // Students without fees stay listed ("unassigned") so a missing fee
-        // assignment is visible instead of the student disappearing.
-        // Lookup class name
-        {
-          $lookup: {
-            from: 'classes',
-            localField: 'currentEnrollment.classId',
-            foreignField: '_id',
-            as: 'classInfo',
-          },
-        },
-        { $unwind: { path: '$classInfo', preserveNullAndEmptyArrays: true } },
-        // Lookup section name
-        {
-          $lookup: {
-            from: 'sections',
-            localField: 'currentEnrollment.sectionId',
-            foreignField: '_id',
-            as: 'sectionInfo',
-          },
-        },
-        { $unwind: { path: '$sectionInfo', preserveNullAndEmptyArrays: true } },
-        // Search filter
-        ...(search
-          ? [
-              {
-                $match: {
-                  $or: [
-                    { displayName: { $regex: search, $options: 'i' } },
-                    { admissionNumber: { $regex: search, $options: 'i' } },
-                    { rollNumber: { $regex: search, $options: 'i' } },
-                    { 'contact.phone': { $regex: search, $options: 'i' } },
-                  ],
-                },
-              },
-            ]
-          : []),
-        // Project final shape — aggregate across all assignments
-        {
-          $project: {
-            _id: 1,
-            studentId: '$admissionNumber',
-            name: '$displayName',
-            class: '$classInfo.name',
-            section: '$sectionInfo.name',
-            totalFee: { $sum: '$feeAssignments.summary.totalFee' },
-            paidAmount: { $sum: '$feeAssignments.summary.totalPaid' },
-            dueAmount: { $sum: '$feeAssignments.summary.balance' },
-            // Backward compat: first assignment ID
-            assignmentId: { $arrayElemAt: ['$feeAssignments._id', 0] },
-            // All assignments for multi-assignment payment dialog
-            assignments: {
-              $map: {
-                input: '$feeAssignments',
-                as: 'a',
-                in: {
-                  _id: '$$a._id',
-                  type: { $ifNull: ['$$a.type', 'tuition'] },
-                  totalFee: '$$a.summary.totalFee',
-                  paidAmount: '$$a.summary.totalPaid',
-                  dueAmount: '$$a.summary.balance',
-                  // Snapshot of the line items so the cashier sees the
-                  // mandatory/optional breakdown without an extra fetch.
-                  components: '$$a.components',
-                },
-              },
-            },
-            hasHostelFee: {
-              $gt: [
-                {
-                  $size: {
-                    $filter: {
-                      input: '$feeAssignments',
-                      as: 'a',
-                      cond: { $eq: ['$$a.type', 'hostel'] },
-                    },
-                  },
-                },
-                0,
+          {
+            $lookup: {
+              from: 'fee_assignments',
+              localField: '_id',
+              foreignField: 'studentId',
+              as: 'as',
+              pipeline: [
+                { $match: { tenantId: tenantObjId, status: 'active' } },
+                { $project: { type: 1, summary: 1, createdAt: 1 } },
+                { $sort: { createdAt: -1 } },
               ],
             },
-            status: {
-              $let: {
-                vars: {
-                  totalBalance: { $sum: '$feeAssignments.summary.balance' },
-                  totalPaid: { $sum: '$feeAssignments.summary.totalPaid' },
-                },
-                in: {
-                  $cond: {
-                    if: { $eq: [{ $size: '$feeAssignments' }, 0] },
-                    then: 'unassigned',
-                    else: {
-                      $cond: {
-                        if: { $eq: ['$$totalBalance', 0] },
-                        then: 'paid',
-                        else: {
-                          $cond: {
-                            if: { $gt: ['$$totalPaid', 0] },
-                            then: 'partial',
-                            else: 'pending',
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
+          },
+          {
+            $addFields: {
+              totalFee: { $sum: '$as.summary.totalFee' },
+              paidAmount: { $sum: '$as.summary.totalPaid' },
+              dueAmount: { $sum: '$as.summary.balance' },
             },
           },
-        },
-        // Sort by due amount (highest first) for fee collection priority
-        { $sort: { dueAmount: -1 } },
-        {
-          $facet: {
-            data: [{ $skip: skip }, { $limit: limit }],
-            totalCount: [{ $count: 'count' }],
-          },
-        },
-      ];
+          // Highest due first: the cashier's priority
+          { $sort: { dueAmount: -1, _id: 1 } },
+          { $facet: { data: [{ $skip: skip }, { $limit: limit }], total: [{ $count: 'n' }] } },
+        ])
+        .toArray();
+      const total = (facet?.total?.[0]?.n as number) ?? 0;
+      const pageRows = ((facet?.data ?? []) as Document[]).map((r) => ({
+        s: r,
+        as: (r.as ?? []) as Document[],
+        totalFee: r.totalFee as number,
+        paidAmount: r.paidAmount as number,
+        dueAmount: r.dueAmount as number,
+        status: !r.as?.length
+          ? 'unassigned'
+          : r.dueAmount === 0
+            ? 'paid'
+            : r.paidAmount > 0
+              ? 'partial'
+              : 'pending',
+      }));
 
-      const facetResult = await db.collection('students').aggregate(pipeline).toArray();
-      const students = (facetResult[0]?.data as Document[]) || [];
-      const total = (facetResult[0]?.totalCount?.[0]?.count as number) || 0;
+      // Line items, class and section names only for the rows on this page
+      const pageAssignmentIds = pageRows.flatMap((r) => r.as.map((a) => a._id));
+      const classIds = [...new Set(pageRows.map((r) => String(r.s.currentEnrollment?.classId ?? '')).filter(Boolean))];
+      const sectionIds = [...new Set(pageRows.map((r) => String(r.s.currentEnrollment?.sectionId ?? '')).filter(Boolean))];
+      const [components, classes, sections] = await Promise.all([
+        pageAssignmentIds.length
+          ? db.collection('fee_assignments').find({ _id: { $in: pageAssignmentIds } }, { projection: { components: 1 } }).toArray()
+          : [],
+        classIds.length
+          ? db.collection('classes').find({ _id: { $in: classIds.map((id) => new ObjectId(id)) } }, { projection: { name: 1 } }).toArray()
+          : [],
+        sectionIds.length
+          ? db.collection('sections').find({ _id: { $in: sectionIds.map((id) => new ObjectId(id)) } }, { projection: { name: 1 } }).toArray()
+          : [],
+      ]);
+      const comps = new Map(components.map((c) => [String(c._id), c.components]));
+      const className = new Map(classes.map((c) => [String(c._id), c.name]));
+      const sectionName = new Map(sections.map((c) => [String(c._id), c.name]));
+
+      const students = pageRows.map(({ s, as, totalFee, paidAmount, dueAmount, status }) => ({
+        _id: s._id,
+        studentId: s.admissionNumber,
+        name: s.displayName || [s.firstName, s.lastName].filter(Boolean).join(' '),
+        photo: s.photo ?? null,
+        class: className.get(String(s.currentEnrollment?.classId)) ?? s.currentEnrollment?.className,
+        section: sectionName.get(String(s.currentEnrollment?.sectionId)) ?? s.currentEnrollment?.sectionName,
+        totalFee,
+        paidAmount,
+        dueAmount,
+        // Backward compat: first assignment ID
+        assignmentId: as[0]?._id,
+        // All assignments for the multi-assignment payment dialog
+        assignments: as.map((a) => ({
+          _id: a._id,
+          type: a.type ?? 'tuition',
+          totalFee: a.summary?.totalFee,
+          paidAmount: a.summary?.totalPaid,
+          dueAmount: a.summary?.balance,
+          components: comps.get(String(a._id)),
+        })),
+        hasHostelFee: as.some((a) => a.type === 'hostel'),
+        status,
+      }));
       const totalPages = Math.max(1, Math.ceil(total / limit));
 
       success(res, students, {
