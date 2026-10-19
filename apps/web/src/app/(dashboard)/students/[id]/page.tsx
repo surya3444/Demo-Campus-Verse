@@ -1,12 +1,17 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Student360Hero,
+  Student360Overview,
+  Student360Pulse,
+} from '@/components/student360/Student360';
 import { StudentStatusDialog } from './StudentStatusDialog';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -33,11 +38,9 @@ import {
   Phone,
   Mail,
   MapPin,
-  Calendar,
   GraduationCap,
   IndianRupee,
   UserCheck,
-  Clock,
   FileText,
   Users,
   School,
@@ -171,6 +174,12 @@ export default function StudentDetailPage() {
   const params = useParams();
   const router = useRouter();
   const studentId = params.id as string;
+  // Everything about the student across modules, for the hero and Overview
+  const { data: profileData } = useQuery({
+    queryKey: ['student-360', studentId],
+    queryFn: () => studentApi.get360(studentId),
+  });
+  const profile = profileData?.data;
 
   const [student, setStudent] = useState<StudentData | null>(null);
   const [enrollments, setEnrollments] = useState<EnrollmentRecord[]>([]);
@@ -423,23 +432,6 @@ export default function StudentDetailPage() {
 
   const getFullName = (s: StudentData) => `${s.firstName} ${s.lastName}`.trim();
 
-  const getInitials = (s: StudentData) => {
-    const first = s.firstName?.[0] || '';
-    const last = s.lastName?.[0] || '';
-    return `${first}${last}`.toUpperCase();
-  };
-
-  const calculateAge = (dob: string) => {
-    const today = new Date();
-    const birthDate = new Date(dob);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
   // Loading skeleton
   if (loading) {
     return (
@@ -522,8 +514,6 @@ export default function StudentDetailPage() {
 
   const fullName = getFullName(student);
   const attendancePercentage = attendance?.percentage ?? 0;
-  const feePaid = feeSummary?.paid ?? 0;
-  const feePending = feeSummary?.pending ?? 0;
   const feeTransactions = feeSummary?.transactions ?? [];
   const monthlyAttendance = attendance?.monthly ?? [];
 
@@ -537,9 +527,8 @@ export default function StudentDetailPage() {
         onClose={() => setStatusOpen(false)}
         onChanged={fetchStudentData}
       />
-      {/* Back Button & Actions */}
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" className="gap-2" onClick={() => router.back()}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Button variant="ghost" className="-ml-2 gap-2" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4" />
           Back to Students
         </Button>
@@ -583,149 +572,19 @@ export default function StudentDetailPage() {
         </div>
       </div>
 
-      {/* Student Header */}
-      <Card className="border-0 shadow-elegant-md overflow-hidden">
-        <div className="bg-gradient-to-r from-primary to-primary/80 p-6 text-white">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <Avatar className="h-24 w-24 ring-4 ring-white/20">
-              <AvatarImage src={student.photo} />
-              <AvatarFallback className="bg-white/10 text-white text-2xl">
-                {getInitials(student)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-2xl font-bold">{fullName}</h1>
-                <Badge
-                  className={`border-0 ${
-                    student.status === 'active'
-                      ? 'bg-white/20 text-white'
-                      : student.status === 'transferred'
-                        ? 'bg-destructive/80 text-white'
-                        : 'bg-white/20 text-white'
-                  }`}
-                >
-                  {student.status}
-                </Badge>
-              </div>
-              <p className="text-white/70 font-mono">{student.admissionNumber}</p>
-              <div className="flex flex-wrap gap-4 mt-4 text-sm text-white/80">
-                {student.currentEnrollment && (
-                  <>
-                    <span className="flex items-center gap-1">
-                      <School className="h-4 w-4" />
-                      {student.currentEnrollment.className} -{' '}
-                      {student.currentEnrollment.sectionName}
-                    </span>
-                    {student.currentEnrollment.rollNumber && (
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        Roll No. {student.currentEnrollment.rollNumber}
-                      </span>
-                    )}
-                  </>
-                )}
-                {student.dateOfBirth && (
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    {calculateAge(student.dateOfBirth)} years old
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="flex flex-col gap-2 text-sm">
-              {student.contact?.phone && (
-                <span className="flex items-center gap-2 text-white/80">
-                  <Phone className="h-4 w-4" />
-                  {student.contact.phone}
-                </span>
-              )}
-              {student.contact?.email && (
-                <span className="flex items-center gap-2 text-white/80">
-                  <Mail className="h-4 w-4" />
-                  {student.contact.email}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card className="border-0 shadow-elegant-sm">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-success/10 flex items-center justify-center">
-                <UserCheck className="h-6 w-6 text-success" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Attendance</p>
-                <p className="text-2xl font-bold">
-                  {attendance ? `${attendancePercentage.toFixed(1)}%` : '--'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-elegant-sm">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <IndianRupee className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Fee Paid</p>
-                <p className="text-2xl font-bold">
-                  {feeSummary ? `₹${feePaid.toLocaleString('en-IN')}` : '--'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-elegant-sm">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-4">
-              <div
-                className={`h-12 w-12 rounded-xl flex items-center justify-center ${
-                  feePending > 0 ? 'bg-destructive/10' : 'bg-success/10'
-                }`}
-              >
-                <IndianRupee
-                  className={`h-6 w-6 ${feePending > 0 ? 'text-destructive' : 'text-success'}`}
-                />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Fee Pending</p>
-                <p className="text-2xl font-bold">
-                  {feeSummary ? `₹${feePending.toLocaleString('en-IN')}` : '--'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-elegant-sm">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-accent/10 flex items-center justify-center">
-                <Clock className="h-6 w-6 text-accent" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Since</p>
-                <p className="text-2xl font-bold">
-                  {student.admissionDate
-                    ? new Date(student.admissionDate).getFullYear()
-                    : new Date(student.createdAt).getFullYear()}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {profile ? (
+        <>
+          <Student360Hero data={profile} />
+          <Student360Pulse data={profile} />
+        </>
+      ) : (
+        <div className="h-64 animate-pulse rounded-2xl border bg-muted/40" />
+      )}
 
       {/* Tabs */}
-      <Tabs defaultValue="personal" className="space-y-4">
+      <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="bg-muted/50 p-1">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="personal">Personal Info</TabsTrigger>
           <TabsTrigger value="parents">Parents & Guardian</TabsTrigger>
           <TabsTrigger value="academic">Academic History</TabsTrigger>
@@ -733,6 +592,10 @@ export default function StudentDetailPage() {
           <TabsTrigger value="attendance">Attendance</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="overview">
+          {profile && <Student360Overview data={profile} />}
+        </TabsContent>
 
         {/* Personal Info Tab */}
         <TabsContent value="personal">

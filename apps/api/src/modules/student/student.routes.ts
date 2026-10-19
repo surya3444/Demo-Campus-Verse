@@ -17,6 +17,8 @@ import {
   saveIdCardDesignSchema,
 } from '@campus-verse/shared';
 import { imageUpload, requireS3Configured } from '../upload/upload.middleware';
+import { student360Service } from './student360.service';
+import { success } from '../../utils/response';
 
 // In-memory storage for the AI-mapped bulk upload — we hand the buffer
 // straight to ExcelJS / OpenAI, no disk or S3 involvement.
@@ -194,6 +196,15 @@ router.delete(
 );
 
 router.get('/:id', requirePermission('students.details', 'view'), studentController.findById);
+
+// Student 360: every module's view of one student in a single read
+router.get('/:id/360', requirePermission('students.details', 'view'), async (req, res, next) => {
+  try {
+    success(res, await student360Service.get(req.tenantId!, req.params.id as string, req.user!));
+  } catch (e) {
+    next(e);
+  }
+});
 
 router.put(
   '/:id',

@@ -2163,6 +2163,11 @@ export const studentApi = {
     return response.data;
   },
 
+  /** Everything about one student across every module, in one read. */
+  get360: async (id: string) => {
+    const response = await api.get(`/students/${id}/360`);
+    return response.data as { data: Student360 };
+  },
   getStudent: async (id: string) => {
     const response = await api.get(`/students/${id}`);
     return response.data;
@@ -7888,4 +7893,99 @@ export interface VpoFeed {
   cities: Array<{ name: string; count: number }>;
   topCompanies: Array<{ name: string; logo: string | null; website: string | null; count: number }>;
   sources: Array<{ name: string; count: number; ok: boolean }>;
+}
+
+export interface Student360 {
+  student: {
+    id: string;
+    name: string;
+    firstName?: string;
+    photo: string | null;
+    admissionNumber: string;
+    rollNumber: string | null;
+    enrollmentCode: string | null;
+    department: string | null;
+    program: string | null;
+    section: string | null;
+    gender: string | null;
+    dateOfBirth: string | null;
+    age: number | null;
+    bloodGroup: string | null;
+    nationality: string | null;
+    category: string | null;
+    status: string;
+    admissionDate: string | null;
+    admissionType: string | null;
+    contact: {
+      email?: string;
+      phone?: string;
+      address?: { current?: { line1?: string; city?: string; state?: string; pincode?: string } };
+    };
+    parents: Record<string, { name?: string; phone?: string; occupation?: string; email?: string } | undefined>;
+    primaryContactType: string | null;
+    hasPortal: boolean;
+  };
+  academics: {
+    cgpa: number | null;
+    earnedCredits: number | null;
+    totalCredits: number | null;
+    backlogs: number;
+    semesters: Array<{ name: string; number: number; sgpa: number; credits: number }>;
+    attendance: {
+      percent: number | null;
+      present: number;
+      held: number;
+      absent: number;
+      monthly: Array<{ month: string; percent: number }>;
+      recent: Array<{ date: string; status: string }>;
+    } | null;
+    exams: Array<{ name: string; percentage: number | null; grade: string | null; sgpa: number | null; rank: number | null; passed: boolean | null }>;
+    subjects: Array<{ subject: string; marks: number | null; max: number | null; percentage: number | null; grade: string | null; passed: boolean | null; absent: boolean }>;
+    assignments: { graded: number; average: number | null };
+  };
+  fees: {
+    total: number;
+    paid: number;
+    due: number;
+    status: string;
+    nextDueDate: string | null;
+    assignments: Array<{ id: string; type: string; name: string | null; total: number; paid: number; due: number; concession: number }>;
+    transactions: Array<{ id: string; receiptNumber: string; date: string | null; amount: number; mode: string | null; status: string }>;
+  } | null;
+  health: {
+    recordId: string | null;
+    bloodGroup: string | null;
+    heightCm: number | null;
+    weightKg: number | null;
+    bmi: number | null;
+    allergies: Array<{ name: string; severity?: string }>;
+    conditions: Array<{ name: string }>;
+    medications: Array<{ name: string }>;
+    emergencyContacts: Array<{ name: string; relation?: string; phone?: string }>;
+    visits: Array<{ id: string; date: string | null; complaint: string; diagnosis: string | null; outcome: string | null; status: string; type: string }>;
+    vaccinations: Array<{ name: string; dose: number; of: number | null; status: string; date: string | null }>;
+    checkups: Array<{ id: string; date: string | null; type: string; status: string; bmi: number | null; vision: string | null; findings: string[] }>;
+  } | null;
+  career: {
+    hasProfile: boolean;
+    status: string;
+    readiness: number | null;
+    skills: Array<{ name: string; level: string | null }>;
+    projects: Array<{ title: string; technologies: string[] }>;
+    certifications: Array<{ name: string; issuer: string }>;
+    experience: Array<{ title: string; company: string; type: string | null }>;
+    preferences: { preferredRoles?: string[]; preferredLocations?: string[] } | null;
+    placement: { company: string; website?: string | null; role: string | null; ctc: number; location: string | null; date: string | null } | null;
+    offers: Array<{ company: string; website: string | null; role: string | null; ctc: number; status: string; date: string | null }>;
+    drives: Array<{ id: string; title: string; company: string; website: string | null; role: string | null; ctc: number; status: string }>;
+    applications: Array<{ job: string; company: string; status: string; date: string | null }>;
+    mentors: Array<{ id: string; name: string; company: string | null; role: string | null; photo: string | null; status: string; sessions: number }>;
+  } | null;
+  hostel: { hostel: string | null; room: string | null; bed: string | null; since: string | null; until: string | null; warden: string | null } | null;
+  transport: { bus: string; route: string; stop: string; pickup: string | null; drop: string | null; driver: string | null; driverPhone: string | null; vehicle: string | null } | null;
+  clubs: Array<{ id: string; name: string; emoji: string | null; theme: string | null; category: string | null; role: string; since: string | null }>;
+  certificates: Array<{ id: string; type: string; number: string; purpose: string | null; status: string; date: string | null }> | null;
+  idCard: { title: string | null; subtitle: string | null; primary: string | null; accent: string | null; signatureLabel: string | null; validTill: string | null } | null;
+  timeline: Array<{ date: string; kind: string; title: string; detail?: string | null }>;
+  visible: Record<string, boolean>;
 }
