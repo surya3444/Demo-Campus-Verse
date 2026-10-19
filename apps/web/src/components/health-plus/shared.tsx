@@ -178,14 +178,13 @@ export const HP_CSS = `
 /** "Campus Verse Exclusive" seal for the page header. */
 export function ExclusiveBadge() {
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--brand-cyan))] to-[hsl(var(--primary))] p-px shadow-[0_10px_30px_-12px_hsl(var(--primary)/.6)]">
-      <div className="relative flex items-center gap-3 rounded-[15px] bg-card px-4 py-2.5">
+    <div className="rounded-full bg-gradient-to-r from-[hsl(var(--primary)/.5)] via-[hsl(var(--brand-cyan))] to-[hsl(var(--primary)/.5)] p-px shadow-[0_8px_24px_-12px_hsl(var(--brand-cyan)/.7)]">
+      <div className="relative flex items-center gap-2.5 overflow-hidden rounded-full bg-card py-1.5 pl-1.5 pr-4">
         <span className="hp-shine pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-transparent via-[hsl(var(--brand-cyan)/.18)] to-transparent" />
-        <img src="/icon_color.svg" alt="Campus Verse" className="h-9 w-9" />
-        <div className="leading-tight">
-          <p className="font-display text-sm font-bold">Campus Verse</p>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[hsl(var(--brand-cyan))]">Exclusive</p>
-        </div>
+        <img src="/icon_color.svg" alt="" className="h-7 w-7" />
+        <span className="font-display text-sm font-bold">Campus Verse</span>
+        <span className="h-4 w-px bg-border" />
+        <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[hsl(var(--brand-cyan))]">Exclusive</span>
       </div>
     </div>
   );

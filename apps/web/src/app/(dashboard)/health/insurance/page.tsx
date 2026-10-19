@@ -92,7 +92,7 @@ export default function CInsurancePage() {
   return (
     <div className="space-y-6">
       <style>{HP_CSS}</style>
-      <PageHero icon={ShieldCheck} eyebrow="Health Connect · cInsurance" title="cInsurance" description="Student accident insurance for your campus, on its way." actions={<ExclusiveBadge />} />
+      <PageHero icon={ShieldCheck} eyebrow="Health Connect · cInsurance" title="cInsurance" description="Student accident insurance for your campus, on its way." actions={<ExclusiveBadge />} className="md:[&>div]:items-center" />
 
       <section className="relative isolate overflow-hidden rounded-[28px] bg-[#070b24] text-white shadow-[0_30px_80px_-30px_rgba(7,11,36,.9)]">
         <div

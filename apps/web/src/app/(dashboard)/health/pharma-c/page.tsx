@@ -100,7 +100,7 @@ export default function PharmaCPage() {
   return (
     <div className="space-y-6">
       <style>{HP_CSS}</style>
-      <PageHero icon={Pill} eyebrow="Health Connect · Pharma-C" title="Pharma-C" description="Student pharmacy discounts, coming soon." actions={<ExclusiveBadge />} />
+      <PageHero icon={Pill} eyebrow="Health Connect · Pharma-C" title="Pharma-C" description="Student pharmacy discounts, coming soon." actions={<ExclusiveBadge />} className="md:[&>div]:items-center" />
 
       <section className="relative isolate overflow-hidden rounded-[28px] bg-[#021b17] text-white shadow-[0_30px_80px_-30px_rgba(2,27,23,.9)]">
         <div
