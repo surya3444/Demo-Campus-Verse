@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Bell } from 'lucide-react';
+import { Bell, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PageHero } from '@/components/ui/page-hero';
 import { cn } from '@/lib/utils';
 import { BenefitWallet, HP_CSS, SplitFlap, useTyping } from '@/components/health-plus/shared';
 
@@ -89,8 +90,9 @@ export default function CInsurancePage() {
   const typed = useTyping(STATUS_LINE);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <style>{HP_CSS}</style>
+      <PageHero icon={ShieldCheck} eyebrow="Health Connect · cInsurance" title="cInsurance" description="Student accident insurance for your campus, on its way." />
 
       <section className="relative isolate overflow-hidden rounded-[28px] bg-[#070b24] text-white shadow-[0_30px_80px_-30px_rgba(7,11,36,.9)]">
         <div
@@ -110,12 +112,11 @@ export default function CInsurancePage() {
 
         <div className="grid items-center gap-8 px-6 py-10 sm:px-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-indigo-200/80">Health Connect · cInsurance</p>
-            <div className="mt-5 inline-block rounded-xl bg-black/40 p-2 ring-1 ring-white/10">
+            <div className="inline-block rounded-xl bg-black/40 p-2 ring-1 ring-white/10">
               <p className="mb-1.5 px-0.5 font-mono text-[9px] uppercase tracking-[0.3em] text-white/40">Status</p>
               <SplitFlap text="AWAITING PARTNER APPROVAL" />
             </div>
-            <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.02] tracking-tight sm:text-5xl">
+            <h2 className="mt-6 font-display text-4xl font-extrabold leading-[1.02] tracking-tight sm:text-5xl">
               {['Protection', 'for', 'every'].map((w, k) => (
                 <span key={w} className="hp-rise mr-[0.25em] inline-block" style={{ animationDelay: `${150 + k * 90}ms` }}>
                   {w}
@@ -128,7 +129,7 @@ export default function CInsurancePage() {
               >
                 student, in the making.
               </span>
-            </h1>
+            </h2>
             <p className="mt-5 min-h-[4.5rem] max-w-xl text-[15px] leading-relaxed text-indigo-100/85">
               {typed}
               <span className="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 animate-pulse bg-sky-300" />

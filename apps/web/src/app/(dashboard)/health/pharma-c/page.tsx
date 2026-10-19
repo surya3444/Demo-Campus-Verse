@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Bell, QrCode, ScanLine, Store } from 'lucide-react';
+import { Bell, QrCode, ScanLine, Store, Pill } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PageHero } from '@/components/ui/page-hero';
 import { useAuthStore } from '@/store/authStore';
 import { BenefitWallet, HP_CSS, LiveDot, useTyping } from '@/components/health-plus/shared';
 
@@ -97,8 +98,9 @@ export default function PharmaCPage() {
   const typed = useTyping(INTRO, 24);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <style>{HP_CSS}</style>
+      <PageHero icon={Pill} eyebrow="Health Connect · Pharma-C" title="Pharma-C" description="Student pharmacy discounts, coming soon." />
 
       <section className="relative isolate overflow-hidden rounded-[28px] bg-[#021b17] text-white shadow-[0_30px_80px_-30px_rgba(2,27,23,.9)]">
         <div
@@ -120,12 +122,11 @@ export default function PharmaCPage() {
 
         <div className="grid items-center gap-10 px-6 py-10 sm:px-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-200/80">Health Connect · Pharma-C</p>
-            <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-200 ring-1 ring-emerald-300/30">
+            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-200 ring-1 ring-emerald-300/30">
               <LiveDot className="bg-emerald-300" />
               Coming Soon
             </span>
-            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.02] tracking-tight sm:text-5xl">
+            <h2 className="mt-5 font-display text-4xl font-extrabold leading-[1.02] tracking-tight sm:text-5xl">
               <span className="hp-rise inline-block" style={{ animationDelay: '120ms' }}>
                 Less on the bill.
               </span>
@@ -136,7 +137,7 @@ export default function PharmaCPage() {
               >
                 More for the semester.
               </span>
-            </h1>
+            </h2>
             <p className="mt-5 min-h-[3.5rem] max-w-lg text-[15px] leading-relaxed text-emerald-50/80">
               {typed}
               <span className="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 animate-pulse bg-emerald-300" />
