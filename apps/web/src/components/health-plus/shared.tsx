@@ -162,6 +162,20 @@ export const HP_CSS = `
 @keyframes hpTravel{0%{left:0%}45%,55%{left:50%}100%{left:100%}}
 @keyframes hpStamp{0%{opacity:0;transform:scale(1.8) rotate(-14deg)}70%{opacity:1;transform:scale(.95) rotate(-14deg)}100%{opacity:1;transform:scale(1) rotate(-14deg)}}
 @keyframes hpDrift{0%,100%{transform:translate(0,0) rotate(var(--r,0deg))}50%{transform:translate(10px,-14px) rotate(calc(var(--r,0deg) + 20deg))}}
+@keyframes hpRain{from{transform:translate(0,-20px)}to{transform:translate(-14px,320px)}}
+@keyframes hpTwinkle{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes hpSweep{0%{transform:rotate(-175deg)}50%{transform:rotate(-5deg)}100%{transform:rotate(-175deg)}}
+@keyframes hpRipple{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.12);opacity:0}}
+@keyframes hpSplash{0%{transform:scale(.2);opacity:0}20%{opacity:.9}100%{transform:scale(1.6);opacity:0}}
+@keyframes hpBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes hpWave{0%,100%{transform:skewY(0)}50%{transform:skewY(8deg)}}
+.hp-rain{animation:hpRain 1s linear infinite}
+.hp-twinkle{animation:hpTwinkle 3s ease-in-out infinite}
+.hp-sweep{animation:hpSweep 7s ease-in-out infinite}
+.hp-ripple{animation:hpRipple 3.2s ease-out infinite}
+.hp-splash{animation:hpSplash 1.6s ease-out infinite}
+.hp-bob{animation:hpBob .9s ease-in-out infinite}
+.hp-wave{animation:hpWave 1.6s ease-in-out infinite}
 .hp-float{animation:hpFloat 6s ease-in-out infinite}
 .hp-spin{animation:hpSpin 40s linear infinite}
 .hp-rise{animation:hpRise .7s cubic-bezier(.2,.7,.2,1) both}
@@ -172,7 +186,7 @@ export const HP_CSS = `
 .hp-travel{animation:hpTravel 6s ease-in-out infinite}
 .hp-stamp{animation:hpStamp .6s cubic-bezier(.2,.9,.3,1.2) .8s both}
 .hp-drift{animation:hpDrift 8s ease-in-out infinite}
-@media (prefers-reduced-motion:reduce){.hp-float,.hp-spin,.hp-rise,.hp-shine,.hp-charge,.hp-glow,.hp-print,.hp-travel,.hp-stamp,.hp-drift{animation:none}}
+@media (prefers-reduced-motion:reduce){.hp-rain,.hp-twinkle,.hp-sweep,.hp-ripple,.hp-splash,.hp-bob,.hp-wave,.hp-float,.hp-spin,.hp-rise,.hp-shine,.hp-charge,.hp-glow,.hp-print,.hp-travel,.hp-stamp,.hp-drift{animation:none}}
 `;
 
 /** "Campus Verse Exclusive" seal for the page header. */

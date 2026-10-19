@@ -6,6 +6,7 @@ import { Bell, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHero } from '@/components/ui/page-hero';
 import { cn } from '@/lib/utils';
+import { CampusDome } from '@/components/health-plus/CampusDome';
 import { BenefitWallet, ExclusiveBadge, HP_CSS, SplitFlap, useTyping } from '@/components/health-plus/shared';
 
 // The client's wording — keep verbatim
@@ -19,72 +20,6 @@ const NOTES = [
 
 const STAGES = ['Partner discussion', 'Regulatory, contractual & partner approvals', 'Policy issuance', 'Formal launch'];
 const CURRENT = 0;
-// Each stage is one layer of the shield, innermost first
-const SCALES = [0.42, 0.62, 0.81, 1];
-const SHIELD = 'M120 10 L220 46 V124 C220 190 176 236 120 252 C64 236 20 190 20 124 V46 Z';
-const at = (s: number) => `translate(120 130) scale(${s}) translate(-120 -130)`;
-
-function ForgedShield() {
-  return (
-    <svg viewBox="0 0 240 262" className="h-full w-full overflow-visible">
-      <defs>
-        <linearGradient id="ciCore" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#c7d2fe" />
-          <stop offset=".5" stopColor="#6366f1" />
-          <stop offset="1" stopColor="#0ea5e9" />
-        </linearGradient>
-        <radialGradient id="ciHalo">
-          <stop offset="0" stopColor="#818cf8" stopOpacity=".7" />
-          <stop offset="1" stopColor="#818cf8" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle cx="120" cy="130" r="70" fill="url(#ciHalo)" className="hp-glow" />
-      {SCALES.map((s, i) => {
-        const done = i < CURRENT;
-        const now = i === CURRENT;
-        const y = 130 - 84 * s;
-        return (
-          <g key={i}>
-            {now ? (
-              <>
-                <path d={SHIELD} transform={at(s)} fill="url(#ciCore)" />
-                <path
-                  d={SHIELD}
-                  transform={at(s)}
-                  pathLength={200}
-                  fill="none"
-                  stroke="#fff"
-                  strokeWidth={2.5}
-                  vectorEffect="non-scaling-stroke"
-                  strokeLinecap="round"
-                  className="hp-charge"
-                />
-              </>
-            ) : (
-              <path
-                d={SHIELD}
-                transform={at(s)}
-                fill={done ? 'rgba(129,140,248,.18)' : 'none'}
-                stroke={done ? '#a5b4fc' : 'rgba(255,255,255,.28)'}
-                strokeWidth={1.5}
-                strokeDasharray={done ? undefined : '3 6'}
-                vectorEffect="non-scaling-stroke"
-              />
-            )}
-            <circle cx={120 + 100 * s} cy={y} r={now ? 4 : 2.5} fill={now ? '#fcd34d' : 'rgba(255,255,255,.5)'} />
-          </g>
-        );
-      })}
-      {/* cap + pulse in the core */}
-      <g fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M100 122 L120 112 L140 122 L120 132 Z" fill="#fff" stroke="none" />
-        <path d="M108 127 V137 C108 142 132 142 132 137 V127" strokeWidth="4" />
-        <path d="M96 152 H108 L113 144 L120 160 L126 148 L130 152 H144" strokeWidth="3" />
-      </g>
-    </svg>
-  );
-}
-
 export default function CInsurancePage() {
   const [notified, setNotified] = useState(false);
   const typed = useTyping(STATUS_LINE);
@@ -100,13 +35,6 @@ export default function CInsurancePage() {
           style={{
             background:
               'radial-gradient(60% 80% at 80% 35%, rgba(99,102,241,.45), transparent 65%), radial-gradient(50% 70% at 0% 100%, rgba(14,165,233,.3), transparent 70%)',
-          }}
-        />
-        <span
-          className="hp-spin absolute -right-20 -top-24 -z-10 h-[620px] w-[620px] rounded-full opacity-50"
-          style={{
-            background: 'repeating-conic-gradient(from 0deg, rgba(165,180,252,.18) 0deg 2deg, transparent 2deg 12deg)',
-            maskImage: 'radial-gradient(circle, #000 25%, transparent 68%)',
           }}
         />
 
@@ -152,8 +80,8 @@ export default function CInsurancePage() {
           </div>
 
           <div className="relative">
-            <div className="hp-float mx-auto h-[290px] w-full max-w-[370px]">
-              <ForgedShield />
+            <div className="mx-auto aspect-[4/3] w-full max-w-[460px]">
+              <CampusDome progress={(CURRENT + 1) / STAGES.length} />
             </div>
             <ol className="mt-4 grid grid-cols-2 gap-2">
               {STAGES.map((s, i) => (
