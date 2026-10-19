@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHero } from '@/components/ui/page-hero';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,7 @@ import {
   RefreshCw,
   Eye,
   ArrowLeft,
+  Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { hrApi } from '@/lib/api';
@@ -262,10 +263,7 @@ export default function StaffBulkUploadPage() {
         <Button variant="ghost" size="icon" onClick={() => router.push('/hr/staff')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <PageHeader
-          title="Bulk Upload Staff"
-          description="Upload multiple staff members at once using a CSV file"
-        />
+        <PageHero icon={Users} eyebrow="HR · Staff" title="Bulk Upload Staff" description="Upload multiple staff members at once using a CSV file" />
       </div>
 
       {/* Progress Steps */}

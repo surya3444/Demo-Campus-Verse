@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHero } from '@/components/ui/page-hero';
 import { DataTable, Column, DataTableAction } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
 import { StatCard } from '@/components/ui/stat-card';
@@ -16,6 +16,7 @@ import {
   Loader2,
   AlertCircle,
   Users,
+  CalendarCheck,
 } from 'lucide-react';
 import {
   Dialog,
@@ -319,7 +320,7 @@ export default function HRApprovalsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Leave Approvals" description="Review and manage pending leave requests" />
+      <PageHero icon={CalendarCheck} eyebrow="HR · Leave" title="Leave Approvals" description="Review and manage pending leave requests" />
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4 stagger-animation">

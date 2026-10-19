@@ -167,7 +167,7 @@ class Student360Service {
     // Second round: names for things referenced by id
     const [clubs, certTypes, hostel, bus, mentors] = await Promise.all([
       clubMembers.length
-        ? db.collection('clubs').find({ _id: { $in: clubMembers.map((m) => new ObjectId(String(m.clubId))) } }, { projection: { name: 1, emoji: 1, theme: 1, category: 1, tagline: 1 } }).toArray()
+        ? db.collection('clubs').find({ _id: { $in: clubMembers.map((m) => new ObjectId(String(m.clubId))) } }, { projection: { name: 1, emoji: 1, icon: 1, theme: 1, category: 1, tagline: 1 } }).toArray()
         : none,
       certificates.length
         ? db.collection('certificate_types').find({ _id: { $in: certificates.map((c) => new ObjectId(String(c.certificateTypeId))) } }, { projection: { name: 1 } }).toArray()
@@ -441,6 +441,7 @@ class Student360Service {
         id: String(m.clubId),
         name: c?.name ?? 'Club',
         emoji: c?.emoji ?? null,
+        icon: c?.icon ?? null,
         theme: c?.theme ?? null,
         category: c?.category ?? null,
         role: m.role ?? 'member',

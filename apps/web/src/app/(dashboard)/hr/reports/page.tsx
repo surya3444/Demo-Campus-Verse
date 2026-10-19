@@ -231,10 +231,11 @@ export default function HRReportsPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight flex items-center gap-3">
-          <FileText className="h-8 w-8 text-primary" />
-          HR Reports
-        </h1>
+        <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <FileText className="h-3.5 w-3.5 text-[hsl(var(--brand-cyan))]" />
+            HR · Reports
+          </p>
+          <h1 className="mt-1.5 font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">Reports</h1>
         <p className="text-muted-foreground mt-1">
           Generate and download various HR reports for staff management
         </p>

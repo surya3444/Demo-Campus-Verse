@@ -44,6 +44,7 @@ import {
   IdCard,
   CalendarDays,
   Zap,
+  Settings,
 } from 'lucide-react';
 import { hrApi } from '@/lib/api';
 import { toast } from 'sonner';
@@ -299,7 +300,11 @@ export default function HRSettingsPage() {
     <div className="space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">HR Settings</h1>
+        <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <Settings className="h-3.5 w-3.5 text-[hsl(var(--brand-cyan))]" />
+            HR · Settings
+          </p>
+          <h1 className="mt-1.5 font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">Settings</h1>
         <p className="text-muted-foreground mt-1">
           Configure HR module settings including leave types, attendance rules, and more
         </p>

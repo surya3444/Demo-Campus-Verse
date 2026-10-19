@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHero } from '@/components/ui/page-hero';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Loader2, IndianRupee, Calendar, Download } from 'lucide-react';
+import { FileText, Loader2, IndianRupee, Calendar, Download, Wallet } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -113,7 +113,7 @@ export default function MyPayslipsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="My Payslips" description="View your monthly salary payslips" />
+      <PageHero icon={Wallet} eyebrow="HR · Payroll" title="My Payslips" description="View your monthly salary payslips" />
 
       <div className="flex items-center gap-3">
         <Select value={selectedYear} onValueChange={setSelectedYear}>

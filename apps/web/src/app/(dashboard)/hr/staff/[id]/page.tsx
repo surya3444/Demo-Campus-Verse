@@ -54,6 +54,7 @@ import {
   Check,
   User,
   CreditCard,
+  Users,
 } from 'lucide-react';
 import { hrApi } from '@/lib/api';
 import { toast } from 'sonner';
@@ -374,7 +375,11 @@ export default function StaffDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Staff Profile</h1>
+            <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <Users className="h-3.5 w-3.5 text-[hsl(var(--brand-cyan))]" />
+            HR · Staff
+          </p>
+          <h1 className="mt-1.5 font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">Staff Profile</h1>
             <p className="text-muted-foreground">View and manage staff details</p>
           </div>
         </div>

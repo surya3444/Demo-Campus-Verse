@@ -221,7 +221,7 @@ export function PayRunCenter({ canCreate, canFinalize, canPay }: { canCreate: bo
           {stage === 2 && (canPay || canFinalize) && (
             <Button onClick={() => setPayOpen(true)} className="bg-gradient-to-r from-primary to-[hsl(218_75%_34%)] shadow-soft">
               <Landmark className="mr-2 h-4 w-4" />
-              Pay {inr(run!.totalNet)} with CampusPay
+              {paidCount > 0 ? `Pay the remaining ${run!.staffCount - paidCount} staff` : `Pay ${inr(run!.totalNet)} with CampusPay`}
             </Button>
           )}
         </div>

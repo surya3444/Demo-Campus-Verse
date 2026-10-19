@@ -600,7 +600,11 @@ export default function StaffPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Staff</h1>
+          <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <Users className="h-3.5 w-3.5 text-[hsl(var(--brand-cyan))]" />
+            HR · Staff
+          </p>
+          <h1 className="mt-1.5 font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">Staff</h1>
           <p className="text-muted-foreground mt-1">Manage teaching and non-teaching staff</p>
         </div>
         <div className="flex items-center gap-3">

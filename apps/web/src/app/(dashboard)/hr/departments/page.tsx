@@ -1,11 +1,12 @@
 'use client';
+import { PageHero } from '@/components/ui/page-hero';
 
 import { useState, useEffect, useCallback } from 'react';
-import { PageHeader, AddButton } from '@/components/ui/page-header';
+import { AddButton } from '@/components/ui/page-header';
 import { DataTable, Column, DataTableAction } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
 import { StatCard } from '@/components/ui/stat-card';
-import { Building, Briefcase, Users, Eye, Pencil, Trash2, UserCog, Loader2, AlertCircle } from 'lucide-react';
+import { Building, Briefcase, Users, Eye, Pencil, Trash2, UserCog, Loader2, AlertCircle, Building2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -488,10 +489,7 @@ export default function DepartmentsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Departments & Designations"
-        description="Manage organizational structure"
-      />
+      <PageHero icon={Building2} eyebrow="HR · Organisation" title="Departments & Designations" description="Manage organizational structure" />
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4 stagger-animation">

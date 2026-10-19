@@ -141,7 +141,7 @@ function MyLeavePage() {
   if (noStaffProfile) {
     return (
       <div className="space-y-8">
-        <PageHero icon={CalendarOff} eyebrow="HR" title="My leave" />
+        <PageHero icon={CalendarOff} eyebrow="HR · Leave" title="My leave" />
         <div className="rounded-2xl border border-dashed p-10 text-center text-sm text-muted-foreground">
           Your account isn&apos;t linked to a staff profile, so there&apos;s no leave to show.
           {canApprove && (
@@ -161,7 +161,7 @@ function MyLeavePage() {
     <div className="space-y-8 pb-12">
       <PageHero
         icon={CalendarOff}
-        eyebrow="HR"
+        eyebrow="HR · Leave"
         title="My leave"
         description="What you have left, your requests, and their status."
         actions={

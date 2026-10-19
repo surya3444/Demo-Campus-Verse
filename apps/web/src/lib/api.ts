@@ -8007,7 +8007,7 @@ export interface Student360 {
   } | null;
   hostel: { hostel: string | null; room: string | null; bed: string | null; since: string | null; until: string | null; warden: string | null } | null;
   transport: { bus: string; route: string; stop: string; pickup: string | null; drop: string | null; driver: string | null; driverPhone: string | null; vehicle: string | null } | null;
-  clubs: Array<{ id: string; name: string; emoji: string | null; theme: string | null; category: string | null; role: string; since: string | null }>;
+  clubs: Array<{ id: string; name: string; emoji: string | null; icon?: string | null; theme: string | null; category: string | null; role: string; since: string | null }>;
   certificates: Array<{ id: string; type: string; number: string; purpose: string | null; status: string; date: string | null }> | null;
   idCard: { title: string | null; subtitle: string | null; primary: string | null; accent: string | null; signatureLabel: string | null; validTill: string | null } | null;
   timeline: Array<{ date: string; kind: string; title: string; detail?: string | null }>;

@@ -154,25 +154,22 @@ export default function MyAttendancePage() {
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/95 to-navy-800 p-8 text-white">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-accent rounded-full blur-3xl" />
-        </div>
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div className="relative animate-fade-in">
+        <div className="relative flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <CalendarDays className="h-5 w-5 text-accent" />
-              <span className="text-white/70 text-sm font-medium">
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <CalendarDays className="h-3.5 w-3.5 text-[hsl(var(--brand-cyan))]" />
+              <span>HR · My attendance · 
                 {months.find((m) => m.value === selectedMonth)?.label} {selectedYear}
               </span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-semibold">My Attendance</h1>
-            <p className="text-white/70">View your attendance history and statistics</p>
+            <h1 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">My Attendance</h1>
+            <p className="max-w-2xl text-muted-foreground">View your attendance history and statistics</p>
           </div>
           <Link href="/hr/attendance">
             <Button
               variant="outline"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 gap-2"
+              className="gap-2"
             >
               <ChevronLeft className="h-4 w-4" />
               Back

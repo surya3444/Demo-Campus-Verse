@@ -303,6 +303,7 @@ export default function PromotionsPage() {
   return (
     <div className="space-y-6">
       <PageHero
+        eyebrow="HR · Promotions"
         title="Promotions"
         description="Designation changes with history, validated against the designation ladder — salary updates follow your configurable policies"
         icon={TrendingUp}

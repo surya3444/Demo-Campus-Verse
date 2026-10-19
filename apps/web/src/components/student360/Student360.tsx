@@ -24,6 +24,8 @@ import {
   Users,
 } from 'lucide-react';
 import type { Student360 } from '@/lib/api';
+import { ClubCrest } from '@/components/clubs/clubVisuals';
+import { StudentIdCard } from './StudentIdCard';
 import { cn } from '@/lib/utils';
 import {
   Avatar,
@@ -56,60 +58,63 @@ export function Student360Hero({ data, actions }: { data: Student360; actions?: 
     ...(data.transport ? [{ icon: Bus, label: `${data.transport.bus} · ${data.transport.stop}` }] : []),
     ...(s.hasPortal ? [{ icon: KeyRound, label: 'Portal active' }] : []),
   ];
+  const yearLabel = s.program?.split(' · ').find((x) => /year|semester/i.test(x));
   return (
     <section className="relative overflow-hidden rounded-2xl border bg-card shadow-xs">
-      <div
-        className="relative h-36 overflow-hidden sm:h-40"
-        style={{ background: 'linear-gradient(120deg, hsl(var(--primary)) 0%, hsl(218 72% 32%) 55%, hsl(200 80% 45%) 120%)' }}
-      >
-        <span
-          className="absolute inset-0 opacity-[0.14]"
-          style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,.9) 1px, transparent 0)',
-            backgroundSize: '18px 18px',
-            maskImage: 'linear-gradient(100deg, transparent 20%, #000 80%)',
-          }}
-        />
-        <span className="pointer-events-none absolute -right-10 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-        <p className="pointer-events-none absolute bottom-3 right-6 hidden select-none font-display text-5xl font-bold tracking-tight text-white/10 md:block">
-          {s.department}
-        </p>
-      </div>
-      <div className="relative px-6 pb-6">
-        <div className="-mt-14 flex flex-col gap-5 lg:flex-row lg:items-start">
-          <Avatar person={{ name: s.name, photo: s.photo }} size={116} className="shrink-0 shadow-lg ring-4 ring-card" />
-          {/* Sits below the banner, level with the bottom half of the photo */}
-          <div className="min-w-0 flex-1 lg:pt-[64px]">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="font-display text-3xl font-bold leading-tight tracking-tight">{s.name}</h1>
-              <StatusPill status={s.status} />
-            </div>
-            <p className="mt-1 text-muted-foreground">
-              {[s.program, s.section && `Section ${s.section}`, s.rollNumber && `Roll ${s.rollNumber}`].filter(Boolean).join(' · ')}
-            </p>
+      {/* Soft light, no banner: same quiet language as the rest of the app */}
+      <span className="pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full bg-primary/[0.07] blur-3xl" />
+      <span className="pointer-events-none absolute -left-20 bottom-0 h-56 w-56 rounded-full bg-[hsl(var(--brand-cyan))]/[0.08] blur-3xl" />
+      <span
+        className="pointer-events-none absolute inset-y-0 right-0 w-1/2 opacity-[0.35]"
+        style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--primary) / 0.18) 1px, transparent 0)',
+          backgroundSize: '20px 20px',
+          maskImage: 'linear-gradient(to left, #000, transparent)',
+        }}
+      />
+      <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-center">
+        <div className="relative shrink-0 self-start">
+          <Avatar person={{ name: s.name, photo: s.photo }} size={112} className="shadow-soft ring-4 ring-primary/10" />
+          {s.status === 'active' && (
+            <span className="absolute bottom-2 right-2 h-4 w-4 rounded-full bg-success ring-4 ring-card" title="Active" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <GraduationCap className="h-3.5 w-3.5 text-[hsl(var(--brand-cyan))]" />
+            {[s.department, yearLabel].filter(Boolean).join(' · ') || 'Student'}
+          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-3">
+            <h1 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">{s.name}</h1>
+            <StatusPill status={s.status} />
           </div>
-          {actions && <div className="flex flex-wrap gap-2 lg:pt-[64px]">{actions}</div>}
+          <p className="mt-1 text-muted-foreground">
+            {[s.program?.split(' · ').filter((x) => x !== yearLabel).join(' · '), s.section && `Section ${s.section}`, s.rollNumber && `Roll ${s.rollNumber}`]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {chips.map((c) => (
+              <span key={c.label} className="inline-flex items-center gap-1.5 rounded-full border bg-card/80 px-3 py-1 text-xs font-medium backdrop-blur">
+                <c.icon className={cn('h-3.5 w-3.5 text-muted-foreground', c.tone)} />
+                {c.label}
+              </span>
+            ))}
+            {s.contact?.phone && (
+              <a href={`tel:${s.contact.phone}`} className="inline-flex items-center gap-1.5 rounded-full border bg-card/80 px-3 py-1 text-xs font-medium hover:bg-muted/50">
+                <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                {s.contact.phone}
+              </a>
+            )}
+            {s.contact?.email && (
+              <a href={`mailto:${s.contact.email}`} className="inline-flex items-center gap-1.5 rounded-full border bg-card/80 px-3 py-1 text-xs font-medium hover:bg-muted/50">
+                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                {s.contact.email}
+              </a>
+            )}
+          </div>
         </div>
-        <div className="mt-5 flex flex-wrap gap-2">
-          {chips.map((c) => (
-            <span key={c.label} className="inline-flex items-center gap-1.5 rounded-full border bg-muted/40 px-3 py-1 text-xs font-medium">
-              <c.icon className={cn('h-3.5 w-3.5 text-muted-foreground', c.tone)} />
-              {c.label}
-            </span>
-          ))}
-          {s.contact?.phone && (
-            <a href={`tel:${s.contact.phone}`} className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium hover:bg-muted/50">
-              <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-              {s.contact.phone}
-            </a>
-          )}
-          {s.contact?.email && (
-            <a href={`mailto:${s.contact.email}`} className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium hover:bg-muted/50">
-              <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-              {s.contact.email}
-            </a>
-          )}
-        </div>
+        {actions && <div className="flex flex-wrap gap-2 sm:self-start">{actions}</div>}
       </div>
     </section>
   );
@@ -209,7 +214,11 @@ export function Student360Pulse({ data }: { data: Student360 }) {
         <p className="text-sm font-semibold">
           {data.clubs.length ? `${data.clubs.length} club${data.clubs.length > 1 ? 's' : ''}` : 'No clubs yet'}
         </p>
-        <p className="mt-1 flex gap-1 text-lg leading-none">{data.clubs.slice(0, 5).map((cl) => <span key={cl.id}>{cl.emoji ?? '•'}</span>)}</p>
+        <p className="mt-1.5 flex -space-x-1">
+          {data.clubs.slice(0, 5).map((cl) => (
+            <ClubCrest key={cl.id} icon={cl.icon ?? undefined} category={cl.category ?? undefined} theme={cl.theme ?? undefined} size={22} />
+          ))}
+        </p>
         <p className="mt-1 text-xs text-muted-foreground">{data.hostel ? `Hostel · room ${data.hostel.room}` : data.transport ? `Bus ${data.transport.bus}` : 'Day scholar'}</p>
       </Tile>
     </div>
@@ -228,7 +237,7 @@ export function Student360Overview({ data }: { data: Student360 }) {
         {data.health && <Health data={data} />}
       </div>
       <div className="space-y-6">
-        <IdCard data={data} />
+        <StudentIdCard data={data} />
         {data.fees && <Fees data={data} />}
         <CampusLife data={data} />
         <Family data={data} />
@@ -602,60 +611,6 @@ function Fees({ data }: { data: Student360 }) {
   );
 }
 
-function IdCard({ data }: { data: Student360 }) {
-  const s = data.student;
-  const card = data.idCard;
-  const primary = card?.primary ?? 'hsl(var(--primary))';
-  const accent = card?.accent ?? '#f2b705';
-  // A deterministic pattern standing in for the QR on screen
-  const cells = Array.from({ length: 81 }, (_, i) => (s.admissionNumber.charCodeAt(i % s.admissionNumber.length) * (i + 7)) % 3 === 0);
-  return (
-    <div className="group [perspective:1200px]">
-      <div className="relative overflow-hidden rounded-2xl text-white shadow-soft transition duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(-8deg)_rotateX(4deg)]" style={{ background: `linear-gradient(140deg, ${primary}, ${primary} 55%, #0b1b3f)` }}>
-        <span className="absolute inset-x-0 top-0 h-1.5" style={{ background: accent }} />
-        <span className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
-        <div className="relative p-5">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-sm font-bold tracking-tight">{card?.title ?? 'Student ID'}</p>
-              <p className="text-[10px] text-white/70">{card?.subtitle}</p>
-            </div>
-            <span className="rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black" style={{ background: accent }}>
-              Student
-            </span>
-          </div>
-          <div className="mt-4 flex gap-4">
-            <Avatar person={{ name: s.name, photo: s.photo }} size={72} className="rounded-xl ring-2 ring-white/40" />
-            <div className="min-w-0 text-xs leading-relaxed">
-              <p className="truncate text-base font-semibold">{s.name}</p>
-              <p className="truncate text-white/80">{s.program}</p>
-              <p className="text-white/80">
-                {s.section ? `Sec ${s.section}` : ''} {s.rollNumber ? `· Roll ${s.rollNumber}` : ''}
-              </p>
-              <p className="font-mono text-white/90">{s.admissionNumber}</p>
-            </div>
-          </div>
-          <div className="mt-4 flex items-end justify-between">
-            <div className="text-[10px] text-white/70">
-              {s.bloodGroup && <p>Blood group <span className="font-semibold text-white">{s.bloodGroup}</span></p>}
-              {card?.validTill && <p>Valid till {fmtDate(card.validTill, { month: 'short', year: 'numeric' })}</p>}
-              <p className="mt-2 border-t border-white/30 pt-1 italic">{card?.signatureLabel ?? 'Principal'}</p>
-            </div>
-            <div className="grid grid-cols-9 gap-[1.5px] rounded-md bg-white p-1.5">
-              {cells.map((on, i) => (
-                <span key={i} className={cn('h-[5px] w-[5px]', on ? 'bg-black' : 'bg-white')} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-      <Link href="/students/id-cards" className="mt-2 block text-center text-xs text-muted-foreground hover:text-foreground">
-        Print or redesign ID cards →
-      </Link>
-    </div>
-  );
-}
-
 function CampusLife({ data }: { data: Student360 }) {
   const { hostel, transport, clubs } = data;
   if (!hostel && !transport && !clubs.length) return null;
@@ -703,8 +658,8 @@ function CampusLife({ data }: { data: Student360 }) {
         {clubs.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {clubs.map((c) => (
-              <Link key={c.id} href={`/clubs/${c.id}`} className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition hover:border-primary/40">
-                <span className="text-sm">{c.emoji ?? '•'}</span>
+              <Link key={c.id} href={`/clubs/${c.id}`} className="inline-flex items-center gap-2 rounded-full border py-1 pl-1.5 pr-3 text-xs font-medium transition hover:border-primary/40">
+                <ClubCrest icon={c.icon ?? undefined} category={c.category ?? undefined} theme={c.theme ?? undefined} size={20} />
                 {c.name}
                 {c.role !== 'member' && <span className="capitalize text-primary">· {c.role}</span>}
               </Link>

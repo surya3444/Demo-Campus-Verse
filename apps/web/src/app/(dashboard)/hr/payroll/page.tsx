@@ -10,7 +10,7 @@ import {
   StructureTemplates,
   type Component,
 } from './components/StructureTools';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHero } from '@/components/ui/page-hero';
 // Using plain tables instead of DataTable for custom header actions
 import { Badge } from '@/components/ui/badge';
 import {
@@ -24,6 +24,7 @@ import {
   FileText,
   Banknote,
   X,
+  Wallet,
 } from 'lucide-react';
 import {
   Dialog,
@@ -334,10 +335,7 @@ export default function PayrollPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Payroll"
-        description="Run each month in six clear steps, see exactly how every rupee is calculated, and pay salaries in one go."
-      />
+      <PageHero icon={Wallet} eyebrow="HR · Payroll" title="Payroll" description="Run each month in six clear steps, see exactly how every rupee is calculated, and pay salaries in one go." />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-6">

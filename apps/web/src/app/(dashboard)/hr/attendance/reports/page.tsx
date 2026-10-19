@@ -213,24 +213,21 @@ export default function StaffAttendanceReportsPage() {
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/95 to-navy-800 p-8 text-white">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-accent rounded-full blur-3xl" />
-        </div>
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div className="relative animate-fade-in">
+        <div className="relative flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-accent" />
-              <span className="text-white/70 text-sm font-medium">Staff Attendance</span>
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <FileText className="h-3.5 w-3.5 text-[hsl(var(--brand-cyan))]" />
+              <span>HR · Attendance · Staff Attendance</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-semibold">Attendance Reports</h1>
-            <p className="text-white/70">View daily and monthly staff attendance reports</p>
+            <h1 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">Attendance Reports</h1>
+            <p className="max-w-2xl text-muted-foreground">View daily and monthly staff attendance reports</p>
           </div>
           <div className="flex gap-2">
             <Link href="/hr/attendance">
               <Button
                 variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 gap-2"
+                className="gap-2"
               >
                 <ChevronLeft className="h-4 w-4" />
                 Mark Attendance
@@ -238,7 +235,7 @@ export default function StaffAttendanceReportsPage() {
             </Link>
             <Button
               variant="outline"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 gap-2"
+              className="gap-2"
             >
               <Download className="h-4 w-4" />
               Export
