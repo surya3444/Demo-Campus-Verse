@@ -268,11 +268,11 @@ class FeeStructureService {
       components: data.components,
       installments,
       finalDueDate: data.finalDueDate ? new Date(data.finalDueDate) : undefined,
-      fineRules: data.fineRules || {
-        type: 'fixed',
-        amount: 0,
-        gracePeriodDays: 0,
-      },
+      // No rule → null, so the campus-wide late-fee setting applies (a stored
+      // zero rule used to silently override it)
+      fineRules: data.fineRules ?? null,
+      description: (data as { description?: string }).description,
+      paymentPlan: (data as { paymentPlan?: unknown }).paymentPlan,
       concessionRules: data.concessionRules || {
         requireApproval: true,
         maxPercentage: 100,
@@ -480,6 +480,11 @@ class FeeStructureService {
     if (data.concessionRules !== undefined) {
       updateData.concessionRules = data.concessionRules;
     }
+
+    const extra = data as { category?: string; description?: string; paymentPlan?: unknown };
+    if (extra.category !== undefined) updateData.category = extra.category;
+    if (extra.description !== undefined) updateData.description = extra.description;
+    if (extra.paymentPlan !== undefined) updateData.paymentPlan = extra.paymentPlan;
 
     if (data.finalDueDate !== undefined) {
       updateData.finalDueDate = data.finalDueDate

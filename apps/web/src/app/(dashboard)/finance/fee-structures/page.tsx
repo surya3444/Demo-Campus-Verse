@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -40,6 +41,17 @@ import { DEFAULT_ADMISSION_CATEGORIES } from '@campus-verse/shared/constants';
 import { toast } from 'sonner';
 import { financeApi, academicApi } from '@/lib/api';
 import { usePermissions } from '@/hooks/usePermissions';
+import {
+  buildInstallments,
+  DEFAULT_FINE,
+  defaultPlan,
+  describeFine,
+  LateFeeEditor,
+  PaymentPlanPicker,
+  PLAN_PRESETS,
+  type FineRule,
+  type PaymentPlan,
+} from './feeTools';
 
 // ============ Types ============
 
@@ -70,8 +82,22 @@ interface FeeStructure {
   mandatoryTotal: number;
   components: FeeComponent[];
   category?: string;
+  description?: string;
+  paymentPlan?: PaymentPlan;
+  fineRules?: (FineRule & { enabled?: boolean }) | null;
+  installments?: Array<{ name: string; dueDate: string }>;
   isActive: boolean;
 }
+
+const CATEGORIES = [
+  { value: 'tuition', label: 'Tuition & academics' },
+  { value: 'hostel', label: 'Hostel' },
+  { value: 'transport', label: 'Transport' },
+  { value: 'other', label: 'Other' },
+] as const;
+const categoryOf = (s: FeeStructure) =>
+  (s.category as string) ||
+  (/transport/i.test(s.name) ? 'transport' : /hostel|mess/i.test(s.name) ? 'hostel' : 'tuition');
 
 // ============ Confirm Dialog ============
 
@@ -145,8 +171,8 @@ export default function FeeStructuresPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Fee Structures"
-        description="Create fee structure skeletons, then assign them to classes and sections with amounts"
+        title="Fee structures"
+        description="Design what students pay — components, payment plan and late fee — then assign each structure to classes with their amounts."
       />
 
       <Tabs defaultValue={initialTab} className="space-y-4">
@@ -190,14 +216,36 @@ function StructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEdit: bo
   // Form state — skeleton only: no amounts, no class/section
   const [formName, setFormName] = useState('');
   const [formComponents, setFormComponents] = useState<
-    Array<{ code: string; name: string; type: string; taxable: boolean; refundable: boolean }>
+    Array<{
+      code: string;
+      name: string;
+      type: string;
+      taxable: boolean;
+      refundable: boolean;
+      frequency?: string;
+      taxRate?: number;
+    }>
   >([]);
+  const [formCategory, setFormCategory] = useState<string>('tuition');
+  const [formDescription, setFormDescription] = useState('');
+  const [formPlan, setFormPlan] = useState<PaymentPlan>(defaultPlan());
+  const [formFine, setFormFine] = useState<FineRule>(DEFAULT_FINE);
+  const [filter, setFilter] = useState<string>('all');
+  const [query, setQuery] = useState('');
+  const [showTransport, setShowTransport] = useState(false);
 
   const fetchStructures = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await financeApi.getFeeStructures({ limit: 100 });
-      const all: FeeStructure[] = res.data?.data || res.data || [];
+      // Every page: campuses easily have hundreds (one per programme, per stop)
+      const all: FeeStructure[] = [];
+      for (let page = 1; page <= 20; page++) {
+        const res = await financeApi.getFeeStructures({ limit: 100, page });
+        const rows: FeeStructure[] = res.data?.data || res.data || [];
+        all.push(...rows);
+        const meta = (res.meta ?? res.data?.meta) as { totalPages?: number } | undefined;
+        if (rows.length < 100 || (meta?.totalPages && page >= meta.totalPages)) break;
+      }
       // Skeletons = records without a parent. Assignments (clones) live in the Assignments tab.
       const skeletons = all.filter((s) => !s.parentStructureId);
       setStructures(skeletons);
@@ -214,7 +262,20 @@ function StructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEdit: bo
 
   const resetForm = () => {
     setFormName('');
-    setFormComponents([]);
+    setFormComponents([
+      {
+        code: 'TUITION',
+        name: 'Tuition fee',
+        type: 'mandatory',
+        taxable: false,
+        refundable: false,
+        frequency: 'yearly',
+      },
+    ]);
+    setFormCategory('tuition');
+    setFormDescription('');
+    setFormPlan(defaultPlan());
+    setFormFine(DEFAULT_FINE);
   };
 
   const handleAdd = () => {
@@ -233,7 +294,21 @@ function StructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEdit: bo
         type: c.type,
         taxable: c.taxable || false,
         refundable: c.refundable || false,
+        frequency: c.frequency || 'yearly',
+        taxRate: c.taxRate || 0,
       }))
+    );
+    setFormCategory(categoryOf(structure));
+    setFormDescription(structure.description || '');
+    setFormPlan(structure.paymentPlan ?? defaultPlan());
+    setFormFine(
+      structure.fineRules
+        ? {
+            ...DEFAULT_FINE,
+            ...structure.fineRules,
+            enabled: structure.fineRules.enabled !== false,
+          }
+        : DEFAULT_FINE
     );
     setDialogMode('edit');
     setSelectedStructure(structure);
@@ -266,43 +341,54 @@ function StructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEdit: bo
         .replace(/[^A-Z0-9]+/g, '-')
         .replace(/^-|-$/g, '');
 
-      // Build components with amount=0 (skeleton — amounts set during assignment)
+      // New structures start at ₹0 (amounts are set per class in Assignments);
+      // an edit keeps each component's existing amount — it used to reset them.
+      const existingAmount = (code: string) =>
+        dialogMode === 'edit' ? selectedStructure?.components.find((x) => x.code === code)?.amount ?? 0 : 0;
       const components = formComponents
         .filter((c) => c.code && c.name)
         .map((c) => ({
           code: c.code,
           name: c.name,
-          amount: 0,
+          amount: existingAmount(c.code),
           type: c.type as 'mandatory' | 'optional' | 'service-based',
-          frequency: 'yearly' as const,
+          frequency: (c.frequency || 'yearly') as 'yearly' | 'term-wise' | 'monthly',
           taxable: c.taxable,
-          taxRate: 0,
+          taxRate: c.taxable ? c.taxRate || 18 : 0,
           taxAmount: 0,
-          totalAmount: 0,
+          totalAmount: existingAmount(c.code),
           isOptional: c.type === 'optional',
           isMandatory: c.type === 'mandatory',
           refundable: c.refundable,
         }));
 
+      if (formPlan.splits.reduce((n, x) => n + x, 0) !== 100) {
+        toast.error('The payment plan must add up to 100%');
+        return;
+      }
+      // The plan, late fee and category travel with the structure and are
+      // copied to every class it is assigned to.
+      const extras = {
+        category: formCategory as 'tuition' | 'hostel' | 'transport' | 'other',
+        description: formDescription.trim() || undefined,
+        paymentPlan: formPlan,
+        fineRules: formFine.enabled ? formFine : null,
+        installments: buildInstallments(components, formPlan),
+      };
       if (dialogMode === 'add') {
         await financeApi.createFeeStructure({
           name: formName.trim(),
           code: autoCode,
           applicableTo: {},
           components,
-          installments: [
-            {
-              name: 'Full Payment',
-              dueDate: new Date(new Date().getFullYear(), 3, 30).toISOString(),
-              components: components.map((c) => ({ componentCode: c.code, amount: 0 })),
-            },
-          ],
+          ...extras,
         });
         toast.success('Fee structure created');
       } else {
         await financeApi.updateFeeStructure(selectedStructure!._id, {
           name: formName.trim(),
           components,
+          ...extras,
         });
         toast.success('Fee structure updated');
       }
@@ -347,7 +433,15 @@ function StructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEdit: bo
   const addComponent = () => {
     setFormComponents([
       ...formComponents,
-      { code: '', name: '', type: 'mandatory', taxable: false, refundable: false },
+      {
+        code: '',
+        name: '',
+        type: 'mandatory',
+        taxable: false,
+        refundable: false,
+        frequency: 'yearly',
+        taxRate: 0,
+      },
     ]);
   };
 
@@ -358,12 +452,43 @@ function StructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEdit: bo
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Fee Structures</h3>
+        <div>
+          <h3 className="text-lg font-semibold">Structures</h3>
+          <p className="text-sm text-muted-foreground">
+            Reusable designs. Amounts are set per class in Assignments.
+          </p>
+        </div>
         {canCreate && (
           <Button onClick={handleAdd} size="sm">
             <Plus className="h-4 w-4 mr-1" /> Create Structure
           </Button>
         )}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="inline-flex rounded-lg bg-muted/60 p-0.5 text-sm">
+          {[{ value: 'all', label: 'All' }, ...CATEGORIES].map((c) => {
+            const n =
+              c.value === 'all'
+                ? structures.length
+                : structures.filter((s) => categoryOf(s) === c.value).length;
+            return (
+              <button
+                key={c.value}
+                onClick={() => setFilter(c.value)}
+                className={`rounded-md px-3 py-1.5 font-medium transition ${filter === c.value ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                {c.label.split(' ')[0]} <span className="tabular-nums opacity-60">{n}</span>
+              </button>
+            );
+          })}
+        </div>
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search structures"
+          className="h-9 max-w-xs"
+        />
       </div>
 
       {loading ? (
@@ -372,73 +497,193 @@ function StructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEdit: bo
         </div>
       ) : structures.length === 0 ? (
         <p className="text-muted-foreground text-center py-8">
-          No fee structures created yet. Create a skeleton to get started.
+          No fee structures yet. Create one to get started.
         </p>
       ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-left p-3 font-medium">Name</th>
-                <th className="text-left p-3 font-medium">Components</th>
-                <th className="text-left p-3 font-medium">Status</th>
-                <th className="text-left p-3 font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {structures.map((s) => (
-                <tr key={s._id} className="border-t hover:bg-muted/20">
-                  <td className="p-3 font-medium">{s.name}</td>
-                  <td className="p-3">{s.components.length} components</td>
-                  <td className="p-3">
-                    <Badge variant={s.isActive ? 'default' : 'secondary'}>
-                      {s.isActive ? 'active' : 'inactive'}
-                    </Badge>
-                  </td>
-                  <td className="p-3">
-                    <div className="flex gap-1">
+        (() => {
+          const shown = structures.filter(
+            (s) =>
+              (filter === 'all' || categoryOf(s) === filter) &&
+              (!query || s.name.toLowerCase().includes(query.toLowerCase()))
+          );
+          // Per-stop transport fees are many and alike: fold them into one group
+          const transport = shown.filter(
+            (s) => categoryOf(s) === 'transport' && /stop/i.test(s.name)
+          );
+          const main = shown.filter((s) => !transport.includes(s));
+          const planLabel = (s: FeeStructure) =>
+            s.paymentPlan
+              ? s.paymentPlan.type === 'custom'
+                ? `${s.paymentPlan.splits.length} instalments`
+                : PLAN_PRESETS[s.paymentPlan.type].label
+              : `${s.installments?.length || 1} instalment${(s.installments?.length || 1) > 1 ? 's' : ''}`;
+          return (
+            <div className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {main.map((s) => (
+                  <div
+                    key={s._id}
+                    className="group flex flex-col rounded-2xl border bg-card p-5 shadow-xs transition hover:-translate-y-0.5 hover:shadow-soft"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+                          {CATEGORIES.find((c) => c.value === categoryOf(s))?.label}
+                        </p>
+                        <p className="mt-0.5 font-semibold leading-snug">{s.name}</p>
+                      </div>
+                      <Badge variant={s.isActive ? 'default' : 'secondary'}>
+                        {s.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </div>
+                    {s.description && (
+                      <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                        {s.description}
+                      </p>
+                    )}
+                    {s.totalAmount > 0 && (
+                      <p className="mt-3 text-2xl font-bold tabular-nums">
+                        {formatCurrency(s.totalAmount)}
+                        <span className="ml-1 text-xs font-normal text-muted-foreground">
+                          / year{s.applicableTo?.gradeCodes?.length ? ` · ${s.applicableTo.gradeCodes.length} class${s.applicableTo.gradeCodes.length > 1 ? 'es' : ''}` : ''}
+                        </span>
+                      </p>
+                    )}
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {s.components.map((c) => (
+                        <span
+                          key={c.code}
+                          className={`rounded-full border px-2.5 py-0.5 text-xs ${c.type === 'mandatory' ? '' : 'border-dashed text-muted-foreground'}`}
+                        >
+                          {c.name}
+                          {c.type !== 'mandatory' && (
+                            <span className="ml-1 opacity-70">
+                              · {c.type === 'optional' ? 'optional' : 'service'}
+                            </span>
+                          )}
+                          {c.taxable && <span className="ml-1 opacity-70">· GST</span>}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+                      <div className="rounded-lg bg-muted/40 px-2.5 py-2">
+                        <p className="text-muted-foreground">Payment plan</p>
+                        <p className="font-medium">{planLabel(s)}</p>
+                      </div>
+                      <div className="rounded-lg bg-muted/40 px-2.5 py-2">
+                        <p className="text-muted-foreground">Late fee</p>
+                        <p className="truncate font-medium" title={describeFine(s.fineRules)}>
+                          {s.fineRules && s.fineRules.enabled !== false
+                            ? describeFine(s.fineRules).split(' after')[0]
+                            : 'None'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-auto flex justify-end gap-1 border-t pt-3 opacity-70 transition [margin-top:1rem] group-hover:opacity-100">
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7"
                         onClick={() => handleView(s)}
+                        aria-label="View"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
                       {canEdit && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7"
-                          onClick={() => handleEdit(s)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {canEdit && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-destructive"
-                          onClick={() => handleDelete(s)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => handleEdit(s)}
+                            aria-label="Edit"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive"
+                            onClick={() => handleDelete(s)}
+                            aria-label="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
                       )}
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                ))}
+              </div>
+              {transport.length > 0 && (
+                <div className="rounded-2xl border bg-card shadow-xs">
+                  <button
+                    onClick={() => setShowTransport(!showTransport)}
+                    className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left"
+                  >
+                    <span>
+                      <span className="font-semibold">Transport — per stop</span>
+                      <span className="block text-sm text-muted-foreground">
+                        {transport.length} stop fees, created from Transport routes
+                      </span>
+                    </span>
+                    <span className="text-sm font-medium text-primary">
+                      {showTransport ? 'Hide' : 'Show all'}
+                    </span>
+                  </button>
+                  {showTransport && (
+                    <ul className="divide-y border-t text-sm">
+                      {transport.map((s) => (
+                        <li
+                          key={s._id}
+                          className="flex items-center justify-between gap-3 px-5 py-2.5"
+                        >
+                          <span className="truncate">
+                            {s.name.replace(/^Transport Fee\s*-\s*/i, '')}
+                          </span>
+                          <span className="flex shrink-0 items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleView(s)}
+                              aria-label="View"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            {canEdit && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => handleEdit(s)}
+                                aria-label="Edit"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+              {!shown.length && (
+                <p className="py-8 text-center text-sm text-muted-foreground">
+                  No structures match.
+                </p>
+              )}
+            </div>
+          );
+        })()
       )}
 
       <ConfirmDialog state={confirmDialog.state} onClose={confirmDialog.close} />
 
       {/* Create / Edit / View Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {dialogMode === 'view' ? 'View' : dialogMode === 'add' ? 'Create' : 'Edit'} Fee
@@ -493,6 +738,33 @@ function StructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEdit: bo
                 </div>
               </div>
 
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg border p-3 text-sm">
+                  <p className="text-xs text-muted-foreground">Payment plan</p>
+                  <p className="font-medium">
+                    {selectedStructure.paymentPlan
+                      ? selectedStructure.paymentPlan.type === 'custom'
+                        ? `${selectedStructure.paymentPlan.splits.join('% / ')}%`
+                        : PLAN_PRESETS[selectedStructure.paymentPlan.type].label
+                      : 'One payment'}
+                  </p>
+                  {(selectedStructure.installments ?? []).slice(0, 4).map((i) => (
+                    <p key={i.name + i.dueDate} className="text-xs text-muted-foreground">
+                      {i.name} · due{' '}
+                      {new Date(i.dueDate).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </p>
+                  ))}
+                </div>
+                <div className="rounded-lg border p-3 text-sm">
+                  <p className="text-xs text-muted-foreground">Late fee</p>
+                  <p className="font-medium">{describeFine(selectedStructure.fineRules)}</p>
+                </div>
+              </div>
+
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Status:</span>
                 <Badge variant={selectedStructure.isActive ? 'default' : 'secondary'}>
@@ -502,13 +774,38 @@ function StructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEdit: bo
             </div>
           ) : (
             <div className="space-y-6 py-4">
-              {/* Name */}
+              {/* Name, category, description */}
+              <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_220px]">
+                <div className="space-y-2">
+                  <Label>Name *</Label>
+                  <Input
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    placeholder="e.g., B.Tech annual fee"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Select value={formCategory} onValueChange={setFormCategory}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <div className="space-y-2">
-                <Label>Name *</Label>
+                <Label>Description</Label>
                 <Input
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  placeholder="e.g., Annual School Fee"
+                  value={formDescription}
+                  onChange={(e) => setFormDescription(e.target.value)}
+                  placeholder="Shown to parents on the fee summary (optional)"
                 />
               </div>
 
@@ -552,6 +849,50 @@ function StructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEdit: bo
                           <SelectItem value="service-based">Service</SelectItem>
                         </SelectContent>
                       </Select>
+                      <Select
+                        value={component.frequency || 'yearly'}
+                        onValueChange={(v) => updateComponent(idx, 'frequency', v)}
+                      >
+                        <SelectTrigger className="w-28">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="yearly">Yearly</SelectItem>
+                          <SelectItem value="term-wise">Per term</SelectItem>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <label
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground"
+                        title="Charge GST on this component"
+                      >
+                        <Switch
+                          checked={component.taxable}
+                          onCheckedChange={(v) => updateComponent(idx, 'taxable', v)}
+                        />
+                        GST
+                      </label>
+                      {component.taxable && (
+                        <Input
+                          className="w-16"
+                          type="number"
+                          value={component.taxRate || 18}
+                          onChange={(e) =>
+                            updateComponent(idx, 'taxRate', Number(e.target.value) || 0)
+                          }
+                          title="GST %"
+                        />
+                      )}
+                      <label
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground"
+                        title="Refunded if the student leaves (e.g. caution deposit)"
+                      >
+                        <Switch
+                          checked={component.refundable}
+                          onCheckedChange={(v) => updateComponent(idx, 'refundable', v)}
+                        />
+                        Refundable
+                      </label>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -564,6 +905,19 @@ function StructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEdit: bo
                   ))}
                 </div>
               </div>
+
+              {/* Payment plan */}
+              <div>
+                <h4 className="mb-1 text-sm font-semibold">Payment plan</h4>
+                <p className="mb-3 text-xs text-muted-foreground">
+                  How the year’s total is split into instalments. Each class assigned this structure
+                  gets the same schedule.
+                </p>
+                <PaymentPlanPicker plan={formPlan} onChange={setFormPlan} />
+              </div>
+
+              {/* Late fee */}
+              <LateFeeEditor fine={formFine} onChange={setFormFine} />
 
               <DialogFooter>
                 <Button variant="outline" onClick={() => setDialogOpen(false)}>
@@ -618,6 +972,7 @@ function AssignmentsTab({
   const [formGradeCodes, setFormGradeCodes] = useState<string[]>([]);
   const [formSectionIds, setFormSectionIds] = useState<string[]>([]);
   const [formAdmissionCategories, setFormAdmissionCategories] = useState<string[]>([]);
+  const [assignPlan, setAssignPlan] = useState<PaymentPlan>(defaultPlan());
   const [componentAmounts, setComponentAmounts] = useState<
     Array<{ code: string; name: string; amount: number; type: string }>
   >([]);
@@ -716,6 +1071,7 @@ function AssignmentsTab({
     setFormStructureId(structureId);
     const structure = allStructures.find((s) => s._id === structureId);
     if (structure) {
+      setAssignPlan(structure.paymentPlan ?? defaultPlan());
       setComponentAmounts(
         structure.components.map((c) => ({
           code: c.code,
@@ -746,6 +1102,7 @@ function AssignmentsTab({
     setFormGradeCodes(structure.applicableTo?.gradeCodes || []);
     setFormSectionIds(structure.applicableTo?.sectionIds || []);
     setFormAdmissionCategories(structure.applicableTo?.admissionCategories || []);
+    setAssignPlan(structure.paymentPlan ?? defaultPlan());
     setComponentAmounts(
       structure.components.map((c) => ({
         code: c.code,
@@ -816,13 +1173,12 @@ function AssignmentsTab({
         };
       });
 
-      const installments = [
-        {
-          name: 'Full Payment',
-          dueDate: new Date(new Date().getFullYear(), 3, 30).toISOString(),
-          components: updatedComponents.map((c) => ({ componentCode: c.code, amount: c.amount })),
-        },
-      ];
+      if (assignPlan.splits.reduce((n, x) => n + x, 0) !== 100) {
+        toast.error('The payment plan must add up to 100%');
+        return;
+      }
+      // Instalments from the payment plan (was always one payment due 30 April)
+      const installments = buildInstallments(updatedComponents, assignPlan);
 
       if (dialogMode === 'assign') {
         // Clone skeleton into a new assignment so the same skeleton can be reused for other targets.
@@ -857,6 +1213,10 @@ function AssignmentsTab({
             refundable: c.refundable,
           })),
           installments,
+          category: skeleton.category as 'tuition' | 'hostel' | 'transport' | 'other' | undefined,
+          paymentPlan: assignPlan,
+          // Late fee travels with the assignment — fines are calculated from it
+          fineRules: skeleton.fineRules ?? null,
         });
         toast.success('Fee structure assigned');
       } else {
@@ -869,6 +1229,7 @@ function AssignmentsTab({
           },
           components: updatedComponents,
           installments,
+          paymentPlan: assignPlan,
         });
         toast.success('Assignment updated');
       }
@@ -1224,6 +1585,20 @@ function AssignmentsTab({
                       {formatCurrency(totalAmount)}
                     </span>
                   </div>
+                </div>
+              )}
+
+              {componentAmounts.length > 0 && (
+                <div>
+                  <h4 className="mb-1 text-sm font-semibold">Payment plan</h4>
+                  <p className="mb-3 text-xs text-muted-foreground">
+                    From the structure — adjust it for this class if needed.
+                  </p>
+                  <PaymentPlanPicker
+                    plan={assignPlan}
+                    onChange={setAssignPlan}
+                    total={totalAmount}
+                  />
                 </div>
               )}
 

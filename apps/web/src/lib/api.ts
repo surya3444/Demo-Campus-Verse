@@ -3892,12 +3892,16 @@ export const financeApi = {
       amount: number;
       gracePeriodDays: number;
       maxFine?: number;
-    };
+    } | null;
     concessionRules?: {
       requireApproval: boolean;
       maxPercentage: number;
       allowedTypes: string[];
     };
+    category?: 'tuition' | 'hostel' | 'transport' | 'other';
+    description?: string;
+    /** How the total is split into instalments (see fee-structures/feeTools). */
+    paymentPlan?: { type: string; firstDueDate: string; splits: number[]; intervalMonths: number };
   }) => {
     const response = await api.post('/finance/structures', data);
     return response.data;
