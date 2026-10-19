@@ -4543,22 +4543,24 @@ export const healthApi = {
   createVisit: async (data: {
     personType: 'student' | 'staff';
     personId: string;
-    healthRecordId: string;
+    /** Optional — the API opens a record on the person's first visit. */
+    healthRecordId?: string;
     visitType: 'routine' | 'illness' | 'injury' | 'emergency' | 'follow-up' | 'other';
     chiefComplaint: string;
     symptoms?: string[];
+    painLevel?: number;
     vitals?: {
-      temperature?: number;
-      bloodPressure?: { systolic: number; diastolic: number };
-      pulse?: number;
-      spo2?: number;
+      temperatureCelsius?: number;
+      bloodPressureSystolic?: number;
+      bloodPressureDiastolic?: number;
+      pulseRate?: number;
+      oxygenSaturation?: number;
     };
     isIncident?: boolean;
-    incidentDetails?: {
-      location?: string;
-      description?: string;
-      witnesses?: string[];
-    };
+    incidentLocation?: string;
+    incidentDescription?: string;
+    incidentWitnesses?: string[];
+    notes?: string;
   }) => {
     const response = await api.post('/health/visits', data);
     return response.data;

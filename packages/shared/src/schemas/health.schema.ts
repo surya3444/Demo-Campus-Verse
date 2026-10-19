@@ -324,12 +324,13 @@ export const vaccinationQuerySchema = paginationSchema.extend({
 // ============ Medical Visit Schemas ============
 
 export const createMedicalVisitSchema = z.object({
-  healthRecordId: objectIdSchema,
+  // Optional: the API finds the person's record, or opens one, when absent
+  healthRecordId: objectIdSchema.optional(),
   personType: personTypeSchema,
   personId: objectIdSchema,
   visitType: visitTypeSchema,
-  visitDate: z.coerce.date(),
-  arrivalTime: z.coerce.date(),
+  visitDate: z.coerce.date().optional(),
+  arrivalTime: z.coerce.date().optional(),
   chiefComplaint: z.string().min(1, 'Chief complaint is required'),
   symptoms: z.array(z.string()).optional(),
   symptomOnset: z.coerce.date().optional(),
@@ -339,7 +340,8 @@ export const createMedicalVisitSchema = z.object({
   incidentLocation: z.string().optional(),
   incidentDescription: z.string().optional(),
   incidentWitnesses: z.array(z.string()).optional(),
-  attendedBy: objectIdSchema,
+  // Defaults to the signed-in staff member
+  attendedBy: objectIdSchema.optional(),
   notes: z.string().optional(),
 });
 
@@ -360,7 +362,20 @@ export const updateMedicalVisitSchema = z.object({
 export const closeMedicalVisitSchema = z.object({
   outcome: visitOutcomeSchema,
   outcomeNotes: z.string().optional(),
-  departureTime: z.coerce.date(),
+  // Defaults to the moment the visit is closed
+  departureTime: z.coerce.date().optional(),
+  medicationsGiven: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        dosage: z.string().min(1),
+        quantity: z.number().int().min(1).optional(),
+        route: z.enum(['oral', 'topical', 'injection', 'inhalation', 'other']).default('oral'),
+        time: z.coerce.date().optional(),
+      })
+    )
+    .optional(),
+  parentNotified: z.boolean().optional(),
   diagnosis: z.string().optional(),
   treatment: z.string().optional(),
   followUpRequired: z.boolean().optional(),

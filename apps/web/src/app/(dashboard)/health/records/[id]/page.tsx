@@ -130,7 +130,13 @@ export default function HealthRecordDetailPage() {
   if (!record) return <Empty icon={FileHeart} title="Health record not found" />;
 
   const p = record.person;
-  const qs = `personId=${record.personId}&personType=${record.personType}&healthRecordId=${id}`;
+  const qs = new URLSearchParams({
+    personId: record.personId,
+    personType: record.personType,
+    healthRecordId: id,
+    name: record.person?.name ?? record.personName,
+    ...(record.person?.photo ? { photo: record.person.photo } : {}),
+  }).toString();
   const lastCheck = list<Checkup>(checkups.data).find((c) => c.status === 'completed');
   const bmi = record.bmi ?? lastCheck?.vitals?.bmi;
   const years = age(record.dateOfBirth);

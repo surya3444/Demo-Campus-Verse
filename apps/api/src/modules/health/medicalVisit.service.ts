@@ -4,6 +4,7 @@ import { logger } from '../../lib/logger';
 import { ApiError } from '../../middleware/errorHandler';
 import { CreateMedicalVisitInput, UpdateMedicalVisitInput, CloseMedicalVisitInput, MedicalVisitQueryInput } from '@campus-verse/shared/schemas';
 import { withPeople } from '../../utils/people';
+import { healthRecordService } from './healthRecord.service';
 
 interface MedicalVisitDocument extends Document {
   _id: ObjectId;
@@ -61,9 +62,15 @@ class MedicalVisitService {
     const tenantObjId = new ObjectId(tenantId);
     const branchObjId = new ObjectId(branchId);
 
-    // Verify health record exists
+    // Use the given record, else the person's record — opening one on their
+    // first visit, so the sick room never has to stop and create it first.
+    const recordId =
+      data.healthRecordId ??
+      String(
+        (await healthRecordService.syncFromPerson(tenantId, branchId, data.personType, data.personId, createdBy))._id
+      );
     const healthRecord = await collections.healthRecords.findOne({
-      _id: new ObjectId(data.healthRecordId),
+      _id: new ObjectId(recordId),
       tenantId: tenantObjId,
     });
 
@@ -71,11 +78,22 @@ class MedicalVisitService {
       throw new ApiError('HEALTH_RECORD_NOT_FOUND', 'Health record not found', 404);
     }
 
-    // Get attended by staff name
-    const attendedByStaff = await collections.staff.findOne({
-      _id: new ObjectId(data.attendedBy),
-      tenantId: tenantObjId,
-    });
+    // Attended by: the given staff member, else whoever is logging the visit
+    const attendedByStaff = await collections.staff.findOne(
+      data.attendedBy
+        ? { _id: new ObjectId(data.attendedBy), tenantId: tenantObjId }
+        : { userId: new ObjectId(createdBy), tenantId: tenantObjId }
+    );
+    const loggedBy = attendedByStaff
+      ? null
+      : await collections.users.findOne({ _id: new ObjectId(createdBy) }, { projection: { profile: 1, email: 1 } });
+    const attendedById = attendedByStaff?._id ?? new ObjectId(data.attendedBy ?? createdBy);
+    const attendedByName = attendedByStaff
+      ? (attendedByStaff.displayName as string) || `${attendedByStaff.firstName} ${attendedByStaff.lastName}`
+      : (loggedBy?.profile?.displayName as string) ||
+        [loggedBy?.profile?.firstName, loggedBy?.profile?.lastName].filter(Boolean).join(' ') ||
+        'Health staff';
+    const arrival = data.arrivalTime ? new Date(data.arrivalTime) : new Date();
 
     const visitId = new ObjectId();
     const now = new Date();
@@ -84,13 +102,13 @@ class MedicalVisitService {
       _id: visitId,
       tenantId: tenantObjId,
       branchId: branchObjId,
-      healthRecordId: new ObjectId(data.healthRecordId),
+      healthRecordId: new ObjectId(recordId),
       personType: data.personType,
       personId: new ObjectId(data.personId),
       personName: healthRecord.personName as string,
       visitType: data.visitType,
-      visitDate: new Date(data.visitDate),
-      arrivalTime: new Date(data.arrivalTime),
+      visitDate: data.visitDate ? new Date(data.visitDate) : arrival,
+      arrivalTime: arrival,
       chiefComplaint: data.chiefComplaint,
       symptoms: data.symptoms,
       symptomOnset: data.symptomOnset ? new Date(data.symptomOnset) : undefined,
@@ -100,8 +118,8 @@ class MedicalVisitService {
       incidentLocation: data.incidentLocation,
       incidentDescription: data.incidentDescription,
       incidentWitnesses: data.incidentWitnesses,
-      attendedBy: new ObjectId(data.attendedBy),
-      attendedByName: attendedByStaff?.displayName as string || `${attendedByStaff?.firstName} ${attendedByStaff?.lastName}`,
+      attendedBy: attendedById,
+      attendedByName,
       status: 'in_progress',
       notes: data.notes,
       createdBy: new ObjectId(createdBy),
@@ -254,7 +272,7 @@ class MedicalVisitService {
     const updateData: Record<string, unknown> = {
       outcome: data.outcome,
       outcomeNotes: data.outcomeNotes,
-      departureTime: new Date(data.departureTime),
+      departureTime: data.departureTime ? new Date(data.departureTime) : now,
       status: data.followUpRequired ? 'follow_up_required' : 'completed',
       closedAt: now,
       closedBy: new ObjectId(closedBy),
@@ -267,6 +285,13 @@ class MedicalVisitService {
     if (data.followUpDate) updateData.followUpDate = new Date(data.followUpDate);
     if (data.followUpInstructions !== undefined) updateData.followUpInstructions = data.followUpInstructions;
     if (data.notes !== undefined) updateData.notes = data.notes;
+    if (data.medicationsGiven?.length)
+      updateData.medicationsGiven = data.medicationsGiven.map((m) => ({ ...m, time: m.time ? new Date(m.time) : now }));
+    if (data.parentNotified && !existing.parentNotified) {
+      updateData.parentNotified = true;
+      updateData.parentNotifiedAt = now;
+      updateData.parentNotifiedBy = new ObjectId(closedBy);
+    }
 
     await collections.medicalVisits.updateOne(
       { _id: new ObjectId(visitId) },
