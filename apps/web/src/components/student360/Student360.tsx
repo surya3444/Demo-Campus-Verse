@@ -48,73 +48,97 @@ const GOOD = 'hsl(var(--success))';
 
 export function Student360Hero({ data, actions }: { data: Student360; actions?: ReactNode }) {
   const s = data.student;
+  const yearLabel = s.program?.split(' · ').find((x) => /year|semester/i.test(x));
+  const programme = s.program?.split(' · ').filter((x) => x !== yearLabel).join(' · ');
+  // Four facts, merged where they belong together — contact lives on its own quiet line
   const chips: Array<{ icon: typeof Mail; label: string; tone?: string }> = [
     { icon: FileBadge, label: s.admissionNumber },
-    ...(s.age ? [{ icon: CalendarCheck, label: `${s.age} years${s.gender ? ` · ${s.gender}` : ''}` }] : []),
-    ...(s.bloodGroup ? [{ icon: HeartPulse, label: `Blood ${s.bloodGroup}`, tone: 'text-rose-600' }] : []),
+    ...(s.age ? [{ icon: CalendarCheck, label: `${s.age} yrs${s.gender ? ` · ${s.gender}` : ''}` }] : []),
+    ...(s.bloodGroup ? [{ icon: HeartPulse, label: `Blood ${s.bloodGroup}`, tone: 'text-rose-500' }] : []),
     data.hostel
-      ? { icon: BedDouble, label: `${data.hostel.hostel} · ${data.hostel.room}` }
-      : { icon: MapPin, label: 'Day scholar' },
-    ...(data.transport ? [{ icon: Bus, label: `${data.transport.bus} · ${data.transport.stop}` }] : []),
-    ...(s.hasPortal ? [{ icon: KeyRound, label: 'Portal active' }] : []),
+      ? { icon: BedDouble, label: `${data.hostel.hostel} · Room ${data.hostel.room}` }
+      : data.transport
+        ? { icon: Bus, label: `Day scholar · Bus ${data.transport.bus}` }
+        : { icon: MapPin, label: 'Day scholar' },
   ];
-  const yearLabel = s.program?.split(' · ').find((x) => /year|semester/i.test(x));
   return (
     <section className="relative overflow-hidden rounded-2xl border bg-card shadow-xs">
-      {/* Soft light, no banner: same quiet language as the rest of the app */}
-      <span className="pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full bg-primary/[0.07] blur-3xl" />
-      <span className="pointer-events-none absolute -left-20 bottom-0 h-56 w-56 rounded-full bg-[hsl(var(--brand-cyan))]/[0.08] blur-3xl" />
-      <span
-        className="pointer-events-none absolute inset-y-0 right-0 w-1/2 opacity-[0.35]"
-        style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--primary) / 0.18) 1px, transparent 0)',
-          backgroundSize: '20px 20px',
-          maskImage: 'linear-gradient(to left, #000, transparent)',
-        }}
-      />
-      <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-center">
-        <div className="relative shrink-0 self-start">
-          <Avatar person={{ name: s.name, photo: s.photo }} size={112} className="shadow-soft ring-4 ring-primary/10" />
-          {s.status === 'active' && (
-            <span className="absolute bottom-2 right-2 h-4 w-4 rounded-full bg-success ring-4 ring-card" title="Active" />
+      {/* Banner: brand blue, with the department set in clear white */}
+      <div
+        className="relative h-[120px] overflow-hidden"
+        style={{ background: 'linear-gradient(115deg, hsl(var(--primary)) 0%, hsl(218 70% 30%) 50%, hsl(206 75% 42%) 100%)' }}
+      >
+        <span
+          className="absolute inset-0 opacity-[0.16]"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,.95) 1px, transparent 0)',
+            backgroundSize: '18px 18px',
+            maskImage: 'linear-gradient(100deg, transparent 15%, #000 85%)',
+          }}
+        />
+        <span className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-[hsl(var(--brand-cyan))]/25 blur-3xl" />
+        <span className="pointer-events-none absolute -bottom-24 left-1/3 h-48 w-96 rounded-full bg-white/10 blur-3xl" />
+        <div className="relative flex h-full items-start justify-between gap-4 px-6 pt-5 sm:pl-[172px]">
+          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white">
+            <GraduationCap className="h-4 w-4 text-[hsl(var(--brand-cyan))]" />
+            <span className="drop-shadow-sm">{s.department || 'Student'}</span>
+            {yearLabel && (
+              <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] tracking-[0.14em] text-white/90 ring-1 ring-white/20">
+                {yearLabel}
+              </span>
+            )}
+          </p>
+          {s.hasPortal && (
+            <span className="hidden items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/85 ring-1 ring-white/15 backdrop-blur sm:inline-flex">
+              <KeyRound className="h-3 w-3" /> Portal active
+            </span>
           )}
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            <GraduationCap className="h-3.5 w-3.5 text-[hsl(var(--brand-cyan))]" />
-            {[s.department, yearLabel].filter(Boolean).join(' · ') || 'Student'}
-          </p>
-          <div className="mt-1.5 flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">{s.name}</h1>
-            <StatusPill status={s.status} />
-          </div>
-          <p className="mt-1 text-muted-foreground">
-            {[s.program?.split(' · ').filter((x) => x !== yearLabel).join(' · '), s.section && `Section ${s.section}`, s.rollNumber && `Roll ${s.rollNumber}`]
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {chips.map((c) => (
-              <span key={c.label} className="inline-flex items-center gap-1.5 rounded-full border bg-card/80 px-3 py-1 text-xs font-medium backdrop-blur">
-                <c.icon className={cn('h-3.5 w-3.5 text-muted-foreground', c.tone)} />
-                {c.label}
-              </span>
-            ))}
-            {s.contact?.phone && (
-              <a href={`tel:${s.contact.phone}`} className="inline-flex items-center gap-1.5 rounded-full border bg-card/80 px-3 py-1 text-xs font-medium hover:bg-muted/50">
-                <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                {s.contact.phone}
-              </a>
-            )}
-            {s.contact?.email && (
-              <a href={`mailto:${s.contact.email}`} className="inline-flex items-center gap-1.5 rounded-full border bg-card/80 px-3 py-1 text-xs font-medium hover:bg-muted/50">
-                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                {s.contact.email}
-              </a>
+      </div>
+
+      <div className="relative px-6 pb-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+          <div className="relative -mt-16 shrink-0 self-start">
+            <Avatar person={{ name: s.name, photo: s.photo }} size={124} className="shadow-soft ring-[5px] ring-card" />
+            {s.status === 'active' && (
+              <span className="absolute bottom-2.5 right-2.5 h-4 w-4 rounded-full bg-success ring-4 ring-card" title="Active" />
             )}
           </div>
+          <div className="min-w-0 flex-1 pt-1 sm:pt-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-[34px]">{s.name}</h1>
+              <StatusPill status={s.status} />
+            </div>
+            <p className="mt-0.5 text-[15px] text-muted-foreground">
+              {[programme, s.section && `Section ${s.section}`, s.rollNumber && `Roll ${s.rollNumber}`].filter(Boolean).join(' · ')}
+            </p>
+            {(s.contact?.phone || s.contact?.email) && (
+              <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                {s.contact?.phone && (
+                  <a href={`tel:${s.contact.phone}`} className="inline-flex items-center gap-1.5 hover:text-foreground">
+                    <Phone className="h-3.5 w-3.5" />
+                    {s.contact.phone}
+                  </a>
+                )}
+                {s.contact?.email && (
+                  <a href={`mailto:${s.contact.email}`} className="inline-flex items-center gap-1.5 hover:text-foreground">
+                    <Mail className="h-3.5 w-3.5" />
+                    {s.contact.email}
+                  </a>
+                )}
+              </p>
+            )}
+          </div>
+          {actions && <div className="flex flex-wrap gap-2 sm:pt-4">{actions}</div>}
         </div>
-        {actions && <div className="flex flex-wrap gap-2 sm:self-start">{actions}</div>}
+        <div className="mt-5 flex flex-wrap gap-2 border-t pt-4">
+          {chips.map((c) => (
+            <span key={c.label} className="inline-flex items-center gap-1.5 rounded-lg bg-muted/50 px-2.5 py-1.5 text-xs font-medium">
+              <c.icon className={cn('h-3.5 w-3.5 text-muted-foreground', c.tone)} />
+              {c.label}
+            </span>
+          ))}
+        </div>
       </div>
     </section>
   );
