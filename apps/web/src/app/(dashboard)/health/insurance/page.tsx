@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { BadgeCheck, Bell, Building2, Sparkles, Users } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuthStore } from '@/store/authStore';
-import { Disclaimers, Journey, UpcomingBenefits, HP_CSS } from '@/components/health-plus/shared';
+import { cn } from '@/lib/utils';
+import { BenefitWallet, HP_CSS, SplitFlap, useTyping } from '@/components/health-plus/shared';
 
 // The client's wording — keep verbatim
 const STATUS_LINE =
@@ -16,167 +16,195 @@ const NOTES = [
   'Details of coverage, eligibility, exclusions and claim process will be announced separately.',
 ];
 
+const STAGES = ['Partner discussion', 'Regulatory, contractual & partner approvals', 'Policy issuance', 'Formal launch'];
+const CURRENT = 0;
+// Each stage is one layer of the shield, innermost first
+const SCALES = [0.42, 0.62, 0.81, 1];
+const SHIELD = 'M120 10 L220 46 V124 C220 190 176 236 120 252 C64 236 20 190 20 124 V46 Z';
+const at = (s: number) => `translate(120 130) scale(${s}) translate(-120 -130)`;
+
+function ForgedShield() {
+  return (
+    <svg viewBox="0 0 240 262" className="h-full w-full overflow-visible">
+      <defs>
+        <linearGradient id="ciCore" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#c7d2fe" />
+          <stop offset=".5" stopColor="#6366f1" />
+          <stop offset="1" stopColor="#0ea5e9" />
+        </linearGradient>
+        <radialGradient id="ciHalo">
+          <stop offset="0" stopColor="#818cf8" stopOpacity=".7" />
+          <stop offset="1" stopColor="#818cf8" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="120" cy="130" r="70" fill="url(#ciHalo)" className="hp-glow" />
+      {SCALES.map((s, i) => {
+        const done = i < CURRENT;
+        const now = i === CURRENT;
+        const y = 130 - 84 * s;
+        return (
+          <g key={i}>
+            {now ? (
+              <>
+                <path d={SHIELD} transform={at(s)} fill="url(#ciCore)" />
+                <path
+                  d={SHIELD}
+                  transform={at(s)}
+                  pathLength={200}
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth={2.5}
+                  vectorEffect="non-scaling-stroke"
+                  strokeLinecap="round"
+                  className="hp-charge"
+                />
+              </>
+            ) : (
+              <path
+                d={SHIELD}
+                transform={at(s)}
+                fill={done ? 'rgba(129,140,248,.18)' : 'none'}
+                stroke={done ? '#a5b4fc' : 'rgba(255,255,255,.28)'}
+                strokeWidth={1.5}
+                strokeDasharray={done ? undefined : '3 6'}
+                vectorEffect="non-scaling-stroke"
+              />
+            )}
+            <circle cx={120 + 100 * s} cy={y} r={now ? 4 : 2.5} fill={now ? '#fcd34d' : 'rgba(255,255,255,.5)'} />
+          </g>
+        );
+      })}
+      {/* cap + pulse in the core */}
+      <g fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M100 122 L120 112 L140 122 L120 132 Z" fill="#fff" stroke="none" />
+        <path d="M108 127 V137 C108 142 132 142 132 137 V127" strokeWidth="4" />
+        <path d="M96 152 H108 L113 144 L120 160 L126 148 L130 152 H144" strokeWidth="3" />
+      </g>
+    </svg>
+  );
+}
+
 export default function CInsurancePage() {
-  const tenant = useAuthStore((s) => (s.user?.tenant as { name?: string } | undefined)?.name);
   const [notified, setNotified] = useState(false);
+  const typed = useTyping(STATUS_LINE);
 
   return (
     <div className="space-y-8">
       <style>{HP_CSS}</style>
 
-      {/* ── Hero ───────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl bg-[#0b1440] text-white shadow-[0_30px_80px_-30px_rgba(11,20,64,.75)]">
-        <span className="pointer-events-none absolute -left-24 -top-28 h-96 w-96 rounded-full bg-indigo-500/40 blur-[110px]" />
-        <span className="pointer-events-none absolute -bottom-32 right-10 h-96 w-96 rounded-full bg-sky-400/30 blur-[110px]" />
-        <span
-          className="pointer-events-none absolute inset-0 opacity-[0.12]"
+      <section className="relative isolate overflow-hidden rounded-[28px] bg-[#070b24] text-white shadow-[0_30px_80px_-30px_rgba(7,11,36,.9)]">
+        <div
+          className="absolute inset-0 -z-10"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,.9) 1px, transparent 0)',
-            backgroundSize: '22px 22px',
-            maskImage: 'radial-gradient(ellipse at 70% 40%, #000 10%, transparent 65%)',
+            background:
+              'radial-gradient(60% 80% at 80% 35%, rgba(99,102,241,.45), transparent 65%), radial-gradient(50% 70% at 0% 100%, rgba(14,165,233,.3), transparent 70%)',
+          }}
+        />
+        <span
+          className="hp-spin absolute -right-20 -top-24 -z-10 h-[620px] w-[620px] rounded-full opacity-50"
+          style={{
+            background: 'repeating-conic-gradient(from 0deg, rgba(165,180,252,.18) 0deg 2deg, transparent 2deg 12deg)',
+            maskImage: 'radial-gradient(circle, #000 25%, transparent 68%)',
           }}
         />
 
-        <div className="relative grid items-center gap-10 p-7 sm:p-10 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="hp-rise">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200">
-              Health Connect · cInsurance
-            </p>
-            <span className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/10 px-3 py-1 text-xs font-semibold text-amber-200">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-300 opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-300" />
-              </span>
-              Awaiting Partner Approval
-            </span>
-            <h1 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl">
-              Student accident
+        <div className="grid items-center gap-8 px-6 py-10 sm:px-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-indigo-200/80">Health Connect · cInsurance</p>
+            <div className="mt-5 inline-block rounded-xl bg-black/40 p-2 ring-1 ring-white/10">
+              <p className="mb-1.5 px-0.5 font-mono text-[9px] uppercase tracking-[0.3em] text-white/40">Status</p>
+              <SplitFlap text="AWAITING PARTNER APPROVAL" />
+            </div>
+            <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.02] tracking-tight sm:text-5xl">
+              {['Protection', 'for', 'every'].map((w, k) => (
+                <span key={w} className="hp-rise mr-[0.25em] inline-block" style={{ animationDelay: `${150 + k * 90}ms` }}>
+                  {w}
+                </span>
+              ))}
               <br />
-              <span className="bg-gradient-to-r from-sky-300 via-indigo-200 to-violet-300 bg-clip-text text-transparent">insurance, on campus.</span>
+              <span
+                className="hp-rise inline-block bg-gradient-to-r from-sky-300 via-indigo-200 to-fuchsia-300 bg-clip-text text-transparent"
+                style={{ animationDelay: '450ms' }}
+              >
+                student, in the making.
+              </span>
             </h1>
-            <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-indigo-100/85">{STATUS_LINE}</p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <p className="mt-5 min-h-[4.5rem] max-w-xl text-[15px] leading-relaxed text-indigo-100/85">
+              {typed}
+              <span className="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 animate-pulse bg-sky-300" />
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-4">
               <Button
                 size="lg"
+                disabled={notified}
                 onClick={() => {
                   setNotified(true);
                   toast.success('You’ll see it here the moment it launches');
                 }}
-                disabled={notified}
-                className="bg-white text-[#0b1440] hover:bg-white/90"
+                className="!bg-white !text-[#070b24] hover:!bg-white/90"
               >
                 <Bell className="mr-2 h-4 w-4" />
                 {notified ? 'We’ll keep you posted' : 'Notify me at launch'}
               </Button>
-              <span className="text-xs text-indigo-200/70">Benefits activate only after formal launch and policy issuance.</span>
+              <span className="text-xs text-white/50">Nothing is active until policy issuance.</span>
             </div>
           </div>
 
-          {/* Illustration: shield with orbits and floating tags */}
-          <div className="relative mx-auto h-[340px] w-full max-w-[420px]">
-            <div className="hp-spin absolute inset-0 m-auto h-[300px] w-[300px] rounded-full border border-dashed border-white/15" />
-            <div className="hp-spin-rev absolute left-1/2 top-1/2 h-[230px] w-[230px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10">
-              <span className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-sky-300 shadow-[0_0_14px_4px_rgba(125,211,252,.6)]" />
+          <div className="relative">
+            <div className="hp-float mx-auto h-[290px] w-full max-w-[370px]">
+              <ForgedShield />
             </div>
-            <span className="hp-pulse absolute inset-0 m-auto h-40 w-40 rounded-full bg-indigo-400/30" />
-            <svg viewBox="0 0 200 220" className="hp-float absolute inset-0 m-auto h-44 w-44 drop-shadow-[0_24px_40px_rgba(79,70,229,.55)]">
-              <defs>
-                <linearGradient id="shieldG" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#a5b4fc" />
-                  <stop offset=".5" stopColor="#6366f1" />
-                  <stop offset="1" stopColor="#0ea5e9" />
-                </linearGradient>
-                <linearGradient id="shieldS" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#fff" stopOpacity=".55" />
-                  <stop offset=".5" stopColor="#fff" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <path d="M100 8 L182 38 V104 C182 158 146 196 100 212 C54 196 18 158 18 104 V38 Z" fill="url(#shieldG)" />
-              <path d="M100 8 L182 38 V104 C182 158 146 196 100 212 C54 196 18 158 18 104 V38 Z" fill="url(#shieldS)" />
-              <path d="M100 22 L170 48 V104 C170 150 140 182 100 197 C60 182 30 150 30 104 V48 Z" fill="none" stroke="#fff" strokeOpacity=".35" strokeWidth="2" />
-              {/* graduation cap + heartbeat */}
-              <path d="M64 92 L100 76 L136 92 L100 108 Z" fill="#fff" />
-              <path d="M78 99 V116 C78 124 122 124 122 116 V99" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" />
-              <path className="hp-dash" d="M48 146 H78 L88 128 L102 162 L114 138 L122 146 H152" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            {[
-              { icon: Users, label: 'Built for students', cls: '-left-4 top-4', anim: 'hp-float-b' },
-              { icon: Building2, label: 'Partner-backed', cls: '-right-4 bottom-16', anim: 'hp-float' },
-              { icon: Sparkles, label: 'Inside Campus Verse', cls: 'bottom-2 left-2', anim: 'hp-float' },
-            ].map((t, i) => (
-              <div
-                key={t.label}
-                className={`${t.anim} absolute ${t.cls} flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-medium backdrop-blur-md`}
-                style={{ animationDelay: `${i * 0.8}s` }}
-              >
-                <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-white/15">
-                  <t.icon className="h-3.5 w-3.5" />
-                </span>
-                {t.label}
-              </div>
-            ))}
+            <ol className="mt-4 grid grid-cols-2 gap-2">
+              {STAGES.map((s, i) => (
+                <li
+                  key={s}
+                  className={cn(
+                    'flex items-start gap-2 rounded-xl px-3 py-2 text-xs ring-1 backdrop-blur',
+                    i === CURRENT ? 'bg-amber-300/10 text-amber-100 ring-amber-300/30' : 'bg-white/[0.04] text-white/55 ring-white/10'
+                  )}
+                >
+                  <span className="font-mono font-bold">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="leading-snug">
+                    {s}
+                    {i === CURRENT && <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wider text-amber-300">In progress</span>}
+                  </span>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-        {/* ── Journey ─────────────────────────────────────────────── */}
-        <section className="hp-rise rounded-2xl border bg-card p-6 shadow-xs" style={{ animationDelay: '80ms' }}>
-          <p className="font-display text-base font-semibold">The road to launch</p>
-          <p className="mt-0.5 text-sm text-muted-foreground">Each step needs to be complete before any benefit is available.</p>
-          <div className="mt-6">
-            <Journey
-              current={0}
-              steps={[
-                { title: 'Partner discussion', text: 'Coverage is being discussed with an insurance partner.' },
-                { title: 'Regulatory & contractual approvals', text: 'Regulatory, contractual and partner approvals.' },
-                { title: 'Policy issuance', text: 'The policy is formally issued.' },
-                { title: 'Formal launch', text: 'Coverage, eligibility, exclusions and the claim process are announced and benefits activate.' },
-              ]}
-            />
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_400px]">
+        {/* Notice, set like a policy document */}
+        <section className="hp-rise relative overflow-hidden rounded-2xl border bg-card shadow-xs" style={{ animationDelay: '120ms' }}>
+          <div className="flex items-center justify-between border-b border-dashed px-7 py-4">
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">cInsurance · Notice to students</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Ref. CI-001</p>
           </div>
+          <div className="relative px-7 pb-16 pt-6">
+            <p className="font-serif text-2xl italic text-foreground">Where things stand</p>
+            <ol className="mt-5 space-y-4">
+              {NOTES.map((n, i) => (
+                <li key={n} className="flex gap-4">
+                  <span className="w-7 shrink-0 font-serif text-2xl leading-none text-indigo-500/60">§{i + 1}</span>
+                  <p className="pt-0.5 text-[15px] leading-relaxed text-foreground/85">{n}</p>
+                </li>
+              ))}
+            </ol>
+            <span className="hp-stamp pointer-events-none absolute bottom-5 right-6 rounded-md border-[3px] border-double border-rose-500/60 px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-[0.2em] text-rose-500/70">
+              Subject to approval
+            </span>
+          </div>
+          <div className="h-1.5 bg-[linear-gradient(90deg,#312e81,#4f46e5,#0ea5e9)]" />
         </section>
 
-        {/* ── Policy card preview ─────────────────────────────────── */}
-        <section className="hp-rise space-y-4" style={{ animationDelay: '160ms' }}>
-          <div className="group [perspective:1200px]">
-            <div className="relative aspect-[1.586] overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-sky-600 p-6 text-white shadow-[0_24px_60px_-24px_rgba(67,56,202,.8)] transition duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateX(6deg)_rotateY(-10deg)]">
-              <span className="hp-shine pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-              <span className="pointer-events-none absolute -right-14 -top-14 h-48 w-48 rounded-full border-[18px] border-white/10" />
-              <span className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full border-[22px] border-white/[0.07]" />
-              <div className="relative flex h-full flex-col justify-between">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">cInsurance <span className="ml-1.5 rounded-full bg-white/20 px-1.5 py-0.5 tracking-wider">Preview</span></p>
-                    <p className="mt-0.5 text-sm font-semibold">{tenant ?? 'Your campus'}</p>
-                  </div>
-                  <BadgeCheck className="h-7 w-7 text-white/80" />
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="h-8 w-11 rounded-md bg-gradient-to-br from-amber-200 to-amber-400 shadow-inner" />
-                  <p className="font-mono text-lg tracking-[0.2em] text-white/90">•••• •••• ••••</p>
-                </div>
-                <div className="flex items-end justify-between">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-white/60">Policy holder</p>
-                    <p className="text-sm font-semibold">Student name</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] uppercase tracking-wider text-white/60">Status</p>
-                    <p className="text-sm font-semibold">Not issued</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p className="text-center text-xs text-muted-foreground">
-            A preview of the digital policy card students will carry in the app once a policy is issued.
-          </p>
+        <section className="hp-rise" style={{ animationDelay: '220ms' }}>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Upcoming benefits</p>
+          <p className="mb-4 mt-1 text-sm text-muted-foreground">Hover the wallet to see everything on the way.</p>
+          <BenefitWallet front="insurance" />
         </section>
       </div>
-
-      <Disclaimers items={NOTES} />
-      <UpcomingBenefits highlight="insurance" />
     </div>
   );
 }

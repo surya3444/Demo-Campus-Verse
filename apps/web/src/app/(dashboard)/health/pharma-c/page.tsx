@@ -2,23 +2,17 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Bell, QrCode, ScanLine, ShoppingBag, Store } from 'lucide-react';
+import { Bell, QrCode, ScanLine, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/authStore';
-import { Disclaimers, UpcomingBenefits, HP_CSS } from '@/components/health-plus/shared';
+import { BenefitWallet, HP_CSS, LiveDot, useTyping } from '@/components/health-plus/shared';
 
 const NOTES = [
   'Pharmacy discounts for students are coming soon.',
   'Partner pharmacies, discount rates and terms will be announced at launch.',
   'Nothing is redeemable until the programme formally launches.',
 ];
-
-const CAPSULES = [
-  { cls: 'left-[6%] top-[14%] rotate-[28deg]', tone: 'from-white to-emerald-200', delay: 0 },
-  { cls: 'right-[8%] top-[10%] -rotate-[20deg]', tone: 'from-amber-200 to-orange-300', delay: 1.2 },
-  { cls: 'left-[14%] bottom-[12%] -rotate-[40deg]', tone: 'from-sky-200 to-cyan-300', delay: 2.1 },
-  { cls: 'right-[4%] bottom-[22%] rotate-[55deg]', tone: 'from-rose-200 to-pink-300', delay: 0.6 },
-];
+const INTRO = 'Student discounts at partner pharmacies, carried in your pocket inside Campus Verse.';
 
 const HOW = [
   { icon: Store, title: 'Find a partner pharmacy', text: 'Partner pharmacies will be listed right here.' },
@@ -26,159 +20,223 @@ const HOW = [
   { icon: ScanLine, title: 'Save at the counter', text: 'The discount is applied at billing.' },
 ];
 
+const CAPSULES = [
+  { pos: 'left-[4%] top-[18%]', r: '30deg', a: '#ffffff', b: '#6ee7b7', d: 0 },
+  { pos: 'right-[2%] top-[8%]', r: '-24deg', a: '#fde68a', b: '#fb923c', d: 1.4 },
+  { pos: 'left-[10%] bottom-[10%]', r: '-48deg', a: '#bae6fd', b: '#22d3ee', d: 2.2 },
+  { pos: 'right-[6%] bottom-[18%]', r: '60deg', a: '#fecdd3', b: '#f472b6', d: 0.7 },
+];
+
+// Torn-paper bottom edge
+const TEETH = 18;
+const TORN = `polygon(0 0,100% 0,${Array.from({ length: TEETH * 2 + 1 }, (_, i) => `${100 - (i * 100) / (TEETH * 2)}% ${i % 2 ? 'calc(100% - 10px)' : '100%'}`).join(',')})`;
+
+function Capsule({ a, b }: { a: string; b: string }) {
+  return (
+    <span className="flex h-7 w-16 overflow-hidden rounded-full shadow-[0_10px_20px_-6px_rgba(0,0,0,.5)]">
+      <span className="h-full w-1/2" style={{ background: `linear-gradient(180deg, ${a}, ${a}cc)` }} />
+      <span className="h-full w-1/2" style={{ background: `linear-gradient(180deg, ${b}, ${b}bb)` }} />
+    </span>
+  );
+}
+
+function Row({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex items-baseline gap-1 text-[12px]">
+      <span>{k}</span>
+      <span className="flex-1 translate-y-[-3px] border-b border-dotted border-stone-400" />
+      <span className="font-bold">{v}</span>
+    </div>
+  );
+}
+
+function Receipt({ campus }: { campus: string }) {
+  return (
+    <div className="relative mx-auto w-[290px]">
+      {/* printer slot */}
+      <div className="relative z-10 h-5 rounded-full bg-gradient-to-b from-[#0b2b26] to-[#021612] shadow-[0_6px_14px_rgba(0,0,0,.5)] ring-1 ring-white/10">
+        <span className="absolute inset-x-6 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-black" />
+        <span className="absolute right-3 top-1/2 -translate-y-1/2">
+          <LiveDot className="bg-emerald-400" />
+        </span>
+      </div>
+      <div className="-mt-2.5 overflow-hidden px-3">
+        <div
+          className="hp-print bg-[#fbfaf6] px-5 pb-8 pt-6 font-mono text-stone-800 shadow-[0_20px_40px_-12px_rgba(0,0,0,.6)]"
+          style={{ clipPath: TORN }}
+        >
+          <p className="text-center text-[11px] font-bold tracking-[0.35em]">PHARMA-C</p>
+          <p className="mt-0.5 truncate text-center text-[10px] tracking-wider text-stone-500">{campus.toUpperCase()}</p>
+          <div className="my-3 border-t-2 border-dashed border-stone-300" />
+          <p className="text-[11px] font-bold">STUDENT DISCOUNT CARD</p>
+          <div className="mt-2 space-y-1.5">
+            <Row k="Partner pharmacies" v="TBA" />
+            <Row k="Discount rates" v="TBA" />
+            <Row k="Terms" v="TBA" />
+          </div>
+          <div className="my-3 border-t-2 border-dashed border-stone-300" />
+          <div className="flex items-center justify-between text-[12px] font-bold">
+            <span>STATUS</span>
+            <span className="rounded bg-emerald-600 px-1.5 py-0.5 text-white">COMING SOON</span>
+          </div>
+          <div className="mt-4 flex h-10 items-stretch justify-center gap-[2px]" aria-hidden>
+            {Array.from({ length: 46 }, (_, i) => (
+              <span key={i} className="bg-stone-800" style={{ width: [1, 2, 1, 3, 1, 1, 2][i % 7] }} />
+            ))}
+          </div>
+          <p className="mt-2 text-center text-[9px] tracking-[0.25em] text-stone-500">PREVIEW · NOT REDEEMABLE</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PharmaCPage() {
   const tenant = useAuthStore((s) => (s.user?.tenant as { name?: string } | undefined)?.name);
   const [notified, setNotified] = useState(false);
+  const typed = useTyping(INTRO, 24);
 
   return (
     <div className="space-y-8">
       <style>{HP_CSS}</style>
 
-      {/* ── Hero ───────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl bg-[#04322b] text-white shadow-[0_30px_80px_-30px_rgba(4,50,43,.75)]">
-        <span className="pointer-events-none absolute -left-24 -top-28 h-96 w-96 rounded-full bg-emerald-400/35 blur-[110px]" />
-        <span className="pointer-events-none absolute -bottom-32 right-10 h-96 w-96 rounded-full bg-teal-300/25 blur-[110px]" />
+      <section className="relative isolate overflow-hidden rounded-[28px] bg-[#021b17] text-white shadow-[0_30px_80px_-30px_rgba(2,27,23,.9)]">
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background:
+              'radial-gradient(55% 80% at 78% 40%, rgba(16,185,129,.45), transparent 65%), radial-gradient(45% 70% at 0% 100%, rgba(45,212,191,.28), transparent 70%)',
+          }}
+        />
+        {/* pharmacy-cross lattice */}
         <span
-          className="pointer-events-none absolute inset-0 opacity-[0.12]"
+          className="absolute inset-0 -z-10 opacity-[0.09]"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
-            maskImage: 'radial-gradient(ellipse at 70% 40%, #000 10%, transparent 65%)',
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Cpath d='M15 9h6v6h6v6h-6v6h-6v-6H9v-6h6z' fill='white'/%3E%3C/svg%3E\")",
+            maskImage: 'linear-gradient(90deg, transparent 5%, #000 60%)',
           }}
         />
 
-        <div className="relative grid items-center gap-10 p-7 sm:p-10 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="hp-rise">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">Health Connect · Pharma-C</p>
-            <span className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-200">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-300" />
-              </span>
+        <div className="grid items-center gap-10 px-6 py-10 sm:px-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-200/80">Health Connect · Pharma-C</p>
+            <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-200 ring-1 ring-emerald-300/30">
+              <LiveDot className="bg-emerald-300" />
               Coming Soon
             </span>
-            <h1 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl">
-              Pharmacy discounts,
+            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.02] tracking-tight sm:text-5xl">
+              <span className="hp-rise inline-block" style={{ animationDelay: '120ms' }}>
+                Less on the bill.
+              </span>
               <br />
-              <span className="bg-gradient-to-r from-emerald-200 via-teal-200 to-cyan-200 bg-clip-text text-transparent">made for students.</span>
+              <span
+                className="hp-rise inline-block bg-gradient-to-r from-emerald-200 via-teal-200 to-cyan-200 bg-clip-text text-transparent"
+                style={{ animationDelay: '260ms' }}
+              >
+                More for the semester.
+              </span>
             </h1>
-            <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-emerald-50/80">
-              Pharma-C will bring student discounts at partner pharmacies, right inside Campus Verse. Partners and rates will be announced at launch.
+            <p className="mt-5 min-h-[3.5rem] max-w-lg text-[15px] leading-relaxed text-emerald-50/80">
+              {typed}
+              <span className="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 animate-pulse bg-emerald-300" />
             </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center gap-4">
               <Button
                 size="lg"
+                disabled={notified}
                 onClick={() => {
                   setNotified(true);
                   toast.success('You’ll see it here the moment it launches');
                 }}
-                disabled={notified}
-                className="bg-white text-[#04322b] hover:bg-white/90"
+                className="!bg-white !text-[#021b17] hover:!bg-white/90"
               >
                 <Bell className="mr-2 h-4 w-4" />
                 {notified ? 'We’ll keep you posted' : 'Notify me at launch'}
               </Button>
+              <span className="text-xs text-white/50">Partners and rates announced at launch.</span>
             </div>
           </div>
 
-          {/* Illustration: pharmacy bag with drifting capsules */}
-          <div className="relative mx-auto h-[340px] w-full max-w-[420px]">
-            <span className="hp-pulse absolute inset-0 m-auto h-44 w-44 rounded-full bg-emerald-300/25" />
-            <div className="hp-spin absolute inset-0 m-auto h-[290px] w-[290px] rounded-full border border-dashed border-white/15" />
+          <div className="relative min-h-[380px]">
             {CAPSULES.map((c, i) => (
-              <span key={i} className={`absolute ${c.cls}`}>
-                <span className="hp-drift block" style={{ animationDelay: `${c.delay}s` }}>
-                  <span className={`flex h-6 w-14 overflow-hidden rounded-full bg-gradient-to-r shadow-lg ${c.tone}`}>
-                    <span className="h-full w-1/2 bg-white/80" />
-                  </span>
+              <span key={i} className={`absolute ${c.pos}`}>
+                <span className="hp-drift block" style={{ ['--r' as string]: c.r, animationDelay: `${c.d}s` }}>
+                  <Capsule a={c.a} b={c.b} />
                 </span>
               </span>
             ))}
-            <svg viewBox="0 0 200 220" className="hp-float absolute inset-0 m-auto h-52 w-52 drop-shadow-[0_24px_40px_rgba(16,185,129,.5)]">
-              <defs>
-                <linearGradient id="bagG" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#6ee7b7" />
-                  <stop offset=".55" stopColor="#10b981" />
-                  <stop offset="1" stopColor="#0d9488" />
-                </linearGradient>
-                <linearGradient id="bagS" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#fff" stopOpacity=".5" />
-                  <stop offset=".45" stopColor="#fff" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <path d="M70 62 V48 C70 30 84 18 100 18 C116 18 130 30 130 48 V62" fill="none" stroke="#fff" strokeOpacity=".85" strokeWidth="9" strokeLinecap="round" />
-              <rect x="26" y="58" width="148" height="148" rx="26" fill="url(#bagG)" />
-              <rect x="26" y="58" width="148" height="148" rx="26" fill="url(#bagS)" />
-              <rect x="80" y="100" width="40" height="80" rx="9" fill="#fff" />
-              <rect x="60" y="120" width="80" height="40" rx="9" fill="#fff" />
-              {/* % tag */}
-              <g transform="translate(140 44) rotate(14)">
-                <circle r="26" fill="#fbbf24" />
-                <text textAnchor="middle" dy="8" fontSize="24" fontWeight="800" fill="#78350f">%</text>
-              </g>
-            </svg>
+            <Receipt campus={tenant ?? 'Your campus'} />
           </div>
         </div>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-        {/* ── How it will work ────────────────────────────────────── */}
-        <section className="hp-rise rounded-2xl border bg-card p-6 shadow-xs" style={{ animationDelay: '80ms' }}>
-          <p className="font-display text-base font-semibold">How it will work</p>
-          <p className="mt-0.5 text-sm text-muted-foreground">The planned experience once Pharma-C launches.</p>
-          <ol className="mt-6 grid gap-4 sm:grid-cols-3">
+      {/* How it will work: a capsule travels the counter */}
+      <section className="hp-rise overflow-hidden rounded-2xl border bg-card p-7 shadow-xs" style={{ animationDelay: '120ms' }}>
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">How it will work</p>
+            <p className="mt-1 font-display text-xl font-bold">Three steps from shelf to savings</p>
+          </div>
+          <p className="text-xs text-muted-foreground">The planned experience once Pharma-C launches.</p>
+        </div>
+        <div className="relative mt-8">
+          <div className="absolute left-[16.66%] right-[16.66%] top-7 hidden h-0 border-t-2 border-dashed border-emerald-500/30 md:block">
+            <span className="hp-travel absolute top-0 -translate-x-1/2 -translate-y-1/2">
+              <span className="block scale-75">
+                <Capsule a="#ffffff" b="#10b981" />
+              </span>
+            </span>
+          </div>
+          <ol className="relative grid gap-6 md:grid-cols-3">
             {HOW.map((h, i) => (
-              <li key={h.title} className="group relative rounded-2xl border bg-gradient-to-b from-emerald-500/[0.06] to-transparent p-5 transition hover:-translate-y-1 hover:shadow-soft">
-                <span className="absolute right-4 top-3 font-display text-4xl font-bold text-emerald-500/15">{i + 1}</span>
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-400 text-white shadow-lg transition group-hover:scale-110">
-                  <h.icon className="h-5 w-5" />
+              <li key={h.title} className="flex flex-col items-center text-center">
+                <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-[0_12px_24px_-8px_rgba(16,185,129,.6)] ring-4 ring-card">
+                  <h.icon className="h-6 w-6" />
+                  <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-card font-mono text-[11px] font-bold text-emerald-600 shadow ring-1 ring-emerald-500/30">
+                    {i + 1}
+                  </span>
                 </span>
                 <p className="mt-4 text-sm font-semibold">{h.title}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{h.text}</p>
+                <p className="mt-1 max-w-[220px] text-sm text-muted-foreground">{h.text}</p>
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_400px]">
+        {/* Notes, set on a prescription pad */}
+        <section
+          className="hp-rise relative overflow-hidden rounded-2xl border bg-[#fdfcf7] text-stone-800 shadow-xs dark:bg-card dark:text-foreground"
+          style={{ animationDelay: '200ms' }}
+        >
+          <div className="flex items-center justify-between bg-emerald-700 px-7 py-3 text-white">
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em]">Pharma-C · Before you ask</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/70">Campus Verse</p>
+          </div>
+          <div className="relative px-7 pb-7 pt-5">
+            <p className="font-serif text-5xl font-bold italic leading-none text-emerald-700/80">
+              R<span className="text-3xl">x</span>
+            </p>
+            <ul className="mt-3 divide-y divide-emerald-600/15 border-y border-emerald-600/15">
+              {NOTES.map((n) => (
+                <li key={n} className="flex gap-3 py-3 font-serif text-[16px] italic leading-[24px]">
+                  <span className="text-emerald-600">—</span>
+                  {n}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 text-right font-serif text-sm italic text-stone-500">— Health Connect</p>
+          </div>
         </section>
 
-        {/* ── Discount card preview ───────────────────────────────── */}
-        <section className="hp-rise space-y-4" style={{ animationDelay: '160ms' }}>
-          <div className="group [perspective:1200px]">
-            <div className="relative aspect-[1.586] overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-700 p-6 text-white shadow-[0_24px_60px_-24px_rgba(13,148,136,.8)] transition duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateX(6deg)_rotateY(-10deg)]">
-              <span className="hp-shine pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-              <span className="pointer-events-none absolute -right-14 -top-14 h-48 w-48 rounded-full border-[18px] border-white/10" />
-              <div className="relative flex h-full flex-col justify-between">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">Pharma-C <span className="ml-1.5 rounded-full bg-white/20 px-1.5 py-0.5 tracking-wider">Preview</span></p>
-                    <p className="mt-0.5 text-sm font-semibold">{tenant ?? 'Your campus'}</p>
-                  </div>
-                  <ShoppingBag className="h-7 w-7 text-white/80" />
-                </div>
-                <div className="flex h-10 items-end gap-[3px]" aria-hidden>
-                  {Array.from({ length: 42 }, (_, i) => (
-                    <span key={i} className="bg-white/85" style={{ width: i % 3 === 0 ? 3 : 1.5, height: `${60 + ((i * 37) % 40)}%` }} />
-                  ))}
-                </div>
-                <div className="flex items-end justify-between">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-white/60">Member</p>
-                    <p className="text-sm font-semibold">Student name</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] uppercase tracking-wider text-white/60">Status</p>
-                    <p className="text-sm font-semibold">Coming soon</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p className="text-center text-xs text-muted-foreground">A preview of the Pharma-C card. It can’t be used until launch.</p>
+        <section className="hp-rise" style={{ animationDelay: '280ms' }}>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Upcoming benefits</p>
+          <p className="mb-4 mt-1 text-sm text-muted-foreground">Hover the wallet to see everything on the way.</p>
+          <BenefitWallet front="pharma" />
         </section>
       </div>
-
-      <Disclaimers items={NOTES} />
-      <UpcomingBenefits highlight="pharma" />
     </div>
   );
 }
