@@ -68,6 +68,8 @@ import {
   Users,
   Video,
   Wallet,
+  ShieldCheck,
+  Pill,
 } from 'lucide-react';
 
 export interface NavPermission {
@@ -621,6 +623,18 @@ export const NAV_SECTIONS: NavSection[] = [
             name: 'Health Records',
             href: '/health/records',
             icon: Heart,
+            permission: { module: 'health.records', action: 'view' },
+          },
+          {
+            name: 'cInsurance',
+            href: '/health/insurance',
+            icon: ShieldCheck,
+            permission: { module: 'health.records', action: 'view' },
+          },
+          {
+            name: 'Pharma-C',
+            href: '/health/pharma-c',
+            icon: Pill,
             permission: { module: 'health.records', action: 'view' },
           },
           {
