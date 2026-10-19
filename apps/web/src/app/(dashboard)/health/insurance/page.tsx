@@ -6,7 +6,7 @@ import { Bell, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHero } from '@/components/ui/page-hero';
 import { cn } from '@/lib/utils';
-import { BenefitWallet, HP_CSS, SplitFlap, useTyping } from '@/components/health-plus/shared';
+import { BenefitWallet, ExclusiveBadge, HP_CSS, SplitFlap, useTyping } from '@/components/health-plus/shared';
 
 // The client's wording — keep verbatim
 const STATUS_LINE =
@@ -92,7 +92,7 @@ export default function CInsurancePage() {
   return (
     <div className="space-y-6">
       <style>{HP_CSS}</style>
-      <PageHero icon={ShieldCheck} eyebrow="Health Connect · cInsurance" title="cInsurance" description="Student accident insurance for your campus, on its way." />
+      <PageHero icon={ShieldCheck} eyebrow="Health Connect · cInsurance" title="cInsurance" description="Student accident insurance for your campus, on its way." actions={<ExclusiveBadge />} />
 
       <section className="relative isolate overflow-hidden rounded-[28px] bg-[#070b24] text-white shadow-[0_30px_80px_-30px_rgba(7,11,36,.9)]">
         <div

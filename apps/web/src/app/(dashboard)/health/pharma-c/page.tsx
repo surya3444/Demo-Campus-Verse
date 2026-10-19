@@ -6,7 +6,7 @@ import { Bell, QrCode, ScanLine, Store, Pill } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHero } from '@/components/ui/page-hero';
 import { useAuthStore } from '@/store/authStore';
-import { BenefitWallet, HP_CSS, LiveDot, useTyping } from '@/components/health-plus/shared';
+import { BenefitWallet, ExclusiveBadge, HP_CSS, LiveDot, useTyping } from '@/components/health-plus/shared';
 
 const NOTES = [
   'Pharmacy discounts for students are coming soon.',
@@ -100,7 +100,7 @@ export default function PharmaCPage() {
   return (
     <div className="space-y-6">
       <style>{HP_CSS}</style>
-      <PageHero icon={Pill} eyebrow="Health Connect · Pharma-C" title="Pharma-C" description="Student pharmacy discounts, coming soon." />
+      <PageHero icon={Pill} eyebrow="Health Connect · Pharma-C" title="Pharma-C" description="Student pharmacy discounts, coming soon." actions={<ExclusiveBadge />} />
 
       <section className="relative isolate overflow-hidden rounded-[28px] bg-[#021b17] text-white shadow-[0_30px_80px_-30px_rgba(2,27,23,.9)]">
         <div

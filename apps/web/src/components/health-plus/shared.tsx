@@ -174,3 +174,19 @@ export const HP_CSS = `
 .hp-drift{animation:hpDrift 8s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.hp-float,.hp-spin,.hp-rise,.hp-shine,.hp-charge,.hp-glow,.hp-print,.hp-travel,.hp-stamp,.hp-drift{animation:none}}
 `;
+
+/** "Campus Verse Exclusive" seal for the page header. */
+export function ExclusiveBadge() {
+  return (
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--brand-cyan))] to-[hsl(var(--primary))] p-px shadow-[0_10px_30px_-12px_hsl(var(--primary)/.6)]">
+      <div className="relative flex items-center gap-3 rounded-[15px] bg-card px-4 py-2.5">
+        <span className="hp-shine pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-transparent via-[hsl(var(--brand-cyan)/.18)] to-transparent" />
+        <img src="/icon_color.svg" alt="Campus Verse" className="h-9 w-9" />
+        <div className="leading-tight">
+          <p className="font-display text-sm font-bold">Campus Verse</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[hsl(var(--brand-cyan))]">Exclusive</p>
+        </div>
+      </div>
+    </div>
+  );
+}
