@@ -56,3 +56,4 @@ docker-compose.override.yml
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
+**/dump.rdb
