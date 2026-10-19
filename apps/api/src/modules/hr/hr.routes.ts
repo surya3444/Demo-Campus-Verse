@@ -9,6 +9,9 @@ import { departmentController } from './department.controller';
 import { staffAttendanceController } from './staffAttendance.controller';
 import { hrSettingsController } from './hrSettings.controller';
 import { payrollController } from './payroll.controller';
+import { payrollService } from './payroll.service';
+import { success } from '../../utils/response';
+import { ApiError } from '../../middleware/errorHandler';
 import { promotionController } from './promotion.controller';
 import { razorpayXPayoutController } from './razorpayXPayout.controller';
 import { imageUpload, requireS3Configured } from '../upload/upload.middleware';
@@ -486,6 +489,32 @@ router.put(
   validateBody(updateDisbursementSchema),
   payrollController.updateDisbursement
 );
+// Payroll rules in plain words, a payslip preview for any salary, and the
+// CampusPay sandbox payout (simulated — no provider is called)
+router.get('/payroll/rules', requirePermission('hr.payroll', 'view'), async (req, res, next) => {
+  try {
+    success(res, await payrollService.getRules(req.tenantId!, req.branchId!));
+  } catch (e) {
+    next(e);
+  }
+});
+router.post('/payroll/preview', requirePermission('hr.payroll', 'view'), async (req, res, next) => {
+  try {
+    const earnings = Array.isArray(req.body?.earnings) ? req.body.earnings : [];
+    if (!earnings.length) throw new ApiError('VALIDATION_ERROR', 'Add at least one earning', 400);
+    success(res, await payrollService.preview(req.tenantId!, req.branchId!, req.body));
+  } catch (e) {
+    next(e);
+  }
+});
+router.post('/payroll-runs/:id/simulate-payout', requirePermission('hr.payroll', 'edit'), async (req, res, next) => {
+  try {
+    success(res, await payrollService.simulatePayout(req.tenantId!, req.branchId!, req.params.id as string, req.user!.userId));
+  } catch (e) {
+    next(e);
+  }
+});
+
 // A finalized run paid from the campus's own bank: record it in one step
 router.put(
   '/payroll-runs/:id/mark-paid',

@@ -2,6 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { PayrollOverview } from './components/PayrollOverview';
+import { PayRunCenter } from './components/PayRunCenter';
+import { PayRulesTab } from './components/PayRulesTab';
+import {
+  StructureCard,
+  StructurePreview,
+  StructureTemplates,
+  type Component,
+} from './components/StructureTools';
 import { PageHeader } from '@/components/ui/page-header';
 // Using plain tables instead of DataTable for custom header actions
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +17,6 @@ import {
   IndianRupee,
   Eye,
   Pencil,
-  Trash2,
   Loader2,
   Plus,
   CheckCircle,
@@ -296,34 +303,9 @@ const DEFAULT_EARNINGS: SalaryComponent[] = [
   },
 ];
 
-const DEFAULT_DEDUCTIONS: DeductionComponent[] = [
-  {
-    code: 'PF',
-    name: 'Provident Fund',
-    type: 'percentage',
-    percentageOf: 'BASIC',
-    defaultAmount: 12,
-    isStatutory: true,
-    isAutoCalculated: true,
-  },
-  {
-    code: 'ESI',
-    name: 'Employee State Insurance',
-    type: 'percentage',
-    percentageOf: 'GROSS',
-    defaultAmount: 0.75,
-    isStatutory: true,
-    isAutoCalculated: true,
-  },
-  {
-    code: 'PT',
-    name: 'Professional Tax',
-    type: 'fixed',
-    defaultAmount: 200,
-    isStatutory: true,
-    isAutoCalculated: true,
-  },
-];
+// PF, ESI, PT and TDS are worked out in every pay run (payrollMath), so a new
+// structure needs no statutory lines — only campus-specific deductions.
+const DEFAULT_DEDUCTIONS: DeductionComponent[] = [];
 
 const MONTHS = [
   'January',
@@ -353,21 +335,26 @@ export default function PayrollPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Payroll Management"
-        description="Manage salary structures, assignments, and monthly payroll processing"
+        title="Payroll"
+        description="Run each month in six clear steps, see exactly how every rupee is calculated, and pay salaries in one go."
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="structures">Salary Structures</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="overview">Pay run</TabsTrigger>
+          <TabsTrigger value="rules">How pay works</TabsTrigger>
+          <TabsTrigger value="structures">Salary structures</TabsTrigger>
           <TabsTrigger value="assignments">Assignments</TabsTrigger>
-          <TabsTrigger value="process">Process Payroll</TabsTrigger>
           <TabsTrigger value="payslips">Payslips</TabsTrigger>
+          <TabsTrigger value="process">Advanced</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview">
+        <TabsContent value="overview" className="space-y-6">
+          <PayRunCenter canCreate={canCreate} canFinalize={canFinalize} canPay={canPay} />
           <PayrollOverview />
+        </TabsContent>
+        <TabsContent value="rules">
+          <PayRulesTab />
         </TabsContent>
         <TabsContent value="structures">
           <SalaryStructuresTab canCreate={canCreate} canEdit={canEdit} />
@@ -601,7 +588,13 @@ function SalaryStructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEd
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Salary Structures</h3>
+        <div>
+          <h3 className="text-lg font-semibold">Salary structures</h3>
+          <p className="text-sm text-muted-foreground">
+            Templates of earnings for each kind of role. PF, ESI, PT and TDS are added automatically
+            in every pay run.
+          </p>
+        </div>
         {canCreate && (
           <Button onClick={handleAdd} size="sm">
             <Plus className="h-4 w-4 mr-1" /> Create Structure
@@ -616,82 +609,31 @@ function SalaryStructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEd
       ) : structures.length === 0 ? (
         <p className="text-muted-foreground text-center py-8">No salary structures created yet</p>
       ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-left p-3 font-medium">Name</th>
-                <th className="text-left p-3 font-medium">Code</th>
-                <th className="text-left p-3 font-medium">Earnings</th>
-                <th className="text-left p-3 font-medium">Deductions</th>
-                <th className="text-left p-3 font-medium">Applies To</th>
-                <th className="text-left p-3 font-medium">Status</th>
-                <th className="text-left p-3 font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {structures.map((s) => (
-                <tr key={s._id} className="border-t hover:bg-muted/20">
-                  <td className="p-3 font-medium">{s.name}</td>
-                  <td className="p-3 font-mono text-xs">{s.code}</td>
-                  <td className="p-3">{s.earnings.length} components</td>
-                  <td className="p-3">{s.deductions.length} components</td>
-                  <td className="p-3 text-xs text-muted-foreground">
-                    {(() => {
-                      const desigCount = s.applicableTo?.designationIds?.length || 0;
-                      const roleNames = (s.applicableTo?.roleCodes || [])
-                        .map((code) => roles.find((r) => r.code === code)?.name || code)
-                        .join(', ');
-                      const parts = [
-                        desigCount > 0
-                          ? `${desigCount} designation${desigCount > 1 ? 's' : ''}`
-                          : null,
-                        roleNames || null,
-                      ].filter(Boolean);
-                      return parts.length > 0 ? parts.join(' · ') : 'All staff';
-                    })()}
-                  </td>
-                  <td className="p-3">
-                    <Badge variant={s.status === 'active' ? 'default' : 'secondary'}>
-                      {s.status}
-                    </Badge>
-                  </td>
-                  <td className="p-3">
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
-                        onClick={() => handleView(s)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {canEdit && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7"
-                          onClick={() => handleEdit(s)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {canEdit && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-destructive"
-                          onClick={() => handleDelete(s)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {structures.map((s) => {
+            const desigCount = s.applicableTo?.designationIds?.length || 0;
+            const roleNames = (s.applicableTo?.roleCodes || [])
+              .map((code) => roles.find((r) => r.code === code)?.name || code)
+              .join(', ');
+            const appliesTo =
+              [
+                desigCount > 0 ? `${desigCount} designation${desigCount > 1 ? 's' : ''}` : null,
+                roleNames || null,
+              ]
+                .filter(Boolean)
+                .join(' · ') || 'all staff';
+            return (
+              <StructureCard
+                key={s._id}
+                s={s}
+                appliesTo={appliesTo}
+                canEdit={canEdit}
+                onView={() => handleView(s)}
+                onEdit={() => handleEdit(s)}
+                onDelete={() => handleDelete(s)}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -699,7 +641,7 @@ function SalaryStructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEd
 
       {/* Create/Edit Structure Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {dialogMode === 'view' ? 'View' : dialogMode === 'add' ? 'Create' : 'Edit'} Salary
@@ -715,258 +657,295 @@ function SalaryStructuresTab({ canCreate, canEdit }: { canCreate: boolean; canEd
           {dialogMode === 'view' && selectedStructure ? (
             <ViewStructureContent structure={selectedStructure} />
           ) : (
-            <div className="space-y-6 py-4">
-              {/* Basic Info */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Name *</Label>
-                  <Input
-                    value={formName}
-                    onChange={(e) => setFormName(e.target.value)}
-                    placeholder="e.g., Teaching Staff - Level 1"
-                  />
+            <div className="py-4">
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+                <div className="min-w-0 space-y-6">
+                  {dialogMode === 'add' && (
+                    <StructureTemplates
+                      onPick={(t) => {
+                        setFormName(t.name);
+                        setFormCode(t.code);
+                        setFormDescription(t.blurb);
+                        setFormEarnings(t.earnings.map((e) => ({ ...e })) as SalaryComponent[]);
+                      }}
+                    />
+                  )}
+                  {/* Basic Info */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Name *</Label>
+                      <Input
+                        value={formName}
+                        onChange={(e) => setFormName(e.target.value)}
+                        placeholder="e.g., Teaching Staff - Level 1"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Code *</Label>
+                      <Input
+                        value={formCode}
+                        onChange={(e) => setFormCode(e.target.value.toUpperCase())}
+                        placeholder="e.g., SS-T1"
+                        disabled={dialogMode === 'edit'}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      value={formDescription}
+                      onChange={(e) => setFormDescription(e.target.value)}
+                      placeholder="Optional description"
+                      rows={2}
+                    />
+                  </div>
+
+                  {/* Earnings */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-sm">Earnings</h4>
+                      <Button variant="outline" size="sm" onClick={addEarning}>
+                        <Plus className="h-3 w-3 mr-1" /> Add
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      {formEarnings.map((earning, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 p-2 bg-muted/30 rounded-md"
+                        >
+                          <Input
+                            className="w-24"
+                            placeholder="Code"
+                            value={earning.code}
+                            onChange={(e) =>
+                              updateEarning(idx, 'code', e.target.value.toUpperCase())
+                            }
+                          />
+                          <Input
+                            className="flex-1"
+                            placeholder="Name"
+                            value={earning.name}
+                            onChange={(e) => updateEarning(idx, 'name', e.target.value)}
+                          />
+                          <Select
+                            value={earning.type}
+                            onValueChange={(v) => updateEarning(idx, 'type', v)}
+                          >
+                            <SelectTrigger className="w-28">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="fixed">Fixed</SelectItem>
+                              <SelectItem value="percentage">% of</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {earning.type === 'percentage' && (
+                            <Select
+                              value={earning.percentageOf || 'BASIC'}
+                              onValueChange={(v) => updateEarning(idx, 'percentageOf', v)}
+                            >
+                              <SelectTrigger className="w-28">
+                                <SelectValue placeholder="of…" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {formEarnings
+                                  .filter((o, j) => j !== idx && o.code)
+                                  .map((o) => (
+                                    <SelectItem key={o.code} value={o.code}>
+                                      of {o.code}
+                                    </SelectItem>
+                                  ))}
+                                <SelectItem value="GROSS">of GROSS</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                          <Input
+                            className="w-24"
+                            type="number"
+                            placeholder={earning.type === 'percentage' ? '%' : 'Amount'}
+                            value={earning.defaultAmount || ''}
+                            onChange={(e) =>
+                              updateEarning(idx, 'defaultAmount', parseFloat(e.target.value) || 0)
+                            }
+                          />
+                          <div className="flex items-center gap-1">
+                            <Switch
+                              checked={earning.isTaxable}
+                              onCheckedChange={(v) => updateEarning(idx, 'isTaxable', v)}
+                            />
+                            <span className="text-xs text-muted-foreground">Tax</span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => removeEarning(idx)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Deductions */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-sm">Deductions</h4>
+                      <Button variant="outline" size="sm" onClick={addDeduction}>
+                        <Plus className="h-3 w-3 mr-1" /> Add
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      {formDeductions.map((deduction, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 p-2 bg-muted/30 rounded-md"
+                        >
+                          <Input
+                            className="w-24"
+                            placeholder="Code"
+                            value={deduction.code}
+                            onChange={(e) =>
+                              updateDeduction(idx, 'code', e.target.value.toUpperCase())
+                            }
+                          />
+                          <Input
+                            className="flex-1"
+                            placeholder="Name"
+                            value={deduction.name}
+                            onChange={(e) => updateDeduction(idx, 'name', e.target.value)}
+                          />
+                          <Select
+                            value={deduction.type}
+                            onValueChange={(v) => updateDeduction(idx, 'type', v)}
+                          >
+                            <SelectTrigger className="w-28">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="fixed">Fixed</SelectItem>
+                              <SelectItem value="percentage">% of</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            className="w-24"
+                            type="number"
+                            placeholder={deduction.type === 'percentage' ? '%' : 'Amount'}
+                            value={deduction.defaultAmount || ''}
+                            onChange={(e) =>
+                              updateDeduction(idx, 'defaultAmount', parseFloat(e.target.value) || 0)
+                            }
+                          />
+                          <div className="flex items-center gap-1">
+                            <Switch
+                              checked={deduction.isStatutory}
+                              onCheckedChange={(v) => updateDeduction(idx, 'isStatutory', v)}
+                            />
+                            <span className="text-xs text-muted-foreground">Stat</span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => removeDeduction(idx)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Applies To — connect this structure to designations / staff roles */}
+                  <div>
+                    <h4 className="font-semibold text-sm mb-1">Applies To</h4>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Optional: target designations or roles. This structure will be auto-suggested
+                      when assigning salary to matching staff.
+                    </p>
+                    {designations.length > 0 && (
+                      <div className="mb-3">
+                        <Label className="text-xs text-muted-foreground">Designations</Label>
+                        <div className="flex flex-wrap gap-1.5 mt-1">
+                          {designations.map((d) => {
+                            const selected = formDesignationIds.includes(d._id);
+                            return (
+                              <Badge
+                                key={d._id}
+                                variant={selected ? 'default' : 'outline'}
+                                className="cursor-pointer select-none"
+                                onClick={() =>
+                                  setFormDesignationIds(
+                                    selected
+                                      ? formDesignationIds.filter((id) => id !== d._id)
+                                      : [...formDesignationIds, d._id]
+                                  )
+                                }
+                              >
+                                {d.name}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {roles.length > 0 && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Roles</Label>
+                        <div className="flex flex-wrap gap-1.5 mt-1">
+                          {roles.map((r) => {
+                            const selected = formRoleCodes.includes(r.code);
+                            return (
+                              <Badge
+                                key={r.code}
+                                variant={selected ? 'default' : 'outline'}
+                                className="cursor-pointer select-none"
+                                onClick={() =>
+                                  setFormRoleCodes(
+                                    selected
+                                      ? formRoleCodes.filter((c) => c !== r.code)
+                                      : [...formRoleCodes, r.code]
+                                  )
+                                }
+                              >
+                                {r.name}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {designations.length === 0 && roles.length === 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        No designations or roles available.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <Select
+                      value={formStatus}
+                      onValueChange={(v) => setFormStatus(v as 'active' | 'inactive')}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Code *</Label>
-                  <Input
-                    value={formCode}
-                    onChange={(e) => setFormCode(e.target.value.toUpperCase())}
-                    placeholder="e.g., SS-T1"
-                    disabled={dialogMode === 'edit'}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  placeholder="Optional description"
-                  rows={2}
+                <StructurePreview
+                  earnings={formEarnings as Component[]}
+                  deductions={formDeductions as Component[]}
                 />
               </div>
-
-              {/* Earnings */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-sm">Earnings</h4>
-                  <Button variant="outline" size="sm" onClick={addEarning}>
-                    <Plus className="h-3 w-3 mr-1" /> Add
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  {formEarnings.map((earning, idx) => (
-                    <div key={idx} className="flex items-center gap-2 p-2 bg-muted/30 rounded-md">
-                      <Input
-                        className="w-24"
-                        placeholder="Code"
-                        value={earning.code}
-                        onChange={(e) => updateEarning(idx, 'code', e.target.value.toUpperCase())}
-                      />
-                      <Input
-                        className="flex-1"
-                        placeholder="Name"
-                        value={earning.name}
-                        onChange={(e) => updateEarning(idx, 'name', e.target.value)}
-                      />
-                      <Select
-                        value={earning.type}
-                        onValueChange={(v) => updateEarning(idx, 'type', v)}
-                      >
-                        <SelectTrigger className="w-28">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="fixed">Fixed</SelectItem>
-                          <SelectItem value="percentage">% of</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {earning.type === 'percentage' && (
-                        <Input
-                          className="w-20"
-                          placeholder="Of"
-                          value={earning.percentageOf || ''}
-                          onChange={(e) =>
-                            updateEarning(idx, 'percentageOf', e.target.value.toUpperCase())
-                          }
-                        />
-                      )}
-                      <Input
-                        className="w-24"
-                        type="number"
-                        placeholder={earning.type === 'percentage' ? '%' : 'Amount'}
-                        value={earning.defaultAmount || ''}
-                        onChange={(e) =>
-                          updateEarning(idx, 'defaultAmount', parseFloat(e.target.value) || 0)
-                        }
-                      />
-                      <div className="flex items-center gap-1">
-                        <Switch
-                          checked={earning.isTaxable}
-                          onCheckedChange={(v) => updateEarning(idx, 'isTaxable', v)}
-                        />
-                        <span className="text-xs text-muted-foreground">Tax</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => removeEarning(idx)}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Deductions */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-sm">Deductions</h4>
-                  <Button variant="outline" size="sm" onClick={addDeduction}>
-                    <Plus className="h-3 w-3 mr-1" /> Add
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  {formDeductions.map((deduction, idx) => (
-                    <div key={idx} className="flex items-center gap-2 p-2 bg-muted/30 rounded-md">
-                      <Input
-                        className="w-24"
-                        placeholder="Code"
-                        value={deduction.code}
-                        onChange={(e) => updateDeduction(idx, 'code', e.target.value.toUpperCase())}
-                      />
-                      <Input
-                        className="flex-1"
-                        placeholder="Name"
-                        value={deduction.name}
-                        onChange={(e) => updateDeduction(idx, 'name', e.target.value)}
-                      />
-                      <Select
-                        value={deduction.type}
-                        onValueChange={(v) => updateDeduction(idx, 'type', v)}
-                      >
-                        <SelectTrigger className="w-28">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="fixed">Fixed</SelectItem>
-                          <SelectItem value="percentage">% of</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Input
-                        className="w-24"
-                        type="number"
-                        placeholder={deduction.type === 'percentage' ? '%' : 'Amount'}
-                        value={deduction.defaultAmount || ''}
-                        onChange={(e) =>
-                          updateDeduction(idx, 'defaultAmount', parseFloat(e.target.value) || 0)
-                        }
-                      />
-                      <div className="flex items-center gap-1">
-                        <Switch
-                          checked={deduction.isStatutory}
-                          onCheckedChange={(v) => updateDeduction(idx, 'isStatutory', v)}
-                        />
-                        <span className="text-xs text-muted-foreground">Stat</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => removeDeduction(idx)}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Applies To — connect this structure to designations / staff roles */}
-              <div>
-                <h4 className="font-semibold text-sm mb-1">Applies To</h4>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Optional: target designations or roles. This structure will be auto-suggested when
-                  assigning salary to matching staff.
-                </p>
-                {designations.length > 0 && (
-                  <div className="mb-3">
-                    <Label className="text-xs text-muted-foreground">Designations</Label>
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      {designations.map((d) => {
-                        const selected = formDesignationIds.includes(d._id);
-                        return (
-                          <Badge
-                            key={d._id}
-                            variant={selected ? 'default' : 'outline'}
-                            className="cursor-pointer select-none"
-                            onClick={() =>
-                              setFormDesignationIds(
-                                selected
-                                  ? formDesignationIds.filter((id) => id !== d._id)
-                                  : [...formDesignationIds, d._id]
-                              )
-                            }
-                          >
-                            {d.name}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-                {roles.length > 0 && (
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Roles</Label>
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      {roles.map((r) => {
-                        const selected = formRoleCodes.includes(r.code);
-                        return (
-                          <Badge
-                            key={r.code}
-                            variant={selected ? 'default' : 'outline'}
-                            className="cursor-pointer select-none"
-                            onClick={() =>
-                              setFormRoleCodes(
-                                selected
-                                  ? formRoleCodes.filter((c) => c !== r.code)
-                                  : [...formRoleCodes, r.code]
-                              )
-                            }
-                          >
-                            {r.name}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-                {designations.length === 0 && roles.length === 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    No designations or roles available.
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <Select
-                  value={formStatus}
-                  onValueChange={(v) => setFormStatus(v as 'active' | 'inactive')}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <DialogFooter>
+              <DialogFooter className="mt-6">
                 <Button variant="outline" onClick={() => setDialogOpen(false)}>
                   Cancel
                 </Button>

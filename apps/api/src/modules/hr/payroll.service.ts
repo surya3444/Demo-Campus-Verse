@@ -5,6 +5,7 @@ import { ApiError } from '../../middleware/errorHandler';
 import { getPagination, buildPaginationMeta } from '../../utils/pagination';
 import { generatePayslipNumber } from '../../utils/generators';
 import { logger } from '../../lib/logger';
+import { computePayslip, DEFAULT_PAYROLL_SETTINGS, describeRules, type PayrollSettings } from './payrollMath';
 
 // ============ Salary Structures ============
 
@@ -814,174 +815,33 @@ class PayrollService {
         panNumber: staff.documents?.find((d: { type: string }) => d.type === 'PAN')?.number,
       };
 
-      // Calculate LOP
+      // Attendance → loss of pay; then the shared payroll maths (payrollMath.ts)
       const workingDays = payrollSettings.workingDaysPerMonth;
       const attendance = attendanceData.get(staffIdStr) || {
         present: workingDays,
         absent: 0,
         lopDays: 0,
       };
-      const lopDays = payrollSettings.autoCalculateLOP ? attendance.lopDays : 0;
-      const perDayRate = assignment.grossSalary / workingDays;
-      const lopDeduction = Math.round(lopDays * perDayRate * 100) / 100;
-
-      // Adjusted gross after LOP
-      const adjustedGross = assignment.grossSalary - lopDeduction;
-
-      // Calculate earnings (pro-rated if LOP). Personal allowances (individual
-      // top-ups over the structure) are included as regular earning line items.
-      const earningsRatio = lopDays > 0 ? (workingDays - lopDays) / workingDays : 1;
-      const payslipEarnings = [
-        ...(assignment.earnings || []),
-        ...(assignment.personalAllowances || []),
-      ].map((e: { code: string; name: string; amount: number }) => ({
-        code: e.code,
-        name: e.name,
-        amount: Math.round(e.amount * earningsRatio * 100) / 100,
-      }));
-
-      // Calculate statutory deductions
-      const basicAmount =
-        payslipEarnings.find((e: { code: string }) => e.code === 'BASIC')?.amount || 0;
-      const payslipDeductions: Array<{ code: string; name: string; amount: number }> = [];
-
-      // Non-auto-calculated deductions from assignment
-      for (const d of assignment.deductions || []) {
-        payslipDeductions.push({
-          code: d.code,
-          name: d.name,
-          amount: Math.round(d.amount * earningsRatio * 100) / 100,
-        });
-      }
-
-      // PF (employee contribution) - on basic, capped at 15000 basic
-      const pfBasic = Math.min(basicAmount, 15000);
-      const pfAmount = Math.round(pfBasic * (payrollSettings.employeePfRate / 100) * 100) / 100;
-      if (pfAmount > 0) {
-        // Replace if already exists from assignment, else add
-        const pfIdx = payslipDeductions.findIndex((d) => d.code === 'PF');
-        if (pfIdx >= 0) {
-          payslipDeductions[pfIdx].amount = pfAmount;
-        } else {
-          payslipDeductions.push({ code: 'PF', name: 'Provident Fund', amount: pfAmount });
-        }
-      }
-
-      // ESI (employee contribution) - only if gross <= threshold
-      if (adjustedGross <= payrollSettings.esiThreshold) {
-        const esiAmount =
-          Math.round(adjustedGross * (payrollSettings.esiEmployeeRate / 100) * 100) / 100;
-        if (esiAmount > 0) {
-          const esiIdx = payslipDeductions.findIndex((d) => d.code === 'ESI');
-          if (esiIdx >= 0) {
-            payslipDeductions[esiIdx].amount = esiAmount;
-          } else {
-            payslipDeductions.push({
-              code: 'ESI',
-              name: 'Employee State Insurance',
-              amount: esiAmount,
-            });
-          }
-        }
-      }
-
-      // Professional Tax (slab-based)
-      let ptAmount = 0;
-      for (const slab of payrollSettings.ptSlabs || []) {
-        if (adjustedGross >= slab.fromAmount && adjustedGross <= slab.toAmount) {
-          ptAmount = slab.tax;
-          break;
-        }
-      }
-      if (ptAmount > 0) {
-        const ptIdx = payslipDeductions.findIndex((d) => d.code === 'PT');
-        if (ptIdx >= 0) {
-          payslipDeductions[ptIdx].amount = ptAmount;
-        } else {
-          payslipDeductions.push({ code: 'PT', name: 'Professional Tax', amount: ptAmount });
-        }
-      }
-
-      // TDS calculation
-      const annualGross = adjustedGross * 12;
-      const standardDeduction = 75000;
-      const taxableIncome = Math.max(0, annualGross - standardDeduction);
-
-      let annualTax = 0;
-      if (payrollSettings.tdsRegime === 'new') {
-        // New Tax Regime (FY 2025-26)
-        const slabs = [
-          { limit: 300000, rate: 0 },
-          { limit: 700000, rate: 5 },
-          { limit: 1000000, rate: 10 },
-          { limit: 1200000, rate: 15 },
-          { limit: 1500000, rate: 20 },
-          { limit: Infinity, rate: 30 },
-        ];
-        let remaining = taxableIncome;
-        let prev = 0;
-        for (const slab of slabs) {
-          const taxable = Math.min(remaining, slab.limit - prev);
-          annualTax += taxable * (slab.rate / 100);
-          remaining -= taxable;
-          prev = slab.limit;
-          if (remaining <= 0) break;
-        }
-      } else {
-        // Old Tax Regime (simplified)
-        const slabs = [
-          { limit: 250000, rate: 0 },
-          { limit: 500000, rate: 5 },
-          { limit: 1000000, rate: 20 },
-          { limit: Infinity, rate: 30 },
-        ];
-        let remaining = taxableIncome;
-        let prev = 0;
-        for (const slab of slabs) {
-          const taxable = Math.min(remaining, slab.limit - prev);
-          annualTax += taxable * (slab.rate / 100);
-          remaining -= taxable;
-          prev = slab.limit;
-          if (remaining <= 0) break;
-        }
-      }
-
-      // Add 4% cess
-      annualTax = Math.round(annualTax * 1.04 * 100) / 100;
-      const monthlyTds = Math.round((annualTax / 12) * 100) / 100;
-
-      if (monthlyTds > 0) {
-        const tdsIdx = payslipDeductions.findIndex((d) => d.code === 'TDS');
-        if (tdsIdx >= 0) {
-          payslipDeductions[tdsIdx].amount = monthlyTds;
-        } else {
-          payslipDeductions.push({
-            code: 'TDS',
-            name: 'Tax Deducted at Source',
-            amount: monthlyTds,
-          });
-        }
-      }
-
-      // Custom deductions (loan recovery, advances)
-      for (const cd of assignment.customDeductions || []) {
-        if (!cd.isActive) continue;
-        if (cd.startMonth && period < cd.startMonth) continue;
-        if (cd.endMonth && period > cd.endMonth) continue;
-
-        payslipDeductions.push({
-          code: cd.code,
-          name: cd.name,
-          amount: cd.amount,
-        });
-      }
-
-      const grossEarnings = payslipEarnings.reduce(
-        (sum: number, e: { amount: number }) => sum + e.amount,
-        0
+      const slip = computePayslip(
+        {
+          earnings: assignment.earnings || [],
+          personalAllowances: assignment.personalAllowances || [],
+          deductions: assignment.deductions || [],
+          customDeductions: assignment.customDeductions || [],
+          period,
+          lopDays: attendance.lopDays,
+        },
+        { ...DEFAULT_PAYROLL_SETTINGS, ...payrollSettings }
       );
-      const totalDed = payslipDeductions.reduce((sum, d) => sum + d.amount, 0);
-      const netPayable = Math.round((grossEarnings - totalDed) * 100) / 100;
+      const {
+        lopDays,
+        lopDeduction,
+        earnings: payslipEarnings,
+        deductions: payslipDeductions,
+        grossEarnings,
+        totalDeductions: totalDed,
+        netPayable,
+      } = slip;
 
       const payslipNumber = await generatePayslipNumber(
         tenantId,
@@ -1009,13 +869,9 @@ class PayrollService {
         grossEarnings,
         totalDeductions: totalDed,
         netPayable,
-        tds: {
-          annualProjectedIncome: annualGross,
-          taxableIncome,
-          annualTax,
-          monthlyTds,
-          regime: payrollSettings.tdsRegime,
-        },
+        tds: slip.tds,
+        employerContributions: slip.employer,
+        monthlyCost: slip.monthlyCost,
         disbursement: {
           status: 'pending',
         },
@@ -1502,6 +1358,131 @@ class PayrollService {
         net: round(d.net),
       })),
     };
+  }
+
+  // --- Rules, preview and the payout sandbox ---
+
+  /** This campus's payroll rules in plain words, with its own numbers. */
+  async getRules(tenantId: string, branchId: string) {
+    const settings = { ...DEFAULT_PAYROLL_SETTINGS, ...(await this.getPayrollSettings(tenantId, branchId)) } as PayrollSettings;
+    return { settings, rules: describeRules(settings) };
+  }
+
+  /** A payslip for any salary, before anyone is paid it (structure editor, rules page). */
+  async preview(
+    tenantId: string,
+    branchId: string,
+    data: { earnings: Array<{ code: string; name: string; amount: number }>; deductions?: Array<{ code: string; name: string; amount: number }>; lopDays?: number; regime?: 'old' | 'new' }
+  ) {
+    const settings = { ...DEFAULT_PAYROLL_SETTINGS, ...(await this.getPayrollSettings(tenantId, branchId)) } as PayrollSettings;
+    return computePayslip(
+      { earnings: data.earnings, deductions: data.deductions, lopDays: data.lopDays },
+      data.regime ? { ...settings, tdsRegime: data.regime } : settings
+    );
+  }
+
+  /**
+   * CampusPay sandbox: a simulated bank payout for a finalized run. No money
+   * moves and no payment provider is called (RazorpayX stays untouched).
+   * Each unpaid payslip is "credited" with a UTR when the person has a bank
+   * account on file, and fails with a reason when they don't — so the run
+   * can be retried after the account is added.
+   */
+  async simulatePayout(tenantId: string, branchId: string, runId: string, userId: string) {
+    const run = await collections.payrollRuns.findOne({
+      _id: new ObjectId(runId),
+      tenantId: new ObjectId(tenantId),
+      branchId: new ObjectId(branchId),
+    });
+    if (!run) throw new ApiError('PAYROLL_RUN_NOT_FOUND', 'Payroll run not found', 404);
+    if (run.status !== 'finalized') {
+      throw new ApiError('RUN_NOT_FINALIZED', 'Finalize this payroll before paying it', 400);
+    }
+    const slips = await collections.payslips
+      .find({ payrollRunId: run._id, status: { $ne: 'draft' }, 'disbursement.status': { $ne: 'paid' } })
+      .project({ staffId: 1, netPayable: 1, staffSnapshot: 1 })
+      .toArray();
+    if (!slips.length) throw new ApiError('NOTHING_TO_PAY', 'Everyone in this run has already been paid', 400);
+    const staff = await collections.staff
+      .find({ _id: { $in: slips.map((p) => p.staffId) } })
+      .project({ bankDetails: 1, displayName: 1, photo: 1 })
+      .toArray();
+    const bankOf = new Map(staff.map((x) => [String(x._id), x]));
+
+    const now = new Date();
+    const stamp = now.toISOString().slice(2, 10).replace(/-/g, '');
+    const batchRef = `CVPAY${stamp}${String(Math.floor(Math.random() * 1e6)).padStart(6, '0')}`;
+    const mask = (acct?: string) => (acct ? `•••• ${acct.slice(-4)}` : null);
+    const items = slips.map((p, i) => {
+      const st = bankOf.get(String(p.staffId));
+      const bank = st?.bankDetails;
+      const ok = !!bank?.accountNumber && !!bank?.ifscCode;
+      return {
+        payslipId: String(p._id),
+        staffId: String(p.staffId),
+        name: (st?.displayName as string) ?? p.staffSnapshot?.displayName,
+        employeeId: p.staffSnapshot?.employeeId ?? null,
+        photo: (st?.photo as string) ?? null,
+        bank: bank?.bankName ?? null,
+        account: mask(bank?.accountNumber),
+        amount: Math.round(Number(p.netPayable) * 100) / 100,
+        status: ok ? ('paid' as const) : ('failed' as const),
+        utr: ok ? `${(bank!.ifscCode as string).slice(0, 4)}N${stamp}${String(100000 + i).slice(-6)}${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}` : null,
+        reason: ok ? null : 'No bank account on file',
+      };
+    });
+
+    const paid = items.filter((x) => x.status === 'paid');
+    const failed = items.filter((x) => x.status === 'failed');
+    if (paid.length) {
+      await collections.payslips.bulkWrite(
+        paid.map((x) => ({
+          updateOne: {
+            filter: { _id: new ObjectId(x.payslipId) },
+            update: {
+              $set: {
+                'disbursement.status': 'paid',
+                'disbursement.paymentMode': 'bank_transfer',
+                'disbursement.paymentReference': x.utr,
+                'disbursement.batchReference': batchRef,
+                'disbursement.remarks': 'CampusPay sandbox payout',
+                'disbursement.paidAt': now,
+                'disbursement.paidBy': new ObjectId(userId),
+                updatedAt: now,
+              },
+            },
+          },
+        }))
+      );
+    }
+    if (failed.length) {
+      await collections.payslips.updateMany(
+        { _id: { $in: failed.map((x) => new ObjectId(x.payslipId)) } },
+        { $set: { 'disbursement.status': 'failed', 'disbursement.remarks': 'No bank account on file', 'disbursement.batchReference': batchRef, updatedAt: now } }
+      );
+    }
+    const total = (xs: typeof items) => Math.round(xs.reduce((n, x) => n + x.amount, 0) * 100) / 100;
+    const batch = {
+      tenantId: new ObjectId(tenantId),
+      branchId: new ObjectId(branchId),
+      payrollRunId: run._id,
+      period: run.period,
+      reference: batchRef,
+      mode: 'sandbox',
+      count: items.length,
+      paidCount: paid.length,
+      failedCount: failed.length,
+      paidAmount: total(paid),
+      failedAmount: total(failed),
+      initiatedBy: new ObjectId(userId),
+      createdAt: now,
+    };
+    await collections.payrollRuns.updateOne(
+      { _id: run._id },
+      { $push: { payoutBatches: batch } as never, $set: { updatedAt: now } }
+    );
+    logger.info({ runId, batchRef, paid: paid.length, failed: failed.length }, 'Sandbox payout completed');
+    return { ...batch, payrollRunId: runId, items };
   }
 }
 

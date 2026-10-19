@@ -3230,6 +3230,26 @@ export const payrollApi = {
     const response = await api.get('/hr/payroll-runs', { params });
     return response.data;
   },
+  /** This campus's payroll rules in plain words, with its settings. */
+  getPayrollRules: async () => {
+    const response = await api.get('/hr/payroll/rules');
+    return response.data as { data: { settings: Record<string, unknown>; rules: Array<{ key: string; title: string; rule: string }> } };
+  },
+  /** A payslip for any salary — same maths as a real pay run. */
+  previewPayslip: async (data: {
+    earnings: Array<{ code: string; name: string; amount: number }>;
+    deductions?: Array<{ code: string; name: string; amount: number }>;
+    lopDays?: number;
+    regime?: 'old' | 'new';
+  }) => {
+    const response = await api.post('/hr/payroll/preview', data);
+    return response.data as { data: PayslipPreview };
+  },
+  /** CampusPay sandbox: a simulated bank payout for a finalized run. */
+  simulatePayout: async (id: string) => {
+    const response = await api.post(`/hr/payroll-runs/${id}/simulate-payout`);
+    return response.data as { data: SandboxPayout };
+  },
   /** Record a finalized run as paid by bank transfer (no gateway; moves no money). */
   markPayrollRunPaid: async (id: string, paymentReference: string) => {
     const response = await api.put(`/hr/payroll-runs/${id}/mark-paid`, { paymentReference });
@@ -7988,4 +8008,45 @@ export interface Student360 {
   idCard: { title: string | null; subtitle: string | null; primary: string | null; accent: string | null; signatureLabel: string | null; validTill: string | null } | null;
   timeline: Array<{ date: string; kind: string; title: string; detail?: string | null }>;
   visible: Record<string, boolean>;
+}
+
+export interface PayslipPreview {
+  workingDays: number;
+  lopDays: number;
+  lopDeduction: number;
+  fullGross: number;
+  earnings: Array<{ code: string; name: string; amount: number }>;
+  deductions: Array<{ code: string; name: string; amount: number }>;
+  grossEarnings: number;
+  totalDeductions: number;
+  netPayable: number;
+  employer: { pf: number; esi: number; total: number };
+  monthlyCost: number;
+  tds: { regime: 'old' | 'new'; annualProjectedIncome: number; standardDeduction: number; taxableIncome: number; slabTax: number; rebate: number; cess: number; annualTax: number; monthlyTds: number };
+  explain: string[];
+}
+
+export interface SandboxPayout {
+  payrollRunId: string;
+  period: string;
+  reference: string;
+  count: number;
+  paidCount: number;
+  failedCount: number;
+  paidAmount: number;
+  failedAmount: number;
+  createdAt: string;
+  items: Array<{
+    payslipId: string;
+    staffId: string;
+    name: string;
+    employeeId: string | null;
+    photo: string | null;
+    bank: string | null;
+    account: string | null;
+    amount: number;
+    status: 'paid' | 'failed';
+    utr: string | null;
+    reason: string | null;
+  }>;
 }
