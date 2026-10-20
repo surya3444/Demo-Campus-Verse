@@ -271,7 +271,9 @@ class AiService {
     args: Record<string, unknown>
   ): Promise<unknown> {
     try {
-      return await tool.execute(ctx, args);
+      const result = await tool.execute(ctx, args);
+      logger.debug({ tool: tool.name, args, result: JSON.stringify(result).slice(0, 400) }, 'AI tool call');
+      return result;
     } catch (err) {
       logger.warn({ err, tool: tool.name, tenantId: ctx.tenantId }, 'AI tool execution failed');
       return { error: err instanceof Error ? err.message : 'Tool execution failed' };

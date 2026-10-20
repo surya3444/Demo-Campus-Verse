@@ -32,6 +32,7 @@ export const TOOL_LABELS: Record<string, string> = {
   create_lead: 'a new lead form',
   update_lead_stage: 'the lead',
   add_lead_followup: 'the lead',
+  get_timetable: 'the timetable',
   list_api: 'what I can do there',
   call_api: 'the platform',
   open_page: 'the page',

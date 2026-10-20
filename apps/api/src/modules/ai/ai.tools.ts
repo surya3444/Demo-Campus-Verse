@@ -16,6 +16,7 @@ import { leaveService } from '../hr/leave.service';
 import { dashboardService } from '../dashboard/dashboard.service';
 import { gradeService } from '../teaching/grade.service';
 import { reportCardService } from '../exams/reportCard.service';
+import { timetableService } from '../teaching/timetable.service';
 import type { ToolContext, ToolDefinition, ToolResult } from './ai.types';
 import { PLATFORM_TOOLS } from './ai.platform';
 
@@ -165,6 +166,65 @@ async function resolveLead(
   }
 
   throw new ApiError('LEAD_REF_REQUIRED', 'Provide a lead number or a name/phone to search.', 400);
+}
+
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+/**
+ * Find a section from loose wording ("mech year 4 A", "Grade 5 B"): every word
+ * must prefix-match the class name or equal the section name. Throws a
+ * model-readable error listing candidates when nothing or too much matches.
+ */
+async function resolveSectionByName(ctx: ToolContext, query: string): Promise<{ id: string; label: string }> {
+  const base = { tenantId: new ObjectId(ctx.tenantId), branchId: new ObjectId(ctx.branchId) };
+  const [sections, classes] = await Promise.all([
+    collections.sections.find(base, { projection: { name: 1, classId: 1 } }).toArray(),
+    collections.classes.find(base, { projection: { displayName: 1, name: 1 } }).toArray(),
+  ]);
+  const className = new Map(classes.map((c) => [String(c._id), String(c.displayName ?? c.name ?? '')]));
+  const words = query.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w && !['year', 'class', 'section', 'sec', 'grade', 'the', 'of'].includes(w));
+  const scored = sections.map((sec) => {
+    const cls = className.get(String(sec.classId)) ?? '';
+    const tokens = cls.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    const secName = String(sec.name ?? '').toLowerCase();
+    const hits = words.filter((w) => w === secName || tokens.some((t) => t === w || (w.length > 2 && t.startsWith(w)))).length;
+    return { id: String(sec._id), label: `${cls} · Section ${String(sec.name ?? '')}`, hits, exactSection: words.includes(secName) };
+  });
+  const best = Math.max(0, ...scored.map((x) => x.hits));
+  let top = scored.filter((x) => x.hits === best && best > 0);
+  if (top.length > 1 && top.some((x) => x.exactSection)) top = top.filter((x) => x.exactSection);
+  if (top.length === 1 && best >= Math.min(words.length, 2)) return top[0];
+  if (top.length === 0) throw new ApiError('SECTION_NOT_FOUND', `No class/section matches "${query}".`, 404);
+  throw new ApiError(
+    'SECTION_AMBIGUOUS',
+    `"${query}" matches several sections: ${top.slice(0, 8).map((x) => x.label).join('; ')}. Ask the user which one.`,
+    400
+  );
+}
+
+type TimetableRow = { dayOfWeek: number; startTime?: string; endTime?: string; slotOrder?: number; subjectName?: string; teacherName?: string; className?: string; sectionName?: string; roomNumber?: string; batchName?: string | null };
+
+/** A week as compact day → periods rows, small enough to show whole. */
+function weekView(rows: TimetableRow[], withClass: boolean) {
+  return [...new Set(rows.map((r) => r.dayOfWeek))]
+    .sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7))
+    .map((d) => ({
+      day: DAYS[d] ?? String(d),
+      periods: rows
+        .filter((r) => r.dayOfWeek === d)
+        .sort((a, b) => (a.slotOrder ?? 0) - (b.slotOrder ?? 0))
+        .map((r) =>
+          [
+            `${r.startTime ?? ''}–${r.endTime ?? ''}`,
+            r.subjectName,
+            withClass ? `${r.className ?? ''} ${r.sectionName ?? ''}`.trim() : r.teacherName,
+            r.batchName ? `batch ${r.batchName}` : '',
+            r.roomNumber ? `room ${r.roomNumber}` : '',
+          ]
+            .filter(Boolean)
+            .join(' | ')
+        ),
+    }));
 }
 
 /** Best-effort audit trail for AI-initiated writes. Never blocks the action. */
@@ -515,6 +575,64 @@ export const TOOLS: ToolDefinition[] = [
   },
 
   // ---- Write tools (proposed → confirmed → executed) ----
+
+  {
+    name: 'get_timetable',
+    description:
+      'Get a weekly class timetable (day → periods with time, subject and teacher). Identify it by ONE of: section (loose class wording like "Mech Year 4 A" or "Grade 5 B"), student (name or admission number — returns their section\'s timetable), or teacher (staff name or employee id — returns the periods they teach). Use for "timetable of …", "what does X have on Monday", "when does teacher Y teach".',
+    kind: 'read',
+    requiredPermission: { module: 'teaching.timetable', action: 'view' },
+    parameters: {
+      type: 'object',
+      properties: {
+        section: { type: 'string', description: 'Class + section wording, e.g. "B.Tech Mechanical Year 4 A"' },
+        student: { type: 'string', description: 'Student name or admission number' },
+        teacher: { type: 'string', description: 'Teacher name or employee id' },
+      },
+      additionalProperties: false,
+    },
+    async execute(ctx, args): Promise<ToolResult> {
+      const base = { tenantId: new ObjectId(ctx.tenantId), branchId: new ObjectId(ctx.branchId) };
+      if (args.teacher) {
+        const rx = { $regex: escapeRegex(String(args.teacher).trim()), $options: 'i' };
+        const staff = await collections.staff
+          .find({ ...base, status: { $ne: 'terminated' }, $or: [{ displayName: rx }, { employeeId: rx }] }, { projection: { displayName: 1, employeeId: 1 } })
+          .limit(6)
+          .toArray();
+        if (staff.length !== 1) {
+          return { data: { error: staff.length ? `Several staff match: ${staff.map((x) => `${x.displayName} (${x.employeeId})`).join(', ')}. Ask which one.` : `No staff member matches "${String(args.teacher)}".` } };
+        }
+        const rows = (await timetableService.getMyTimetable(ctx.tenantId, ctx.branchId, String(staff[0]._id))) as TimetableRow[];
+        return { data: { teacher: staff[0].displayName, periodsPerWeek: rows.length, week: weekView(rows, true) }, link: '/teaching/timetable' };
+      }
+      let section: { id: string; label: string };
+      if (args.student) {
+        const q = String(args.student).trim();
+        // "Devika Antony (MEDC-AY2627-0918)": an admission number anywhere wins, else the name.
+        const tokens = q.split(/[\s(),]+/).filter(Boolean);
+        const name = q.replace(/\(.*?\)/g, '').trim();
+        const rx = { $regex: escapeRegex(name || q), $options: 'i' };
+        const byNumber = await collections.students.countDocuments({ ...base, status: 'active', admissionNumber: { $in: tokens } });
+        const students = await collections.students
+          .find({ ...base, status: 'active', ...(byNumber ? { admissionNumber: { $in: tokens } } : { displayName: rx }) }, { projection: { displayName: 1, admissionNumber: 1, currentEnrollment: 1 } })
+          .limit(6)
+          .toArray();
+        if (students.length !== 1) {
+          return { data: { error: students.length ? `Several students match: ${students.map((x) => `${x.displayName} (${x.admissionNumber})`).join(', ')}. Ask which one.` : `No active student matches "${q}".` } };
+        }
+        const e = (students[0].currentEnrollment ?? {}) as Record<string, unknown>;
+        if (!e.sectionId) return { data: { error: `${students[0].displayName} is not assigned to a section.` } };
+        section = { id: String(e.sectionId), label: `${String(e.className ?? '')} · Section ${String(e.sectionName ?? '')} (${students[0].displayName})` };
+      } else if (args.section) {
+        section = await resolveSectionByName(ctx, String(args.section));
+      } else {
+        return { data: { error: 'Say which class/section, student or teacher.' } };
+      }
+      const rows = (await timetableService.getSectionTimetable(ctx.tenantId, ctx.branchId, section.id)) as TimetableRow[];
+      if (rows.length === 0) return { data: { section: section.label, message: 'No timetable has been set up for this section yet.' }, link: '/teaching/timetable' };
+      return { data: { section: section.label, periodsPerWeek: rows.length, week: weekView(rows, false) }, link: '/teaching/timetable' };
+    },
+  },
 
   {
     name: 'create_lead',
