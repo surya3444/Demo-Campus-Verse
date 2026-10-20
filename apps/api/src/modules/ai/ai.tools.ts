@@ -90,6 +90,8 @@ function compactStudent(s: Record<string, unknown>): Record<string, unknown> {
   const enrollment = (s.currentEnrollment ?? {}) as Record<string, unknown>;
   const contact = (s.contact ?? {}) as Record<string, unknown>;
   return {
+    // For follow-up calls (e.g. GET /students/:id/360); the model never shows it.
+    id: s._id ? String(s._id) : undefined,
     name: s.displayName ?? `${s.firstName ?? ''} ${s.lastName ?? ''}`.trim(),
     admissionNumber: s.admissionNumber,
     class: enrollment.className,
@@ -175,34 +177,77 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
  * must prefix-match the class name or equal the section name. Throws a
  * model-readable error listing candidates when nothing or too much matches.
  */
-async function resolveSectionByName(ctx: ToolContext, query: string): Promise<{ id: string; label: string }> {
+async function resolveSectionByName(
+  ctx: ToolContext,
+  query: string
+): Promise<{ id: string; label: string }> {
   const base = { tenantId: new ObjectId(ctx.tenantId), branchId: new ObjectId(ctx.branchId) };
   const [sections, classes] = await Promise.all([
     collections.sections.find(base, { projection: { name: 1, classId: 1 } }).toArray(),
     collections.classes.find(base, { projection: { displayName: 1, name: 1 } }).toArray(),
   ]);
-  const className = new Map(classes.map((c) => [String(c._id), String(c.displayName ?? c.name ?? '')]));
-  const words = query.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w && !['year', 'class', 'section', 'sec', 'grade', 'the', 'of'].includes(w));
+  const className = new Map(
+    classes.map((c) => [String(c._id), String(c.displayName ?? c.name ?? '')])
+  );
+  const words = query
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w && !['year', 'class', 'section', 'sec', 'grade', 'the', 'of'].includes(w));
   const scored = sections.map((sec) => {
     const cls = className.get(String(sec.classId)) ?? '';
-    const tokens = cls.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    const tokens = cls
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter(Boolean);
     const secName = String(sec.name ?? '').toLowerCase();
-    const hits = words.filter((w) => w === secName || tokens.some((t) => t === w || (w.length > 2 && t.startsWith(w)))).length;
-    return { id: String(sec._id), label: `${cls} · Section ${String(sec.name ?? '')}`, hits, exactSection: words.includes(secName) };
+    const hits = words.filter(
+      (w) => w === secName || tokens.some((t) => t === w || (w.length > 2 && t.startsWith(w)))
+    ).length;
+    // Words in the class name the user did NOT say: "Management" beats "Management Studies".
+    const extra = tokens.filter(
+      (t) => !words.some((w) => t === w || (w.length > 2 && t.startsWith(w)))
+    ).length;
+    return {
+      id: String(sec._id),
+      label: `${cls} · Section ${String(sec.name ?? '')}`,
+      hits,
+      extra,
+      exactSection: words.includes(secName),
+    };
   });
   const best = Math.max(0, ...scored.map((x) => x.hits));
   let top = scored.filter((x) => x.hits === best && best > 0);
   if (top.length > 1 && top.some((x) => x.exactSection)) top = top.filter((x) => x.exactSection);
+  // Only an exact name settles a tie; "MBA year 1" alone stays a question.
+  if (top.length > 1 && top.filter((x) => x.extra === 0).length === 1)
+    top = top.filter((x) => x.extra === 0);
   if (top.length === 1 && best >= Math.min(words.length, 2)) return top[0];
-  if (top.length === 0) throw new ApiError('SECTION_NOT_FOUND', `No class/section matches "${query}".`, 404);
+  if (top.length === 0)
+    throw new ApiError('SECTION_NOT_FOUND', `No class/section matches "${query}".`, 404);
   throw new ApiError(
     'SECTION_AMBIGUOUS',
-    `"${query}" matches several sections: ${top.slice(0, 8).map((x) => x.label).join('; ')}. Ask the user which one.`,
+    `"${query}" matches several sections: ${top
+      .slice(0, 8)
+      .map((x) => `${x.label} [sectionId ${x.id}]`)
+      .join(
+        '; '
+      )}. Ask the user which one (don't show the ids), then call again with that sectionId.`,
     400
   );
 }
 
-type TimetableRow = { dayOfWeek: number; startTime?: string; endTime?: string; slotOrder?: number; subjectName?: string; teacherName?: string; className?: string; sectionName?: string; roomNumber?: string; batchName?: string | null };
+type TimetableRow = {
+  dayOfWeek: number;
+  startTime?: string;
+  endTime?: string;
+  slotOrder?: number;
+  subjectName?: string;
+  teacherName?: string;
+  className?: string;
+  sectionName?: string;
+  roomNumber?: string;
+  batchName?: string | null;
+};
 
 /** A week as compact day → periods rows, small enough to show whole. */
 function weekView(rows: TimetableRow[], withClass: boolean) {
@@ -579,13 +624,21 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: 'get_timetable',
     description:
-      'Get a weekly class timetable (day → periods with time, subject and teacher). Identify it by ONE of: section (loose class wording like "Mech Year 4 A" or "Grade 5 B"), student (name or admission number — returns their section\'s timetable), or teacher (staff name or employee id — returns the periods they teach). Use for "timetable of …", "what does X have on Monday", "when does teacher Y teach".',
+      'Get a weekly class timetable (day → periods with time, subject and teacher). Identify it by ONE of: sectionId (after the user picked from candidates), section (loose class wording like "Mech Year 4 A" or "Grade 5 B"), student (name or admission number — returns their section\'s timetable), or teacher (staff name or employee id — returns the periods they teach). Use for "timetable of …", "what does X have on Monday", "when does teacher Y teach".',
     kind: 'read',
     requiredPermission: { module: 'teaching.timetable', action: 'view' },
     parameters: {
       type: 'object',
       properties: {
-        section: { type: 'string', description: 'Class + section wording, e.g. "B.Tech Mechanical Year 4 A"' },
+        section: {
+          type: 'string',
+          description: 'Class + section wording, e.g. "B.Tech Mechanical Year 4 A"',
+        },
+        sectionId: {
+          type: 'string',
+          description:
+            'Exact section id from an earlier candidate list (use after the user picks one)',
+        },
         student: { type: 'string', description: 'Student name or admission number' },
         teacher: { type: 'string', description: 'Teacher name or employee id' },
       },
@@ -596,14 +649,38 @@ export const TOOLS: ToolDefinition[] = [
       if (args.teacher) {
         const rx = { $regex: escapeRegex(String(args.teacher).trim()), $options: 'i' };
         const staff = await collections.staff
-          .find({ ...base, status: { $ne: 'terminated' }, $or: [{ displayName: rx }, { employeeId: rx }] }, { projection: { displayName: 1, employeeId: 1 } })
+          .find(
+            {
+              ...base,
+              status: { $ne: 'terminated' },
+              $or: [{ displayName: rx }, { employeeId: rx }],
+            },
+            { projection: { displayName: 1, employeeId: 1 } }
+          )
           .limit(6)
           .toArray();
         if (staff.length !== 1) {
-          return { data: { error: staff.length ? `Several staff match: ${staff.map((x) => `${x.displayName} (${x.employeeId})`).join(', ')}. Ask which one.` : `No staff member matches "${String(args.teacher)}".` } };
+          return {
+            data: {
+              error: staff.length
+                ? `Several staff match: ${staff.map((x) => `${x.displayName} (${x.employeeId})`).join(', ')}. Ask which one.`
+                : `No staff member matches "${String(args.teacher)}".`,
+            },
+          };
         }
-        const rows = (await timetableService.getMyTimetable(ctx.tenantId, ctx.branchId, String(staff[0]._id))) as TimetableRow[];
-        return { data: { teacher: staff[0].displayName, periodsPerWeek: rows.length, week: weekView(rows, true) }, link: '/teaching/timetable' };
+        const rows = (await timetableService.getMyTimetable(
+          ctx.tenantId,
+          ctx.branchId,
+          String(staff[0]._id)
+        )) as TimetableRow[];
+        return {
+          data: {
+            teacher: staff[0].displayName,
+            periodsPerWeek: rows.length,
+            week: weekView(rows, true),
+          },
+          link: '/teaching/timetable',
+        };
       }
       let section: { id: string; label: string };
       if (args.student) {
@@ -612,25 +689,74 @@ export const TOOLS: ToolDefinition[] = [
         const tokens = q.split(/[\s(),]+/).filter(Boolean);
         const name = q.replace(/\(.*?\)/g, '').trim();
         const rx = { $regex: escapeRegex(name || q), $options: 'i' };
-        const byNumber = await collections.students.countDocuments({ ...base, status: 'active', admissionNumber: { $in: tokens } });
+        const byNumber = await collections.students.countDocuments({
+          ...base,
+          status: 'active',
+          admissionNumber: { $in: tokens },
+        });
         const students = await collections.students
-          .find({ ...base, status: 'active', ...(byNumber ? { admissionNumber: { $in: tokens } } : { displayName: rx }) }, { projection: { displayName: 1, admissionNumber: 1, currentEnrollment: 1 } })
+          .find(
+            {
+              ...base,
+              status: 'active',
+              ...(byNumber ? { admissionNumber: { $in: tokens } } : { displayName: rx }),
+            },
+            { projection: { displayName: 1, admissionNumber: 1, currentEnrollment: 1 } }
+          )
           .limit(6)
           .toArray();
         if (students.length !== 1) {
-          return { data: { error: students.length ? `Several students match: ${students.map((x) => `${x.displayName} (${x.admissionNumber})`).join(', ')}. Ask which one.` : `No active student matches "${q}".` } };
+          return {
+            data: {
+              error: students.length
+                ? `Several students match: ${students.map((x) => `${x.displayName} (${x.admissionNumber})`).join(', ')}. Ask which one.`
+                : `No active student matches "${q}".`,
+            },
+          };
         }
         const e = (students[0].currentEnrollment ?? {}) as Record<string, unknown>;
-        if (!e.sectionId) return { data: { error: `${students[0].displayName} is not assigned to a section.` } };
-        section = { id: String(e.sectionId), label: `${String(e.className ?? '')} · Section ${String(e.sectionName ?? '')} (${students[0].displayName})` };
+        if (!e.sectionId)
+          return { data: { error: `${students[0].displayName} is not assigned to a section.` } };
+        section = {
+          id: String(e.sectionId),
+          label: `${String(e.className ?? '')} · Section ${String(e.sectionName ?? '')} (${students[0].displayName})`,
+        };
+      } else if (args.sectionId && ObjectId.isValid(String(args.sectionId))) {
+        const sec = await collections.sections.findOne(
+          { ...base, _id: new ObjectId(String(args.sectionId)) },
+          { projection: { name: 1, classId: 1 } }
+        );
+        if (!sec) return { data: { error: 'That section no longer exists.' } };
+        const cls = await collections.classes.findOne(
+          { _id: sec.classId as ObjectId },
+          { projection: { displayName: 1, name: 1 } }
+        );
+        section = {
+          id: String(sec._id),
+          label: `${String(cls?.displayName ?? cls?.name ?? '')} · Section ${String(sec.name ?? '')}`,
+        };
       } else if (args.section) {
         section = await resolveSectionByName(ctx, String(args.section));
       } else {
         return { data: { error: 'Say which class/section, student or teacher.' } };
       }
-      const rows = (await timetableService.getSectionTimetable(ctx.tenantId, ctx.branchId, section.id)) as TimetableRow[];
-      if (rows.length === 0) return { data: { section: section.label, message: 'No timetable has been set up for this section yet.' }, link: '/teaching/timetable' };
-      return { data: { section: section.label, periodsPerWeek: rows.length, week: weekView(rows, false) }, link: '/teaching/timetable' };
+      const rows = (await timetableService.getSectionTimetable(
+        ctx.tenantId,
+        ctx.branchId,
+        section.id
+      )) as TimetableRow[];
+      if (rows.length === 0)
+        return {
+          data: {
+            section: section.label,
+            message: 'No timetable has been set up for this section yet.',
+          },
+          link: '/teaching/timetable',
+        };
+      return {
+        data: { section: section.label, periodsPerWeek: rows.length, week: weekView(rows, false) },
+        link: '/teaching/timetable',
+      };
     },
   },
 
