@@ -3,6 +3,7 @@ import { env } from '../../config/env';
 import { logger } from '../../lib/logger';
 import { ApiError } from '../../middleware/errorHandler';
 import { buildToolsForUser, getPermittedTool } from './ai.tools';
+import { areaIndex } from './ai.catalog';
 import { buildSystemPrompt, loadAssistantContext } from './ai.prompts';
 import type { ChatMessage, ToolContext, ToolDefinition, ToolResult } from './ai.types';
 
@@ -11,13 +12,17 @@ type ChatTool = OpenAI.Chat.Completions.ChatCompletionTool;
 
 /** SSE event sink wired to the HTTP response by the controller. */
 export type Emit = (
-  event: 'delta' | 'tool' | 'confirm' | 'form' | 'done' | 'error',
+  event: 'delta' | 'tool' | 'confirm' | 'form' | 'navigate' | 'done' | 'error',
   data: unknown
 ) => void;
 
 // Safety bound on the agentic loop: model → tools → model → … Each iteration is
 // one model turn; tool execution between turns doesn't count against this.
-const MAX_ITERATIONS = 6;
+const MAX_ITERATIONS = 10;
+
+// Multi-step platform work (find ids → read → act) needs the stronger model;
+// simple questions answered by a dedicated tool stay on the fast, cheap one.
+const PLATFORM_TOOL_NAMES = new Set(['list_api', 'call_api']);
 
 function toOpenAITool(tool: ToolDefinition): ChatTool {
   return {
@@ -77,9 +82,15 @@ class AiService {
 
     const tools = buildToolsForUser(ctx.user);
     const context = await loadAssistantContext(ctx);
+    const hasPlatform = tools.some((t) => t.name === 'call_api');
     const system = buildSystemPrompt(
       context,
-      tools.map((t) => t.name)
+      tools.map((t) => t.name),
+      {
+        areas: hasPlatform ? areaIndex(ctx.user) : undefined,
+        pages: ctx.pages,
+        currentPath: ctx.currentPath,
+      }
     );
     const openaiTools = tools.map(toOpenAITool);
 
@@ -88,13 +99,18 @@ class AiService {
       ...messages.map((m) => ({ role: m.role, content: m.content }) as ChatParam),
     ];
 
+    let model = env.OPENAI_CHAT_MODEL;
+
     for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
       if (signal?.aborted) return;
 
       const stream = await client.chat.completions.create(
         {
-          model: env.OPENAI_CHAT_MODEL,
+          model,
           messages: convo,
+          // GPT-5.x on Chat Completions only allows function tools without
+          // hidden reasoning; "none" is also the fastest setting for chat.
+          ...(model.startsWith('gpt-5') ? { reasoning_effort: 'none' as unknown as 'low' } : {}),
           ...(openaiTools.length > 0 ? { tools: openaiTools, tool_choice: 'auto' as const } : {}),
           stream: true,
         },
@@ -130,6 +146,7 @@ class AiService {
         // No tool requested — the model has produced its final answer.
         return;
       }
+      if (calls.some((c) => PLATFORM_TOOL_NAMES.has(c.name))) model = env.OPENAI_CHAT_MODEL_COMPLEX;
 
       // Replay the assistant's tool-call turn (required before any tool result).
       convo.push({
@@ -147,7 +164,8 @@ class AiService {
       const classified = calls.map((call) => {
         const tool = getPermittedTool(ctx.user, call.name);
         const args = parseArgs(call.args);
-        if (tool && tool.kind === 'write' && tool.argsSchema) {
+        const writes = tool?.kind === 'write' && (tool.isWrite ? tool.isWrite(args) : true);
+        if (tool && writes && tool.argsSchema) {
           return {
             call,
             tool,
@@ -209,6 +227,8 @@ class AiService {
         } else {
           emit('tool', { name: c.call.name });
           content = await this.runTool(ctx, c.tool, c.args);
+          const href = (content as { data?: { navigate?: string } })?.data?.navigate;
+          if (href) emit('navigate', { href });
         }
         convo.push({ role: 'tool', tool_call_id: c.call.id, content: JSON.stringify(content) });
       }
@@ -231,7 +251,7 @@ class AiService {
     rawArgs: Record<string, unknown>
   ): Promise<ToolResult> {
     const tool = getPermittedTool(ctx.user, toolName);
-    if (!tool || tool.kind !== 'write' || !tool.argsSchema) {
+    if (!tool || tool.kind !== 'write' || !tool.argsSchema || tool.isWrite?.(rawArgs) === false) {
       throw new ApiError('AI_ACTION_NOT_ALLOWED', 'This action is not available to you.', 403);
     }
     const parsed = tool.argsSchema.safeParse(rawArgs);

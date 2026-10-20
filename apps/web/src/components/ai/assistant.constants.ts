@@ -32,14 +32,17 @@ export const TOOL_LABELS: Record<string, string> = {
   create_lead: 'a new lead form',
   update_lead_stage: 'the lead',
   add_lead_followup: 'the lead',
+  list_api: 'what I can do there',
+  call_api: 'the platform',
+  open_page: 'the page',
 };
 
 /** Compact prompt chips for the floating widget. */
 export const SUGGESTIONS = [
   "Give me today's summary",
-  'How many active students do we have?',
-  'What are the total pending fees?',
-  "What's today's attendance?",
+  'Show fees and attendance for a student',
+  'Which hostel rooms have free beds?',
+  'Open the fee counter',
 ];
 
 export interface SuggestionGroup {
@@ -53,22 +56,22 @@ export const SUGGESTION_GROUPS: SuggestionGroup[] = [
   {
     label: 'Overview',
     icon: BarChart3,
-    prompts: ["Give me today's branch summary", 'How many active students do we have?'],
+    prompts: ["Give me today's branch summary", 'Which classes have the lowest attendance this week?'],
   },
   {
     label: 'Finance',
     icon: Wallet,
-    prompts: ['What are the total pending fees?', "What's been collected this month?"],
+    prompts: ['Who has the highest pending fees?', 'Collect a fee payment for a student'],
   },
   {
-    label: 'Attendance',
-    icon: CalendarCheck,
-    prompts: ["What's today's attendance?", 'Any staff leave requests pending?'],
-  },
-  {
-    label: 'Students',
+    label: 'People',
     icon: Users,
-    prompts: ['Find students named Sharma', 'How many students are in Grade 5?'],
+    prompts: ['Show the full profile of a student', 'Which staff are on leave this week?'],
+  },
+  {
+    label: 'Campus',
+    icon: CalendarCheck,
+    prompts: ['Which hostel rooms have free beds?', 'List bus routes with their drivers'],
   },
   {
     label: 'Admissions',
@@ -78,6 +81,6 @@ export const SUGGESTION_GROUPS: SuggestionGroup[] = [
   {
     label: 'Actions',
     icon: PencilLine,
-    prompts: ['Create a new lead', 'Log a follow-up on a lead'],
+    prompts: ['Create a new club', 'Open payroll'],
   },
 ];

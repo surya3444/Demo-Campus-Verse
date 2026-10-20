@@ -16,6 +16,12 @@ export interface ToolContext {
    * ever read their own data — never another student's or branch aggregates.
    */
   studentId?: string;
+  /** The caller's own bearer token: platform calls run as the user, never as a system account. */
+  authToken?: string;
+  /** Pages the user can see in the app (from their permission-filtered navigation). */
+  pages?: Array<{ name: string; href: string }>;
+  /** The page the user is on when they ask, for "this student" style requests. */
+  currentPath?: string;
 }
 
 /**
@@ -87,6 +93,8 @@ export interface ToolDefinition {
    * students are offered ONLY these tools — never the branch/operational ones.
    */
   studentScoped?: boolean;
+  /** For tools whose effect depends on args (e.g. GET vs POST): true when this call changes data. */
+  isWrite?: (args: Record<string, unknown>) => boolean;
   execute: (ctx: ToolContext, args: Record<string, unknown>) => Promise<ToolResult>;
   /** write tools only: strict validation before proposing/executing the action. */
   argsSchema?: ZodTypeAny;

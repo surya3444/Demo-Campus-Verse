@@ -581,13 +581,17 @@ class StudentService {
     };
 
     if (search) {
+      // Escaped so "Devika (B.Sc)" or a stray "+" can't break the query;
+      // displayName lets a full name ("Devika Antony") match.
+      const rx = { $regex: search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
       filter.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName: { $regex: search, $options: 'i' } },
-        { admissionNumber: { $regex: search, $options: 'i' } },
-        { rollNumber: { $regex: search, $options: 'i' } },
-        { enrollmentCode: { $regex: search, $options: 'i' } },
-        { 'contact.phone': { $regex: search, $options: 'i' } },
+        { displayName: rx },
+        { firstName: rx },
+        { lastName: rx },
+        { admissionNumber: rx },
+        { rollNumber: rx },
+        { enrollmentCode: rx },
+        { 'contact.phone': rx },
       ];
     }
 

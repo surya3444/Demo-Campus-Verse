@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema, ZodError } from 'zod';
 import { ApiError } from './errorHandler';
+import { tagMiddleware } from './meta';
 
 export function validate(schema: ZodSchema) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
+  return tagMiddleware({ all: schema }, (req: Request, _res: Response, next: NextFunction): void => {
     try {
       schema.parse({
         body: req.body,
@@ -22,11 +23,11 @@ export function validate(schema: ZodSchema) {
       }
       next(error);
     }
-  };
+  });
 }
 
 export function validateBody(schema: ZodSchema) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
+  return tagMiddleware({ body: schema }, (req: Request, _res: Response, next: NextFunction): void => {
     try {
       req.body = schema.parse(req.body);
       next();
@@ -41,11 +42,11 @@ export function validateBody(schema: ZodSchema) {
       }
       next(error);
     }
-  };
+  });
 }
 
 export function validateQuery(schema: ZodSchema) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
+  return tagMiddleware({ query: schema }, (req: Request, _res: Response, next: NextFunction): void => {
     try {
       req.query = schema.parse(req.query);
       next();
@@ -60,11 +61,11 @@ export function validateQuery(schema: ZodSchema) {
       }
       next(error);
     }
-  };
+  });
 }
 
 export function validateParams(schema: ZodSchema) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
+  return tagMiddleware({ params: schema }, (req: Request, _res: Response, next: NextFunction): void => {
     try {
       req.params = schema.parse(req.params) as typeof req.params;
       next();
@@ -79,5 +80,5 @@ export function validateParams(schema: ZodSchema) {
       }
       next(error);
     }
-  };
+  });
 }

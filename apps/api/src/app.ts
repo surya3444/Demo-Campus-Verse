@@ -48,6 +48,7 @@ import auditRoutes from './modules/audit/audit.routes';
 import centralRoutes from './modules/central/central.routes';
 import clubsRoutes from './modules/clubs/clubs.routes';
 import { auditLog } from './middleware/auditLog';
+import { registerApp } from './modules/ai/ai.catalog';
 
 const app: ReturnType<typeof express> = express();
 
@@ -191,5 +192,8 @@ app.use((_req, res) => {
 
 // Error handler (must be last)
 app.use(errorHandler);
+
+// The AI assistant reads the mounted routes to learn what it can do.
+registerApp(app);
 
 export { app };

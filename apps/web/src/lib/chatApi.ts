@@ -57,6 +57,14 @@ export interface StreamHandlers {
   onForm: (form: PendingForm) => void;
   onError: (message: string) => void;
   onDone: () => void;
+  /** The assistant opened a page (open_page tool). */
+  onNavigate?: (href: string) => void;
+}
+
+/** What the assistant should know about where the user is and what they can open. */
+export interface ChatContext {
+  pages?: Array<{ name: string; href: string }>;
+  currentPath?: string;
 }
 
 /**
@@ -141,14 +149,15 @@ function parseSseBlock(raw: string): SseEvent {
 export async function streamChat(
   messages: ChatTurn[],
   handlers: StreamHandlers,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  context: ChatContext = {}
 ): Promise<void> {
   let res: Response;
   try {
     res = await fetchWithAuthRetry(`${API_URL}/ai/chat/stream`, {
       method: 'POST',
       credentials: 'include',
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify({ messages, ...context }),
       signal,
     });
   } catch (err) {
@@ -194,6 +203,7 @@ export async function streamChat(
         else if (event === 'tool') handlers.onTool(String(data.name ?? ''));
         else if (event === 'confirm') handlers.onConfirm(data as unknown as PendingAction);
         else if (event === 'form') handlers.onForm(data as unknown as PendingForm);
+        else if (event === 'navigate') handlers.onNavigate?.(String(data.href ?? ''));
         else if (event === 'error')
           handlers.onError(String(data.message ?? 'Something went wrong.'));
         else if (event === 'done') handlers.onDone();

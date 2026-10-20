@@ -66,11 +66,11 @@ const envSchema = z.object({
   // when unset the /students/bulk-upload/ai-parse and /ai/chat endpoints return
   // 503; the rest of the app continues to work.
   OPENAI_API_KEY: z.string().min(1).optional(),
-  // Default model for the AI Assistant chat loop. gpt-4o-mini is cheap and
-  // handles most lookups; the "complex" model is reserved for harder multi-step
-  // reasoning if/when the service decides to escalate.
-  OPENAI_CHAT_MODEL: z.string().default('gpt-4o-mini'),
-  OPENAI_CHAT_MODEL_COMPLEX: z.string().default('gpt-4o'),
+  // AI Assistant models. The default answers questions and picks tools; the
+  // assistant escalates to the "complex" model once a request needs multi-step
+  // work across the platform (list_api / call_api).
+  OPENAI_CHAT_MODEL: z.string().default('gpt-5.4-mini'),
+  OPENAI_CHAT_MODEL_COMPLEX: z.string().default('gpt-5.4'),
 
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),

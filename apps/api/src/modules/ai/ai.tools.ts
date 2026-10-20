@@ -17,6 +17,7 @@ import { dashboardService } from '../dashboard/dashboard.service';
 import { gradeService } from '../teaching/grade.service';
 import { reportCardService } from '../exams/reportCard.service';
 import type { ToolContext, ToolDefinition, ToolResult } from './ai.types';
+import { PLATFORM_TOOLS } from './ai.platform';
 
 const NO_ARGS = { type: 'object', properties: {}, additionalProperties: false } as const;
 
@@ -278,7 +279,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: 'get_branch_summary',
     description:
-      "Get a snapshot of the current branch right now: active student & staff counts, today's fee collection, today's attendance, pending staff leaves, and upcoming events. Use for broad 'how are we doing today / give me a summary' questions.",
+      "BRANCH-WIDE TOTALS ONLY, never for one person. Get a snapshot of the current branch right now: active student & staff counts, today's fee collection, today's attendance, pending staff leaves, and upcoming events. Use for broad 'how are we doing today / give me a summary' questions.",
     parameters: NO_ARGS,
     kind: 'read',
     requiredPermission: { module: 'dashboard.branchView', action: 'view' },
@@ -294,7 +295,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: 'get_student_stats',
     description:
-      'Get overall student counts for the current branch: total, active, inactive, and gender distribution. Use for "how many students do we have", "gender split", etc. For class-specific counts or finding individuals, use find_students instead.',
+      'BRANCH-WIDE TOTALS ONLY, never for one person. Get overall student counts for the current branch: total, active, inactive, and gender distribution. Use for "how many students do we have", "gender split", etc. For class-specific counts or finding individuals, use find_students instead.',
     parameters: NO_ARGS,
     kind: 'read',
     requiredPermission: { module: 'students.list', action: 'view' },
@@ -362,7 +363,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: 'get_fee_dues',
     description:
-      'Get outstanding fee dues for the current branch in the active academic batch: total billed, collected, outstanding balance, collection %, concessions and fines. Use for "how much is pending", "total dues", "collection rate".',
+      'BRANCH-WIDE TOTALS ONLY, never for one person. Get outstanding fee dues for the current branch in the active academic batch: total billed, collected, outstanding balance, collection %, concessions and fines. Use for "how much is pending", "total dues", "collection rate".',
     parameters: NO_ARGS,
     kind: 'read',
     requiredPermission: { module: 'finance.dues', action: 'view' },
@@ -384,7 +385,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: 'get_fee_collection',
     description:
-      'Get fee collection figures for the current branch. period "today" returns today\'s day-sheet (totals + breakdown by payment mode); "this_month" or "custom" returns a date-range collection summary. Use for "today\'s collection", "how much did we collect this month".',
+      'BRANCH-WIDE TOTALS ONLY, never for one person. Get fee collection figures for the current branch. period "today" returns today\'s day-sheet (totals + breakdown by payment mode); "this_month" or "custom" returns a date-range collection summary. Use for "today\'s collection", "how much did we collect this month".',
     parameters: {
       type: 'object',
       additionalProperties: false,
@@ -422,7 +423,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: 'get_attendance_today',
     description:
-      'Get student attendance for a given date (defaults to today) in the current branch: branch totals (present/absent/late/leave) and a per-class breakdown. Use for "today\'s attendance rate", "who\'s absent today".',
+      'BRANCH-WIDE TOTALS ONLY, never for one person. Get student attendance for a given date (defaults to today) in the current branch: branch totals (present/absent/late/leave) and a per-class breakdown. Use for "today\'s attendance rate", "who\'s absent today".',
     parameters: {
       type: 'object',
       additionalProperties: false,
@@ -490,7 +491,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: 'get_staff_stats',
     description:
-      'Get staff/employee counts for the current branch (total, active, by department/designation as available). Use for "how many staff", "teaching vs non-teaching".',
+      'BRANCH-WIDE TOTALS ONLY, never for one person. Get staff/employee counts for the current branch (total, active, by department/designation as available). Use for "how many staff", "teaching vs non-teaching".',
     parameters: NO_ARGS,
     kind: 'read',
     requiredPermission: { module: 'hr.staff', action: 'view' },
@@ -802,6 +803,8 @@ export const TOOLS: ToolDefinition[] = [
   },
 ];
 
+const ALL_TOOLS: ToolDefinition[] = [...TOOLS, ...PLATFORM_TOOLS];
+
 function isStudentUser(user: TokenPayload): boolean {
   return user.roleCode === 'STUDENT';
 }
@@ -815,17 +818,19 @@ function isStudentUser(user: TokenPayload): boolean {
  */
 function toolAvailableTo(user: TokenPayload, tool: ToolDefinition): boolean {
   if (isStudentUser(user) !== !!tool.studentScoped) return false;
+  // Platform tools are gated per endpoint (catalog filter + the API's own RBAC).
+  if (tool.requiredPermission.module === '*') return Object.keys(user.permissions ?? {}).length > 0;
   return hasPermission(user, tool.requiredPermission.module, tool.requiredPermission.action);
 }
 
 /** Tools the given user is permitted to use, by role scope + RBAC permissions. */
 export function buildToolsForUser(user: TokenPayload): ToolDefinition[] {
-  return TOOLS.filter((tool) => toolAvailableTo(user, tool));
+  return ALL_TOOLS.filter((tool) => toolAvailableTo(user, tool));
 }
 
 /** Look up a permitted tool by name for a user (null if not allowed/unknown). */
 export function getPermittedTool(user: TokenPayload, name: string): ToolDefinition | null {
-  const tool = TOOLS.find((t) => t.name === name);
+  const tool = ALL_TOOLS.find((t) => t.name === name);
   if (!tool) return null;
   return toolAvailableTo(user, tool) ? tool : null;
 }

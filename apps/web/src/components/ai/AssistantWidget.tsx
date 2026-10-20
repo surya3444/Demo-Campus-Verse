@@ -10,11 +10,10 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { useAssistantChat } from '@/hooks/useAssistantChat';
 import { ChatThread } from './ChatThread';
 import { ChatComposer } from './ChatComposer';
-import { AI_TOOL_PERMISSIONS, SUGGESTIONS } from './assistant.constants';
+import { SUGGESTIONS } from './assistant.constants';
 
 export function AssistantWidget() {
-  const { hasAnyPermission } = usePermissions();
-  const canUse = hasAnyPermission(AI_TOOL_PERMISSIONS);
+  const { canUseAssistant: canUse } = usePermissions();
   const pathname = usePathname();
 
   const [isOpen, setIsOpen] = useState(false);

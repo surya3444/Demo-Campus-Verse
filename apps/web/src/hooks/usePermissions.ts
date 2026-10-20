@@ -1,5 +1,6 @@
 'use client';
 
+import { AI_TOOL_PERMISSIONS } from '@/components/ai/assistant.constants';
 import { useMemo, useCallback } from 'react';
 import { useAuthStore } from '@/store/authStore';
 
@@ -17,6 +18,8 @@ interface UsePermissionsReturn {
   isOrgAdmin: boolean;
   isBranchAdmin: boolean;
   roleLevel: number;
+  /** Whether the AI assistant is offered to this user. */
+  canUseAssistant: boolean;
 }
 
 export function usePermissions(): UsePermissionsReturn {
@@ -73,6 +76,13 @@ export function usePermissions(): UsePermissionsReturn {
   const isOrgAdmin = roleCode === 'ORG_ADMIN';
   const isBranchAdmin = roleCode === 'BRANCH_ADMIN';
 
+  // Staff can drive every module they have access to through the assistant;
+  // students get it when they hold one of its student-data permissions.
+  const canUseAssistant =
+    roleCode && roleCode !== 'STUDENT'
+      ? Object.keys(permissions ?? {}).length > 0 || isGroupOwner
+      : hasAnyPermission(AI_TOOL_PERMISSIONS);
+
   return {
     permissions,
     hasPermission,
@@ -87,5 +97,6 @@ export function usePermissions(): UsePermissionsReturn {
     isOrgAdmin,
     isBranchAdmin,
     roleLevel,
+    canUseAssistant,
   };
 }

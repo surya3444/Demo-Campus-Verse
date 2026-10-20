@@ -8,13 +8,12 @@ import { useAssistantChat } from '@/hooks/useAssistantChat';
 import { ChatThread } from '@/components/ai/ChatThread';
 import { ChatComposer } from '@/components/ai/ChatComposer';
 import { ConversationSidebar } from '@/components/ai/ConversationSidebar';
-import { AI_TOOL_PERMISSIONS, SUGGESTION_GROUPS } from '@/components/ai/assistant.constants';
+import { SUGGESTION_GROUPS } from '@/components/ai/assistant.constants';
 import { aiApi } from '@/lib/api';
 import { toast } from 'sonner';
 
 export default function AssistantPage() {
-  const { hasAnyPermission } = usePermissions();
-  const canUse = hasAnyPermission(AI_TOOL_PERMISSIONS);
+  const { canUseAssistant: canUse } = usePermissions();
 
   const {
     messages,

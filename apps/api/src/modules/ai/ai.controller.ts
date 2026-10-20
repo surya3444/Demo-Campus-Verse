@@ -18,7 +18,11 @@ async function buildToolContext(req: Request): Promise<ToolContext> {
     tenantId: req.tenantId as string,
     branchId: req.branchId as string,
     user: req.user!,
+    authToken: req.headers.authorization?.replace(/^Bearer /, ''),
   };
+  const body = (req.body ?? {}) as { pages?: ToolContext['pages']; currentPath?: string };
+  if (Array.isArray(body.pages)) ctx.pages = body.pages;
+  if (body.currentPath) ctx.currentPath = body.currentPath;
   if (req.user!.roleCode === 'STUDENT') {
     const student = await collections.students.findOne({
       tenantId: new ObjectId(ctx.tenantId),
@@ -48,6 +52,12 @@ export const chatSchema = z.object({
     )
     .min(1)
     .max(40),
+  /** The pages this user can open, from their permission-filtered navigation. */
+  pages: z
+    .array(z.object({ name: z.string().max(80), href: z.string().max(200) }))
+    .max(400)
+    .optional(),
+  currentPath: z.string().max(300).optional(),
 });
 
 export const executeSchema = z.object({

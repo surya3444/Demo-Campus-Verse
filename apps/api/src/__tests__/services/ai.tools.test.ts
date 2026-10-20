@@ -101,11 +101,16 @@ describe('buildToolsForUser — permission filtering', () => {
     const names = buildToolsForUser(user)
       .map((t) => t.name)
       .sort();
-    expect(names).toEqual(['get_fee_collection', 'get_fee_dues']);
+    expect(names).toEqual(['call_api', 'get_fee_collection', 'get_fee_dues', 'list_api', 'open_page']);
   });
 
-  it('returns nothing for a user with no queryable permissions', () => {
-    expect(buildToolsForUser(makeUser({ 'teaching.myClasses': ['view'] }))).toHaveLength(0);
+  it('offers only the platform tools when no dedicated tool matches', () => {
+    const names = buildToolsForUser(makeUser({ 'teaching.myClasses': ['view'] })).map((t) => t.name);
+    expect(names.sort()).toEqual(['call_api', 'list_api', 'open_page']);
+  });
+
+  it('offers nothing to a user without any permissions', () => {
+    expect(buildToolsForUser(makeUser({}))).toHaveLength(0);
   });
 
   it('read tools require "view"; write tools require create/edit and carry schema+confirm', () => {

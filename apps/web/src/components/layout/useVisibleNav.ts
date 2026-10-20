@@ -5,7 +5,6 @@ import { Settings } from 'lucide-react';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useAuthStore } from '@/store/authStore';
 import { useBranchStore } from '@/store/branchStore';
-import { AI_TOOL_PERMISSIONS } from '@/components/ai/assistant.constants';
 import { NAV_SECTIONS, getStudentNavSections, type NavModule, type NavSection } from './nav.config';
 
 /** A module that survived filtering; settingsHref is set only when permitted. */
@@ -23,7 +22,7 @@ export interface VisibleSection {
  * the sidebar and the global search so both offer exactly the same pages.
  */
 export function useVisibleNav(): VisibleSection[] {
-  const { hasPermission, hasAnyPermission, isGroupOwner, isOrgAdmin, isBranchAdmin } =
+  const { hasPermission, hasAnyPermission, isGroupOwner, isOrgAdmin, isBranchAdmin, canUseAssistant } =
     usePermissions();
   const { user } = useAuthStore();
 
@@ -46,7 +45,7 @@ export function useVisibleNav(): VisibleSection[] {
     // The AI assistant needs at least one queryable-data permission (mirrors
     // the widget + page gate); a single module.permission can't express
     // "any of".
-    const hasAiAccess = isGroupOwner || hasAnyPermission(AI_TOOL_PERMISSIONS);
+    const hasAiAccess = canUseAssistant;
 
     // Teaching module is only for teachers — check for teacher-specific
     // permissions (exclude teaching.timetable which admins also have for

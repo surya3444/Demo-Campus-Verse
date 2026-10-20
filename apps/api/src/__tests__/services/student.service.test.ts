@@ -291,8 +291,18 @@ describe('StudentService', () => {
 
       const filterArg = mockStudents.find.mock.calls[0][0];
       expect(filterArg.$or).toBeDefined();
-      expect(filterArg.$or).toHaveLength(6); // name ×2, admission no., roll no., code, phone
-      expect(filterArg.$or[0]).toEqual({ firstName: { $regex: 'amit', $options: 'i' } });
+      expect(filterArg.$or).toHaveLength(7); // full name, name ×2, admission no., roll no., code, phone
+      expect(filterArg.$or[0]).toEqual({ displayName: { $regex: 'amit', $options: 'i' } });
+    });
+
+    it('matches full names and escapes regex characters in search', async () => {
+      mockFindChain(mockStudents, []);
+      mockStudents.countDocuments.mockResolvedValue(0);
+
+      await studentService.findAll(TEST_TENANT_ID, TEST_BRANCH_ID, { search: ' Amit (B.Sc) ' });
+
+      const filterArg = mockStudents.find.mock.calls[0][0];
+      expect(filterArg.$or[0]).toEqual({ displayName: { $regex: 'Amit \\(B\\.Sc\\)', $options: 'i' } });
     });
 
     it('should support array status filter', async () => {

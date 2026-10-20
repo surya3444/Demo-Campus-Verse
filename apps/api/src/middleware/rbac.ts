@@ -1,6 +1,7 @@
 import { ADMIN_ROLE_CODES } from '@campus-verse/shared/constants';
 import { Request, Response, NextFunction } from 'express';
 import { TokenPayload } from '@campus-verse/shared';
+import { tagMiddleware } from './meta';
 import { ApiError } from './errorHandler';
 
 // Admin bypass: roleLevel 0-3 (super admin, org owner, org admin, branch admin)
@@ -159,7 +160,7 @@ const ACTION_DISPLAY_NAMES: Record<string, string> = {
 };
 
 export function requirePermission(module: string, action: string) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
+  return tagMiddleware({ permission: [{ module, action }] }, (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
       throw new ApiError('AUTH_UNAUTHORIZED', 'Please log in to continue', 401);
     }
@@ -185,11 +186,11 @@ export function requirePermission(module: string, action: string) {
     }
 
     next();
-  };
+  });
 }
 
 export function requireAnyPermission(permissions: Array<{ module: string; action: string }>) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
+  return tagMiddleware({ permission: permissions }, (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
       throw new ApiError('AUTH_UNAUTHORIZED', 'Please log in to continue', 401);
     }
@@ -218,7 +219,7 @@ export function requireAnyPermission(permissions: Array<{ module: string; action
     }
 
     next();
-  };
+  });
 }
 
 export function requireBranch(req: Request, _res: Response, next: NextFunction): void {

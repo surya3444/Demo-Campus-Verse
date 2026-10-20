@@ -1,8 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useChatStore, type ChatMessage } from '@/store/chatStore';
 import { streamChat, executeAction, type ChatTurn } from '@/lib/chatApi';
+import { useVisibleNav } from '@/components/layout/useVisibleNav';
 
 /**
  * Encapsulates all assistant chat behaviour (streaming, write-action
@@ -14,6 +16,20 @@ export function useAssistantChat() {
   const store = useChatStore();
   const [input, setInput] = useState('');
   const abortRef = useRef<AbortController | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const nav = useVisibleNav();
+  // Every page this user can open, so the assistant can take them anywhere.
+  const pages = useMemo(
+    () =>
+      nav.flatMap((section) =>
+        section.modules.flatMap((m) => [
+          ...(m.href ? [{ name: m.name, href: m.href }] : []),
+          ...(m.children ?? []).map((c) => ({ name: `${m.name} › ${c.name}`, href: c.href })),
+        ])
+      ),
+    [nav]
+  );
 
   // A confirmation/form is open (or executing) — block new turns until it resolves.
   const pendingAction = store.messages.find(
@@ -44,8 +60,10 @@ export function useAssistantChat() {
         onForm: (form) => store.attachForm(assistantId, form),
         onError: (msg) => store.failTurn(assistantId, msg),
         onDone: () => store.finishTurn(assistantId),
+        onNavigate: (href) => href.startsWith('/') && router.push(href),
       },
-      controller.signal
+      controller.signal,
+      { pages, currentPath: pathname ?? undefined }
     ).finally(() => store.finishTurn(assistantId));
   };
 
