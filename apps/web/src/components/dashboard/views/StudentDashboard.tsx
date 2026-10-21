@@ -32,6 +32,7 @@ interface ScheduleSlot {
   slotOrder: number;
   subjectName: string;
   teacherName: string;
+  roomNumber?: string;
 }
 
 interface UpcomingAssignment {
@@ -258,9 +259,15 @@ export function StudentDashboard() {
                             <p className="text-sm font-medium truncate">
                               {slot.subjectName || slot.slotName}
                             </p>
-                            {slot.teacherName && (
-                              <p className="text-xs text-muted-foreground">{slot.teacherName}</p>
-                            )}
+                            <p className="truncate text-xs text-muted-foreground">
+                              {[
+                                slot.subjectName ? slot.slotName : null,
+                                slot.teacherName,
+                                slot.roomNumber ? `Room ${slot.roomNumber}` : null,
+                              ]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </p>
                           </>
                         )}
                       </div>

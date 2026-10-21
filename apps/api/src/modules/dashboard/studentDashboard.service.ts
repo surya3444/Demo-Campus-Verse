@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { collections } from '../../config/database';
+import { now } from '../../utils/dates';
 
 class StudentDashboardService {
   async getStudentDashboard(tenantId: string, branchId: string, studentId: string) {
@@ -87,8 +88,9 @@ class StudentDashboardService {
   }
 
   private async getTodaySchedule(tenantId: ObjectId, _branchId: ObjectId, sectionId: ObjectId) {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
+    // India time, not the server's clock (UTC on the server would show
+    // yesterday's periods until 5:30 am).
+    const dayOfWeek = now().day();
 
     // Get timetable entries for today (match direct sectionId or linkedSectionIds)
     const entries = await collections.timetableEntries
@@ -101,31 +103,57 @@ class StudentDashboardService {
 
     if (entries.length === 0) return [];
 
-    // Try to get slots for richer data (slot names, types, ordering)
-    const section = await collections.sections.findOne({ _id: sectionId });
-    const classId = section?.classId as ObjectId | undefined;
+    // Entries store ids only; resolve the period, subject and teacher behind each.
+    const ids = (field: string) => [
+      ...new Map(
+        entries
+          .map((e) => e[field] as ObjectId | undefined)
+          .filter((v): v is ObjectId => !!v)
+          .map((v) => [v.toString(), v])
+      ).values(),
+    ];
+    const [slots, subjects, teachers] = await Promise.all([
+      collections.timetableSlots
+        .find(
+          { _id: { $in: ids('slotId') } },
+          { projection: { name: 1, startTime: 1, endTime: 1, type: 1, order: 1 } }
+        )
+        .toArray(),
+      collections.subjects
+        .find({ _id: { $in: ids('subjectId') } }, { projection: { name: 1, code: 1 } })
+        .toArray(),
+      collections.staff
+        .find(
+          { _id: { $in: ids('teacherId') } },
+          { projection: { displayName: 1, firstName: 1, lastName: 1 } }
+        )
+        .toArray(),
+    ]);
+    const byId = <T extends { _id: ObjectId }>(rows: T[]) =>
+      new Map(rows.map((r) => [r._id.toString(), r]));
+    const slotMap = byId(slots as Array<{ _id: ObjectId } & Record<string, unknown>>);
+    const subjectMap = byId(subjects as Array<{ _id: ObjectId } & Record<string, unknown>>);
+    const teacherMap = byId(teachers as Array<{ _id: ObjectId } & Record<string, unknown>>);
 
-    const slots = classId
-      ? await collections.timetableSlots.find({ tenantId, classId }).sort({ order: 1 }).toArray()
-      : [];
-
-    const slotMap = new Map<string, Record<string, unknown>>();
-    for (const slot of slots) {
-      slotMap.set(slot._id.toString(), slot as Record<string, unknown>);
-    }
-
-    // Build schedule from entries (works with or without slots)
     return entries
       .map((entry) => {
-        const slot = slotMap.get((entry.slotId as ObjectId)?.toString());
+        const slot = slotMap.get(String(entry.slotId));
+        const subject = subjectMap.get(String(entry.subjectId));
+        const teacher = teacherMap.get(String(entry.teacherId));
         return {
           slotName: (slot?.name as string) || (entry.slotName as string) || '',
           startTime: (slot?.startTime as string) || (entry.startTime as string) || '',
           endTime: (slot?.endTime as string) || (entry.endTime as string) || '',
           slotType: (slot?.type as string) || 'period',
           slotOrder: (slot?.order as number) ?? (entry.order as number) ?? 0,
-          subjectName: (entry.subjectName as string) || '',
-          teacherName: (entry.teacherName as string) || '',
+          subjectName: (subject?.name as string) || (entry.subjectName as string) || '',
+          subjectCode: (subject?.code as string) || '',
+          teacherName:
+            (teacher?.displayName as string) ||
+            `${(teacher?.firstName as string) ?? ''} ${(teacher?.lastName as string) ?? ''}`.trim() ||
+            (entry.teacherName as string) ||
+            '',
+          roomNumber: (entry.roomNumber as string) || '',
         };
       })
       .sort((a, b) => a.slotOrder - b.slotOrder);
