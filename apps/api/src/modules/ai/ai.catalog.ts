@@ -32,15 +32,22 @@ function fieldsRead(fn: unknown, source: 'body' | 'query'): string[] {
   if (typeof fn !== 'function') return [];
   const code = Function.prototype.toString.call(fn);
   const names = new Set<string>();
-  const destructure = new RegExp(`(?:const|let|var)\\s*\\{([^}]*)\\}\\s*=\\s*req\\.${source}\\b`, 'g');
+  const destructure = new RegExp(
+    `(?:const|let|var)\\s*\\{([^}]*)\\}\\s*=\\s*req\\.${source}\\b`,
+    'g'
+  );
   for (const m of code.matchAll(destructure)) {
     for (const part of m[1].split(',')) {
-      const name = part.split(/[:=]/)[0].replace(/\.\.\./, '').trim();
+      const name = part
+        .split(/[:=]/)[0]
+        .replace(/\.\.\./, '')
+        .trim();
       if (/^\w+$/.test(name)) names.add(name);
     }
   }
   for (const m of code.matchAll(new RegExp(`req\\.${source}\\.(\\w+)`, 'g'))) names.add(m[1]);
-  for (const m of code.matchAll(new RegExp(`req\\.${source}\\[['"](\\w+)['"]\\]`, 'g'))) names.add(m[1]);
+  for (const m of code.matchAll(new RegExp(`req\\.${source}\\[['"](\\w+)['"]\\]`, 'g')))
+    names.add(m[1]);
   return [...names].slice(0, 30);
 }
 
@@ -94,7 +101,10 @@ function walk(stack: Layer[], prefix: string, inherited: MiddlewareMeta[], out: 
   for (const layer of stack) {
     if (layer.route) {
       if (typeof layer.route.path !== 'string') continue;
-      const all = [...metas, ...layer.route.stack.map((l) => readMeta(l.handle)).filter(Boolean)] as MiddlewareMeta[];
+      const all = [
+        ...metas,
+        ...layer.route.stack.map((l) => readMeta(l.handle)).filter(Boolean),
+      ] as MiddlewareMeta[];
       const path = (prefix + layer.route.path).replace(/\/$/, '') || '/';
       for (const m of Object.keys(layer.route.methods)) {
         const method = m.toUpperCase() as Endpoint['method'];
@@ -144,17 +154,29 @@ export function getCatalog(): Endpoint[] {
 
 export function canUse(user: TokenPayload, e: Endpoint): boolean {
   // Routes guarded by requireAnyPermission list alternatives; any one suffices.
-  return e.permissions.length === 0 || e.permissions.some((p) => hasPermission(user, p.module, p.action));
+  return (
+    e.permissions.length === 0 || e.permissions.some((p) => hasPermission(user, p.module, p.action))
+  );
 }
 
 export function findEndpoint(method: string, path: string): Endpoint | undefined {
   const clean = path.split('?')[0].replace(/\/$/, '');
-  const list = getCatalog().filter((e) => e.method === method.toUpperCase() && e.matcher.test(clean));
+  const list = getCatalog().filter(
+    (e) => e.method === method.toUpperCase() && e.matcher.test(clean)
+  );
   // Prefer literal segments over params (/students/stats over /students/:id).
-  return list.sort((a, b) => (b.path.match(/\/[^:/][^/]*/g)?.length ?? 0) - (a.path.match(/\/[^:/][^/]*/g)?.length ?? 0))[0];
+  return list.sort(
+    (a, b) =>
+      (b.path.match(/\/[^:/][^/]*/g)?.length ?? 0) - (a.path.match(/\/[^:/][^/]*/g)?.length ?? 0)
+  )[0];
 }
 
-const areaOf = (path: string) => path.split('/').filter((x) => x && !x.startsWith(':')).slice(0, 2).join('/');
+const areaOf = (path: string) =>
+  path
+    .split('/')
+    .filter((x) => x && !x.startsWith(':'))
+    .slice(0, 2)
+    .join('/');
 
 /**
  * The map the model navigates by: every area the user may act in, e.g.
@@ -175,7 +197,9 @@ export function areaIndex(user: TokenPayload): string {
 /** Endpoints in an area ("finance" or "finance/structures") the user may call. */
 export function listArea(user: TokenPayload, area: string): Endpoint[] {
   const want = area.replace(/^\/+|\/+$/g, '').toLowerCase();
-  return getCatalog().filter((e) => canUse(user, e) && (areaOf(e.path) === want || areaOf(e.path).startsWith(`${want}/`)));
+  return getCatalog().filter(
+    (e) => canUse(user, e) && (areaOf(e.path) === want || areaOf(e.path).startsWith(`${want}/`))
+  );
 }
 
 type Def = { typeName?: string } & Record<string, unknown>;
@@ -192,7 +216,9 @@ export function describeSchema(schema: ZodTypeAny | undefined, depth = 0): strin
   switch (def.typeName) {
     case 'ZodString': {
       const checks = (def.checks as Array<{ kind: string }> | undefined)?.map((c) => c.kind) ?? [];
-      const fmt = ['email', 'datetime', 'date', 'url', 'uuid', 'regex'].find((k) => checks.includes(k));
+      const fmt = ['email', 'datetime', 'date', 'url', 'uuid', 'regex'].find((k) =>
+        checks.includes(k)
+      );
       return fmt && fmt !== 'regex' ? `string(${fmt})` : 'string';
     }
     case 'ZodNumber':
@@ -209,7 +235,10 @@ export function describeSchema(schema: ZodTypeAny | undefined, depth = 0): strin
     case 'ZodEnum':
       return (def.values as string[]).map((v) => JSON.stringify(v)).join('|');
     case 'ZodNativeEnum':
-      return Object.values(def.values as object).filter((v) => typeof v === 'string').map((v) => JSON.stringify(v)).join('|');
+      return Object.values(def.values as object)
+        .filter((v) => typeof v === 'string')
+        .map((v) => JSON.stringify(v))
+        .join('|');
     case 'ZodArray':
       return `${inner(def.type)}[]`;
     case 'ZodOptional':
@@ -230,7 +259,11 @@ export function describeSchema(schema: ZodTypeAny | undefined, depth = 0): strin
       return `Record<string, ${inner(def.valueType)}>`;
     case 'ZodUnion':
     case 'ZodDiscriminatedUnion': {
-      const opts = (Array.isArray(def.options) ? def.options : [...(def.options as Map<unknown, unknown>).values()]) as unknown[];
+      const opts = (
+        Array.isArray(def.options)
+          ? def.options
+          : [...(def.options as Map<unknown, unknown>).values()]
+      ) as unknown[];
       return opts.slice(0, 4).map(inner).join(' | ');
     }
     case 'ZodIntersection':
@@ -258,7 +291,8 @@ export function describeEndpoint(e: Endpoint): Record<string, string> {
   else if (e.method !== 'GET' && e.method !== 'DELETE' && e.bodyFields?.length) {
     out.body = `{ ${e.bodyFields.join(', ')} } (types not declared; *Id fields take ids from GET results)`;
   } else if (e.method === 'PUT' || e.method === 'PATCH') {
-    out.body = 'same field names as the record returned by the matching GET; send only what changes';
+    out.body =
+      'same field names as the record returned by the matching GET; send only what changes';
   } else if (e.method === 'POST' && !e.path.includes('/:')) {
     out.body = 'not declared; mirror the field names of records from the matching list GET';
   }

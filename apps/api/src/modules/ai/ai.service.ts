@@ -24,6 +24,11 @@ const MAX_ITERATIONS = 10;
 // simple questions answered by a dedicated tool stay on the fast, cheap one.
 const PLATFORM_TOOL_NAMES = new Set(['list_api', 'call_api']);
 
+// Short replies are flushed at the end of the turn; longer ones start streaming here.
+const HOLD_CHARS = 160;
+const EMPTY_REPLY =
+  "I couldn't complete that. It may need details I don't have or a permission your role doesn't include — tell me a bit more, or open the relevant page and I'll guide you.";
+
 /**
  * What the tools returned on each user's previous turn. The client replays only
  * the visible text, so without this a follow-up like "1" or "the second one"
@@ -110,6 +115,8 @@ class AiService {
     const openaiTools = tools.map(toOpenAITool);
 
     const previous = messages.length > 1 ? recall(ctx.user.userId) : null;
+    let said = '';
+    let lastLink: { href: string; label: string } | null = null;
     const facts: string[] = [];
     const convo: ChatParam[] = [
       { role: 'system', content: system },
@@ -144,6 +151,10 @@ class AiService {
         );
 
         let text = '';
+        // Text is held back until it's clearly the answer: a model that writes a
+        // reply and then calls a tool would otherwise show it twice.
+        let flushed = 0;
+        let sawToolCall = false;
         const toolCalls: Record<number, { id: string; name: string; args: string }> = {};
 
         for await (const chunk of stream) {
@@ -153,10 +164,14 @@ class AiService {
 
           if (delta?.content) {
             text += delta.content;
-            emit('delta', { text: delta.content });
+            if (!sawToolCall && (flushed > 0 || text.length >= HOLD_CHARS)) {
+              emit('delta', { text: text.slice(flushed) });
+              flushed = text.length;
+            }
           }
 
           if (delta?.tool_calls) {
+            sawToolCall = true;
             for (const tc of delta.tool_calls) {
               const idx = tc.index ?? 0;
               const acc = (toolCalls[idx] ??= { id: '', name: '', args: '' });
@@ -170,8 +185,17 @@ class AiService {
         const calls = Object.values(toolCalls).filter((c) => c.id && c.name);
         if (calls.length === 0) {
           // No tool requested — the model has produced its final answer.
+          if (text.length > flushed) emit('delta', { text: text.slice(flushed) });
+          said += text;
+          if (!said.trim()) emit('delta', { text: EMPTY_REPLY });
+          // Always offer the exact page the answer came from (e.g. this section's
+          // timetable), even when the model forgot to include the link.
+          else if (lastLink && !said.includes(lastLink.href)) {
+            emit('delta', { text: `\n\n[${lastLink.label} →](${lastLink.href})` });
+          }
           return;
         }
+        said += text.slice(0, flushed);
         if (calls.some((c) => PLATFORM_TOOL_NAMES.has(c.name)))
           model = env.OPENAI_CHAT_MODEL_COMPLEX;
 
@@ -199,6 +223,7 @@ class AiService {
               args,
               write: true as const,
               parsed: tool.argsSchema.safeParse(args),
+              dynamic: tool.buildForm?.(args) ?? null,
             };
           }
           return { call, tool, args, write: false as const };
@@ -209,7 +234,8 @@ class AiService {
         // confirmation); fall back to the read-only confirm card for tools that
         // only declare `confirm` and were called with already-valid args.
         const proposable = classified.filter(
-          (c) => c.write && c.tool && (c.tool.form || (c.parsed.success && c.tool.confirm))
+          (c) =>
+            c.write && c.tool && (c.dynamic || c.tool.form || (c.parsed.success && c.tool.confirm))
         );
         if (proposable.length > 0) {
           // Propose the action(s) and stop — nothing is mutated until the user
@@ -220,7 +246,19 @@ class AiService {
             // Prefill with strictly-valid values where the model supplied them,
             // else its raw (partial) args, so the user only fills what's missing.
             const prefill = c.parsed.success ? (c.parsed.data as Record<string, unknown>) : c.args;
-            if (c.tool.form) {
+            facts.push(
+              `proposed ${c.tool.name}(${c.call.args || '{}'}) to the user for confirmation`
+            );
+            if (c.dynamic) {
+              emit('form', {
+                id: c.call.id,
+                tool: c.tool.name,
+                title: c.dynamic.form.title,
+                submitLabel: c.dynamic.form.submitLabel,
+                fields: c.dynamic.form.fields,
+                values: c.dynamic.values,
+              });
+            } else if (c.tool.form) {
               emit('form', {
                 id: c.call.id,
                 tool: c.tool.name,
@@ -254,6 +292,8 @@ class AiService {
           } else {
             emit('tool', { name: c.call.name });
             content = await this.runTool(ctx, c.tool, c.args);
+            const r = content as Partial<ToolResult> | undefined;
+            if (r?.link) lastLink = { href: r.link, label: r.linkLabel ?? 'Open in CampusVerse' };
             const href = (content as { data?: { navigate?: string } })?.data?.navigate;
             if (href) emit('navigate', { href });
           }

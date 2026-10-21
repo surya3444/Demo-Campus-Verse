@@ -29,13 +29,14 @@ class Student360Service {
     if (!s) throw new ApiError('STUDENT_NOT_FOUND', 'Student not found', 404);
 
     const show = {
-      fees: can('finance.feeCounter') || can('finance.transactions') || can('finance.dues'),
+      // Its own switch per role (Roles › Students › Fees), independent of finance work.
+      fees: can('students.fees'),
       health: can('health.records'),
       career: can('careerConnect.studentProfiles'),
       hostel: can('hostel.allocations'),
       transport: can('transport.enrollments'),
-      exams: can('exams.results') || can('exams.reportCards') || can('students.details'),
-      attendance: can('attendance.view') || can('attendance.reports') || can('students.details'),
+      exams: can('exams.results') || can('exams.reportCards') || can('students.details') || can('teaching.grades'),
+      attendance: can('attendance.view') || can('attendance.reports') || can('students.details') || can('attendance.mark'),
       certificates: can('certificates.requests'),
     };
     const none = Promise.resolve([] as Document[]);

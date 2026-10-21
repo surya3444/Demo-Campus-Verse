@@ -58,6 +58,7 @@ import {
 } from 'lucide-react';
 import { studentApi, academicApi, organizationApi, transportApi, financeApi } from '@/lib/api';
 import { toast } from 'sonner';
+import { usePermissions } from '@/hooks/usePermissions';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -172,6 +173,8 @@ interface AttendanceSummary {
 
 export default function StudentDetailPage() {
   const params = useParams();
+  // Fee data is a per-role switch; roles without it don't ask (and see no fees).
+  const canSeeFees = usePermissions().hasPermission('students.fees', 'view');
   const router = useRouter();
   const studentId = params.id as string;
   // Everything about the student across modules, for the hero and Overview
@@ -231,10 +234,12 @@ export default function StudentDetailPage() {
         await Promise.allSettled([
           studentApi.getStudent(studentId),
           studentApi.getEnrollmentHistory(studentId),
-          studentApi.getFeeSummary(studentId),
+          canSeeFees ? studentApi.getFeeSummary(studentId) : Promise.reject(new Error('no fee access')),
           studentApi.getAttendanceSummary(studentId),
           transportApi.getStudentEnrollment(studentId),
-          financeApi.getConcessions({ studentId, limit: 50 }),
+          canSeeFees
+            ? financeApi.getConcessions({ studentId, limit: 50 })
+            : Promise.reject(new Error('no fee access')),
         ]);
 
       if (studentRes.status === 'fulfilled' && studentRes.value?.data) {
@@ -269,7 +274,7 @@ export default function StudentDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, canSeeFees]);
 
   useEffect(() => {
     fetchStudentData();

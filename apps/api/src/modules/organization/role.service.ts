@@ -3,6 +3,11 @@ import { collections } from '../../config/database';
 import { logger } from '../../lib/logger';
 import { ApiError } from '../../middleware/errorHandler';
 import { CreateRoleInput, SYSTEM_ROLES } from '@campus-verse/shared';
+import {
+  allPermissionKeys,
+  defaultPermissions,
+  resolvePermissions,
+} from '../auth/permissionResolver';
 
 interface RoleDocument extends Document {
   _id: ObjectId;
@@ -13,6 +18,8 @@ interface RoleDocument extends Document {
   isSystemRole: boolean;
   level: number;
   permissions: Record<string, string[]>;
+  /** Set when saved in the Roles editor; see auth/permissionResolver. */
+  permissionKeysSeen?: string[];
   createdBy?: ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -272,6 +279,10 @@ class RoleService {
     };
 
     // For system roles, only allow permission changes
+    // Saving permissions in the editor makes the saved role the truth (switched-off
+    // modules stay off); only modules added to the platform later are topped up.
+    if (data.permissions !== undefined) updateData.permissionKeysSeen = allPermissionKeys();
+
     if (existingRole.isSystemRole) {
       if (data.permissions !== undefined) updateData.permissions = data.permissions;
     } else {
@@ -325,7 +336,30 @@ class RoleService {
     return { success: true };
   }
 
+  /** Back to the built-in defaults; the role follows new platform defaults again. */
+  async resetToDefaults(tenantId: string, roleId: string, currentUser?: CurrentUser) {
+    const role = (await collections.roles.findOne({
+      _id: new ObjectId(roleId),
+      tenantId: new ObjectId(tenantId),
+    })) as WithId<RoleDocument> | null;
+    if (!role) throw new ApiError('ROLE_NOT_FOUND', 'Role not found', 404);
+    if (currentUser && !this.canManageRole(currentUser, role.level, role.code)) {
+      throw new ApiError('INSUFFICIENT_PRIVILEGE', 'You cannot modify this role', 403);
+    }
+    const defaults = defaultPermissions(role.code);
+    if (!defaults) {
+      throw new ApiError('NO_DEFAULTS', 'Custom roles have no built-in defaults to reset to', 400);
+    }
+    await collections.roles.updateOne(
+      { _id: role._id },
+      { $set: { permissions: defaults, updatedAt: new Date() }, $unset: { permissionKeysSeen: '' } }
+    );
+    logger.info({ roleId, tenantId }, 'Role reset to defaults');
+    return this.findById(tenantId, roleId);
+  }
+
   private formatRole(role: WithId<RoleDocument>) {
+    const defaults = defaultPermissions(role.code);
     return {
       _id: role._id.toString(),
       tenantId: role.tenantId.toString(),
@@ -334,7 +368,12 @@ class RoleService {
       description: role.description,
       isSystemRole: role.isSystemRole,
       level: role.level,
-      permissions: role.permissions,
+      // What the role actually grants at sign-in, so the editor shows the truth.
+      permissions: resolvePermissions(role),
+      /** A built-in role with defaults to reset to. */
+      hasDefaults: !!defaults,
+      /** Saved in the editor (otherwise it follows the built-in defaults). */
+      customised: !!role.permissionKeysSeen?.length,
       createdAt: role.createdAt,
       updatedAt: role.updatedAt,
     };

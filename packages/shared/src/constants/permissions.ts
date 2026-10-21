@@ -27,6 +27,8 @@ export const PERMISSIONS = {
   'students.enrollment': ['view', 'create', 'edit'],
   'students.promotion': ['view', 'create'],
   'students.reports': ['view', 'export'],
+  // Fee details (dues, payments, installments) wherever a student profile is shown.
+  'students.fees': ['view'],
 
   // Admissions
   'admissions.leads': ['view', 'create', 'edit', 'delete', 'assign', 'convert'],
@@ -72,6 +74,8 @@ export const PERMISSIONS = {
   'health.visits': ['view', 'create', 'edit', 'delete'],
   'health.reports': ['view', 'export'],
   'health.settings': ['view', 'edit'],
+  // Upcoming partner benefits: cInsurance and Pharma-C.
+  'health.benefits': ['view'],
 
   // Certificates
   'certificates.types': ['view', 'create', 'edit', 'delete'],
@@ -131,6 +135,9 @@ export const PERMISSIONS = {
 
   // Campus Feed
   'campusFeed.posts': ['view', 'create', 'edit', 'delete', 'pin', 'flag', 'moderate'],
+
+  // Clubs: everyone signed in can browse and join; these let a role run them.
+  'clubs.manage': ['create', 'edit'],
 
   // Inventory
   'inventory.assets': ['view', 'create', 'edit', 'delete'],
@@ -383,6 +390,10 @@ export const ORG_ADMIN_PERMISSIONS: Record<string, string[]> = {
 
   'reports.view': ['view'],
   'reports.export': ['export'],
+  'students.fees': ['view'],
+  'health.benefits': ['view'],
+  'clubs.manage': ['create', 'edit'],
+  'ai.assistant': ['use'],
 };
 
 /**
@@ -563,6 +574,10 @@ export const BRANCH_ADMIN_PERMISSIONS: Record<string, string[]> = {
 
   'reports.view': ['view'],
   'reports.export': ['export'],
+  'students.fees': ['view'],
+  'health.benefits': ['view'],
+  'clubs.manage': ['create', 'edit'],
+  'ai.assistant': ['use'],
 };
 
 /**
@@ -633,6 +648,7 @@ export const TEACHER_PERMISSIONS: Record<string, string[]> = {
   'feedback.tickets': ['view', 'create'],
 
   'dashboard.branchView': ['view'],
+  'ai.assistant': ['use'],
 };
 
 /**
@@ -662,6 +678,7 @@ export const HOD_PERMISSIONS: Record<string, string[]> = {
   'obe.reports': ['view'],
   'dashboard.branchView': ['view'],
   'dashboard.fees': ['view'],
+  'ai.assistant': ['use'],
 };
 
 export const ADMISSION_COUNSELOR_PERMISSIONS: Record<string, string[]> = {
@@ -682,6 +699,7 @@ export const ADMISSION_COUNSELOR_PERMISSIONS: Record<string, string[]> = {
   'feedback.tickets': ['view', 'create'],
 
   'dashboard.branchView': ['view'],
+  'ai.assistant': ['use'],
 };
 
 /**
@@ -722,6 +740,8 @@ export const ACCOUNTANT_PERMISSIONS: Record<string, string[]> = {
 
   'reports.view': ['view'],
   'reports.export': ['export'],
+  'students.fees': ['view'],
+  'ai.assistant': ['use'],
 };
 
 /**
@@ -755,6 +775,7 @@ export const HR_MANAGER_PERMISSIONS: Record<string, string[]> = {
   'dashboard.branchView': ['view'],
 
   'reports.view': ['view'],
+  'ai.assistant': ['use'],
 };
 
 /**
@@ -789,6 +810,7 @@ export const RECEPTIONIST_PERMISSIONS: Record<string, string[]> = {
   'feedback.tickets': ['view', 'create'],
 
   'dashboard.branchView': ['view'],
+  'ai.assistant': ['use'],
 };
 
 /**
@@ -841,6 +863,8 @@ export const STUDENT_PERMISSIONS: Record<string, string[]> = {
 
   'dashboard.branchView': ['view'],
   'dashboard.fees': ['view'],
+  'students.fees': ['view'], // their own fees only (self-scoped)
+  'ai.assistant': ['use'],
 };
 
 /**
@@ -874,6 +898,7 @@ export const PLACEMENT_OFFICER_PERMISSIONS: Record<string, string[]> = {
   'communications.calendar': ['view'],
 
   'dashboard.branchView': ['view'],
+  'ai.assistant': ['use'],
 };
 
 /**
@@ -903,6 +928,7 @@ export const CAREER_COUNSELOR_PERMISSIONS: Record<string, string[]> = {
   'communications.calendar': ['view'],
 
   'dashboard.branchView': ['view'],
+  'ai.assistant': ['use'],
 };
 
 /**
@@ -924,6 +950,7 @@ export const HOSTEL_WARDEN_PERMISSIONS: Record<string, string[]> = {
   'feedback.tickets': ['view', 'create'],
 
   'dashboard.branchView': ['view'],
+  'ai.assistant': ['use'],
 };
 
 /**
@@ -948,6 +975,7 @@ export const INVENTORY_MANAGER_PERMISSIONS: Record<string, string[]> = {
   'feedback.tickets': ['view', 'create'],
 
   'dashboard.branchView': ['view'],
+  'ai.assistant': ['use'],
 };
 
 export type PermissionModule = keyof typeof PERMISSIONS;

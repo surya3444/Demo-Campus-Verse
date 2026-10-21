@@ -679,7 +679,9 @@ export const TOOLS: ToolDefinition[] = [
             periodsPerWeek: rows.length,
             week: weekView(rows, true),
           },
-          link: '/teaching/timetable',
+          // Opens this teacher's week directly, not just the timetable section.
+          link: `/organization/timetable?view=teacher&teacher=${String(staff[0]._id)}`,
+          linkLabel: `View ${String(staff[0].displayName)}'s timetable`,
         };
       }
       let section: { id: string; label: string };
@@ -751,11 +753,13 @@ export const TOOLS: ToolDefinition[] = [
             section: section.label,
             message: 'No timetable has been set up for this section yet.',
           },
-          link: '/teaching/timetable',
+          link: `/organization/timetable?section=${section.id}`,
         };
       return {
         data: { section: section.label, periodsPerWeek: rows.length, week: weekView(rows, false) },
-        link: '/teaching/timetable',
+        // Opens this exact section's week in the timetable builder.
+        link: `/organization/timetable?section=${section.id}`,
+        linkLabel: 'View this timetable',
       };
     },
   },

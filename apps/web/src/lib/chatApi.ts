@@ -23,7 +23,16 @@ export interface PendingAction {
   args: Record<string, unknown>;
 }
 
-export type FormFieldType = 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'date';
+/** `hidden` fields carry values the user shouldn't edit (ids, the target action). */
+export type FormFieldType =
+  | 'text'
+  | 'email'
+  | 'tel'
+  | 'number'
+  | 'textarea'
+  | 'select'
+  | 'date'
+  | 'hidden';
 
 export interface FormFieldOption {
   value: string;

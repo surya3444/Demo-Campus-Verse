@@ -1,23 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { BarChart3, Wallet, CalendarCheck, Users, UserPlus, PencilLine } from 'lucide-react';
 
-/**
- * Mirror of the per-tool permissions in apps/api/.../ai.tools.ts. If a user holds
- * none of these they have nothing to query, so the assistant (widget + page)
- * stays hidden for them. Single source of truth shared by the widget, the
- * dedicated page, and the sidebar gate.
- */
-export const AI_TOOL_PERMISSIONS: Array<{ module: string; action: string }> = [
-  { module: 'dashboard.branchView', action: 'view' },
-  { module: 'students.list', action: 'view' },
-  { module: 'finance.dues', action: 'view' },
-  { module: 'finance.collections', action: 'view' },
-  { module: 'attendance.view', action: 'view' },
-  { module: 'admissions.leads', action: 'view' },
-  { module: 'hr.staff', action: 'view' },
-  { module: 'hr.leaves', action: 'view' },
-];
-
 /** Friendly labels for the "looking up…" hint while a data tool runs. */
 export const TOOL_LABELS: Record<string, string> = {
   get_branch_summary: "today's branch summary",

@@ -83,6 +83,19 @@ class RoleController {
     }
   }
 
+  async reset(req: Request, res: Response, next: NextFunction) {
+    try {
+      const role = await roleService.resetToDefaults(
+        req.tenantId!,
+        req.params.id as string,
+        this.getCurrentUser(req)
+      );
+      success(res, role, undefined, 'Role reset to its default permissions');
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const currentUser = this.getCurrentUser(req);

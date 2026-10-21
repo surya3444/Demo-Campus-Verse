@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticate } from '../../middleware/auth';
-import { requireBranch } from '../../middleware/rbac';
+import { requireBranch, requirePermission } from '../../middleware/rbac';
 import { requireModule } from '../../middleware/moduleGating';
 import { validateBody } from '../../middleware/validate';
 import { aiRateLimiter } from '../../middleware/rateLimit';
@@ -18,6 +18,8 @@ const router: Router = Router();
 router.use(authenticate);
 router.use(requireModule('aiAssistant'));
 router.use(requireBranch);
+// Per-role switch (Roles › AI Assistant); every built-in role has it by default.
+router.use(requirePermission('ai.assistant', 'use'));
 
 // The assistant only ever exposes the data tools a user is already permitted
 // for (see ai.tools.buildToolsForUser), so per-tool RBAC is the real data gate.

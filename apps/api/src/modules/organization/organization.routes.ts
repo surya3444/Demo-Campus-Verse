@@ -251,6 +251,12 @@ router.get('/roles/:id', requirePermission('organization.roles', 'view'), roleCo
 
 router.put('/roles/:id', requirePermission('organization.roles', 'edit'), roleController.update);
 
+router.post(
+  '/roles/:id/reset',
+  requirePermission('organization.roles', 'edit'),
+  roleController.reset.bind(roleController)
+);
+
 router.delete(
   '/roles/:id',
   requirePermission('organization.roles', 'delete'),

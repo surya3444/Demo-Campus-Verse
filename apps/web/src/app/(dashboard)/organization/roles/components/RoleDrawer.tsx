@@ -12,13 +12,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Shield, ShieldCheck, Loader2, X, Info, LayoutGrid, Layers, KeyRound } from 'lucide-react';
-import { PERMISSIONS } from '@campus-verse/shared/constants';
+import { Shield, ShieldCheck, Loader2, X, Info, LayoutGrid, Layers, KeyRound, RotateCcw } from 'lucide-react';
+import { PermissionMatrix } from './PermissionMatrix';
 import { cn } from '@/lib/utils';
 
 interface Role {
@@ -29,6 +27,10 @@ interface Role {
   isSystemRole: boolean;
   level: number;
   permissions: Record<string, string[]>;
+  /** A built-in role with defaults to reset to. */
+  hasDefaults?: boolean;
+  /** Saved in the editor (otherwise it follows the built-in defaults). */
+  customised?: boolean;
 }
 
 interface RoleDrawerProps {
@@ -45,64 +47,9 @@ interface RoleDrawerProps {
     level: number;
     permissions: Record<string, string[]>;
   }) => Promise<void>;
+  /** Reset a built-in role to its default permissions. */
+  onReset?: () => Promise<void>;
 }
-
-// Group modules by category for better organization
-const moduleCategories = [
-  {
-    name: 'Core',
-    modules: ['users', 'roles', 'branches', 'dashboard'],
-  },
-  {
-    name: 'Academic',
-    modules: ['students', 'classes', 'sections', 'subjects', 'timetable', 'exams', 'grades'],
-  },
-  {
-    name: 'Attendance & HR',
-    modules: ['attendance', 'hr', 'leave'],
-  },
-  {
-    name: 'Finance',
-    modules: ['finance', 'fees', 'expenses', 'payroll'],
-  },
-  {
-    name: 'Communication',
-    modules: ['communication', 'notifications', 'announcements'],
-  },
-  {
-    name: 'Admissions',
-    modules: ['admission', 'enquiries', 'applications'],
-  },
-  {
-    name: 'Others',
-    modules: ['certificates', 'reports', 'settings', 'inventory', 'transport', 'library', 'hostel'],
-  },
-];
-
-// Get all modules with their available actions
-const allModules = Object.entries(PERMISSIONS).map(([key, actions]) => ({
-  id: key,
-  name: key
-    .split('.')
-    .map((s) => s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, ' '))
-    .join(' > '),
-  actions: actions as readonly string[],
-}));
-
-// Get modules for a category
-const getModulesForCategory = (categoryModules: string[]) => {
-  return allModules.filter((m) =>
-    categoryModules.some((cm) => m.id.toLowerCase().includes(cm.toLowerCase()))
-  );
-};
-
-// Get uncategorized modules
-const getUncategorizedModules = () => {
-  const categorizedIds = moduleCategories.flatMap((c) => c.modules);
-  return allModules.filter(
-    (m) => !categorizedIds.some((cm) => m.id.toLowerCase().includes(cm.toLowerCase()))
-  );
-};
 
 export function RoleDrawer({
   open,
@@ -112,8 +59,10 @@ export function RoleDrawer({
   userRoleLevel,
   isGroupOwner = false,
   onSubmit,
+  onReset,
 }: RoleDrawerProps) {
   const [saving, setSaving] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     code: '',
@@ -144,68 +93,6 @@ export function RoleDrawer({
       }
     }
   }, [open, role, mode, userRoleLevel]);
-
-  const hasPermission = (module: string, action: string) => {
-    return formData.permissions[module]?.includes(action) || false;
-  };
-
-  const togglePermission = (module: string, action: string) => {
-    if (mode === 'view') return;
-
-    setFormData((prev) => {
-      const newPermissions = { ...prev.permissions };
-      if (!newPermissions[module]) {
-        newPermissions[module] = [];
-      }
-      if (newPermissions[module].includes(action)) {
-        newPermissions[module] = newPermissions[module].filter((a) => a !== action);
-        if (newPermissions[module].length === 0) {
-          delete newPermissions[module];
-        }
-      } else {
-        newPermissions[module] = [...newPermissions[module], action];
-      }
-      return { ...prev, permissions: newPermissions };
-    });
-  };
-
-  const toggleAllInModule = (moduleId: string, actions: readonly string[]) => {
-    if (mode === 'view') return;
-
-    setFormData((prev) => {
-      const newPermissions = { ...prev.permissions };
-      const currentPerms = newPermissions[moduleId] || [];
-      const allSelected = actions.every((a) => currentPerms.includes(a));
-
-      if (allSelected) {
-        delete newPermissions[moduleId];
-      } else {
-        newPermissions[moduleId] = [...actions];
-      }
-      return { ...prev, permissions: newPermissions };
-    });
-  };
-
-  const toggleAllInCategory = (categoryModules: string[]) => {
-    if (mode === 'view') return;
-
-    const modules = getModulesForCategory(categoryModules);
-    const allCategorySelected = modules.every((m) =>
-      m.actions.every((a) => formData.permissions[m.id]?.includes(a))
-    );
-
-    setFormData((prev) => {
-      const newPermissions = { ...prev.permissions };
-      if (allCategorySelected) {
-        modules.forEach((m) => delete newPermissions[m.id]);
-      } else {
-        modules.forEach((m) => {
-          newPermissions[m.id] = [...m.actions];
-        });
-      }
-      return { ...prev, permissions: newPermissions };
-    });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -452,208 +339,50 @@ export function RoleDrawer({
           {/* Right Column - Permissions Grid */}
           <div className="flex-1 flex flex-col bg-muted/20">
             <div className="px-6 py-4 border-b bg-background">
-              <h3 className="font-semibold">Permissions</h3>
-              <p className="text-sm text-muted-foreground">
-                {isViewMode
-                  ? 'View assigned permissions for this role'
-                  : 'Select permissions to assign to this role'}
-              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="mr-auto">
+                  <h3 className="font-semibold">What this role can do</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {isViewMode
+                      ? 'Everything this role can see and do, as it applies at sign-in.'
+                      : 'Changes apply the next time people in this role sign in.'}
+                  </p>
+                </div>
+                {role?.hasDefaults && (
+                  <Badge variant={role.customised ? 'default' : 'secondary'}>
+                    {role.customised ? 'Customised' : 'Using defaults'}
+                  </Badge>
+                )}
+                {role?.hasDefaults && role.customised && onReset && !isViewMode && !isPermissionsLocked && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={resetting}
+                    onClick={async () => {
+                      setResetting(true);
+                      try {
+                        await onReset();
+                        onOpenChange(false);
+                      } finally {
+                        setResetting(false);
+                      }
+                    }}
+                  >
+                    {resetting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RotateCcw className="mr-2 h-4 w-4" />}
+                    Reset to defaults
+                  </Button>
+                )}
+              </div>
             </div>
 
             <ScrollArea className="flex-1">
-              <div className="p-6 space-y-6">
-                {moduleCategories.map((category) => {
-                  const categoryModules = getModulesForCategory(category.modules);
-                  if (categoryModules.length === 0) return null;
-
-                  const allCategorySelected = categoryModules.every((m) =>
-                    m.actions.every((a) => formData.permissions[m.id]?.includes(a))
-                  );
-                  const someCategorySelected =
-                    !allCategorySelected &&
-                    categoryModules.some((m) => (formData.permissions[m.id]?.length || 0) > 0);
-
-                  return (
-                    <Card key={category.name}>
-                      <CardHeader className="py-3 px-4 bg-muted/50">
-                        <div className="flex items-center gap-3">
-                          {!isViewMode && (
-                            <Checkbox
-                              checked={allCategorySelected}
-                              ref={(el) => {
-                                if (el) {
-                                  (
-                                    el as HTMLButtonElement & { indeterminate: boolean }
-                                  ).indeterminate = someCategorySelected;
-                                }
-                              }}
-                              onCheckedChange={() => toggleAllInCategory(category.modules)}
-                            />
-                          )}
-                          <CardTitle className="text-sm font-medium">{category.name}</CardTitle>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-0">
-                        <div className="divide-y">
-                          {categoryModules.map((module) => {
-                            const modulePerms = formData.permissions[module.id] || [];
-                            const allSelected = module.actions.every((a) =>
-                              modulePerms.includes(a)
-                            );
-                            const someSelected = modulePerms.length > 0 && !allSelected;
-
-                            return (
-                              <div
-                                key={module.id}
-                                className="flex items-center justify-between px-4 py-3 hover:bg-muted/30"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <Checkbox
-                                    checked={allSelected}
-                                    ref={(el) => {
-                                      if (el) {
-                                        (
-                                          el as HTMLButtonElement & { indeterminate: boolean }
-                                        ).indeterminate = someSelected;
-                                      }
-                                    }}
-                                    onCheckedChange={() =>
-                                      toggleAllInModule(module.id, module.actions)
-                                    }
-                                    disabled={isViewMode}
-                                  />
-                                  <span className="font-medium text-sm">{module.name}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  {module.actions.map((action) => (
-                                    <button
-                                      key={action}
-                                      type="button"
-                                      onClick={() => togglePermission(module.id, action)}
-                                      disabled={isViewMode}
-                                      className={cn(
-                                        'px-2.5 py-1 text-xs rounded-md border transition-colors capitalize',
-                                        hasPermission(module.id, action)
-                                          ? 'bg-primary text-primary-foreground border-primary'
-                                          : 'bg-background text-muted-foreground border-border hover:border-primary/50',
-                                        isViewMode && 'cursor-default'
-                                      )}
-                                    >
-                                      {action}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-
-                {/* Uncategorized modules */}
-                {(() => {
-                  const uncategorized = getUncategorizedModules();
-                  if (uncategorized.length === 0) return null;
-
-                  const allUncatSelected = uncategorized.every((m) =>
-                    m.actions.every((a) => formData.permissions[m.id]?.includes(a))
-                  );
-                  const someUncatSelected =
-                    !allUncatSelected &&
-                    uncategorized.some((m) => (formData.permissions[m.id]?.length || 0) > 0);
-
-                  return (
-                    <Card>
-                      <CardHeader className="py-3 px-4 bg-muted/50">
-                        <div className="flex items-center gap-3">
-                          {!isViewMode && (
-                            <Checkbox
-                              checked={allUncatSelected}
-                              ref={(el) => {
-                                if (el) {
-                                  (
-                                    el as HTMLButtonElement & { indeterminate: boolean }
-                                  ).indeterminate = someUncatSelected;
-                                }
-                              }}
-                              onCheckedChange={() => {
-                                setFormData((prev) => {
-                                  const newPermissions = { ...prev.permissions };
-                                  if (allUncatSelected) {
-                                    uncategorized.forEach((m) => delete newPermissions[m.id]);
-                                  } else {
-                                    uncategorized.forEach((m) => {
-                                      newPermissions[m.id] = [...m.actions];
-                                    });
-                                  }
-                                  return { ...prev, permissions: newPermissions };
-                                });
-                              }}
-                            />
-                          )}
-                          <CardTitle className="text-sm font-medium">Other Modules</CardTitle>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-0">
-                        <div className="divide-y">
-                          {uncategorized.map((module) => {
-                            const modulePerms = formData.permissions[module.id] || [];
-                            const allSelected = module.actions.every((a) =>
-                              modulePerms.includes(a)
-                            );
-                            const someSelected = modulePerms.length > 0 && !allSelected;
-
-                            return (
-                              <div
-                                key={module.id}
-                                className="flex items-center justify-between px-4 py-3 hover:bg-muted/30"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <Checkbox
-                                    checked={allSelected}
-                                    ref={(el) => {
-                                      if (el) {
-                                        (
-                                          el as HTMLButtonElement & { indeterminate: boolean }
-                                        ).indeterminate = someSelected;
-                                      }
-                                    }}
-                                    onCheckedChange={() =>
-                                      toggleAllInModule(module.id, module.actions)
-                                    }
-                                    disabled={isViewMode}
-                                  />
-                                  <span className="font-medium text-sm">{module.name}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  {module.actions.map((action) => (
-                                    <button
-                                      key={action}
-                                      type="button"
-                                      onClick={() => togglePermission(module.id, action)}
-                                      disabled={isViewMode}
-                                      className={cn(
-                                        'px-2.5 py-1 text-xs rounded-md border transition-colors capitalize',
-                                        hasPermission(module.id, action)
-                                          ? 'bg-primary text-primary-foreground border-primary'
-                                          : 'bg-background text-muted-foreground border-border hover:border-primary/50',
-                                        isViewMode && 'cursor-default'
-                                      )}
-                                    >
-                                      {action}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })()}
+              <div className="p-6">
+                <PermissionMatrix
+                  permissions={formData.permissions}
+                  readOnly={isViewMode || isPermissionsLocked}
+                  onChange={(permissions) => setFormData((prev) => ({ ...prev, permissions }))}
+                />
               </div>
             </ScrollArea>
           </div>

@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import { resolvePermissions } from './permissionResolver';
 import { ObjectId, WithId, Document } from 'mongodb';
 import { collections } from '../../config/database';
 import { getRedis } from '../../config/redis';
@@ -19,21 +20,6 @@ import {
 import { ApiError } from '../../middleware/errorHandler';
 import { institutionService } from '../organization/institution.service';
 import {
-  ADMIN_TOGGLED_PERMISSIONS,
-  PERMISSIONS as ALL_PERMISSIONS,
-  SYSTEM_ROLES as SYSTEM_ROLE_CODES,
-  ORG_ADMIN_PERMISSIONS,
-  BRANCH_ADMIN_PERMISSIONS,
-  TEACHER_PERMISSIONS,
-  ADMISSION_COUNSELOR_PERMISSIONS,
-  ACCOUNTANT_PERMISSIONS,
-  HR_MANAGER_PERMISSIONS,
-  RECEPTIONIST_PERMISSIONS,
-  STUDENT_PERMISSIONS,
-  PLACEMENT_OFFICER_PERMISSIONS,
-  CAREER_COUNSELOR_PERMISSIONS,
-  HOSTEL_WARDEN_PERMISSIONS,
-  INVENTORY_MANAGER_PERMISSIONS,
   defaultModulesFor,
 } from '@campus-verse/shared/constants';
 import { emailService } from '../../services/email.service';
@@ -50,80 +36,6 @@ const RESET_TOKEN_PREFIX = 'reset:';
 const VERIFICATION_TOKEN_PREFIX = 'verify:';
 const RESET_TOKEN_EXPIRY = 60 * 60; // 1 hour in seconds
 const VERIFICATION_TOKEN_EXPIRY = 24 * 60 * 60; // 24 hours in seconds
-
-/**
- * Resolve permissions for system roles dynamically from the shared constants,
- * so that newly added module permissions are always included without needing
- * a DB migration on existing tenants.
- */
-/**
- * Map of operational role codes to their canonical permission sets.
- * Used to dynamically resolve permissions so new modules are always
- * included without needing a DB migration on existing tenants.
- */
-const OPERATIONAL_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> = {
-  TEACHER: TEACHER_PERMISSIONS,
-  ADMISSION_COUNSELOR: ADMISSION_COUNSELOR_PERMISSIONS,
-  ACCOUNTANT: ACCOUNTANT_PERMISSIONS,
-  HR_MANAGER: HR_MANAGER_PERMISSIONS,
-  RECEPTIONIST: RECEPTIONIST_PERMISSIONS,
-  STUDENT: STUDENT_PERMISSIONS,
-  PLACEMENT_OFFICER: PLACEMENT_OFFICER_PERMISSIONS,
-  CAREER_COUNSELOR: CAREER_COUNSELOR_PERMISSIONS,
-  HOSTEL_WARDEN: HOSTEL_WARDEN_PERMISSIONS,
-  INVENTORY_MANAGER: INVENTORY_MANAGER_PERMISSIONS,
-};
-
-function resolvePermissions(
-  roleCode: string,
-  storedPermissions: Record<string, string[]>
-): Record<string, string[]> {
-  let permissions: Record<string, string[]>;
-  switch (roleCode) {
-    case SYSTEM_ROLE_CODES.GROUP_OWNER:
-    case SYSTEM_ROLE_CODES.ORG_MODERATOR:
-      permissions = { ...ALL_PERMISSIONS } as unknown as Record<string, string[]>;
-      break;
-    case SYSTEM_ROLE_CODES.ORG_ADMIN:
-      permissions = { ...ORG_ADMIN_PERMISSIONS } as unknown as Record<string, string[]>;
-      break;
-    case SYSTEM_ROLE_CODES.BRANCH_ADMIN:
-      permissions = { ...BRANCH_ADMIN_PERMISSIONS } as unknown as Record<string, string[]>;
-      break;
-    default: {
-      // For known operational roles, merge canonical permissions with stored
-      // so newly added module permissions are always included
-      const canonical = OPERATIONAL_ROLE_PERMISSIONS[roleCode];
-      if (canonical) {
-        const merged = { ...storedPermissions, ...canonical };
-        // Admin-toggled keys follow the saved role only, so switching one off sticks.
-        for (const key of ADMIN_TOGGLED_PERMISSIONS) {
-          if (storedPermissions[key]) merged[key] = storedPermissions[key];
-          else delete merged[key];
-        }
-        return merged;
-      }
-      return storedPermissions;
-    }
-  }
-  // Strip teacher-specific permissions from admin/system roles.
-  // Keep teaching.timetable (admins manage timetables) and teaching.grades
-  // (admins view the gradebook with the View-As-Teacher selector — see
-  // apps/web/src/app/(dashboard)/teaching/gradebook/page.tsx).
-  const teacherOnlyKeys = [
-    'teaching.myClasses',
-    'teaching.myStudents',
-    'teaching.lessonPlans',
-    'teaching.assignments',
-  ];
-  const filtered: Record<string, string[]> = {};
-  for (const [key, value] of Object.entries(permissions)) {
-    if (!teacherOnlyKeys.includes(key)) {
-      filtered[key] = value as string[];
-    }
-  }
-  return filtered;
-}
 
 interface UserDocument extends Document {
   _id: ObjectId;
@@ -588,7 +500,7 @@ class AuthService {
       email: user.email,
       roleCode: role.code,
       roleLevel: role.level,
-      permissions: resolvePermissions(role.code, role.permissions),
+      permissions: resolvePermissions(role),
       accessScope: {
         type: user.accessScope.type,
         institutionIds: user.accessScope.institutionIds?.map((id) => id.toString()),
@@ -633,7 +545,7 @@ class AuthService {
       profile: user.profile,
       roleCode: role.code,
       roleLevel: role.level,
-      permissions: resolvePermissions(role.code, role.permissions),
+      permissions: resolvePermissions(role),
       accessScope: {
         type: user.accessScope.type,
         institutionIds: user.accessScope.institutionIds?.map((id) => id.toString()),
@@ -751,7 +663,7 @@ class AuthService {
       email: payload.email,
       roleCode: role.code,
       roleLevel: role.level,
-      permissions: resolvePermissions(role.code, role.permissions),
+      permissions: resolvePermissions(role),
       accessScope: {
         type: user.accessScope.type,
         institutionIds: user.accessScope.institutionIds?.map((id: ObjectId) => id.toString()),
@@ -880,7 +792,7 @@ class AuthService {
       email: user.email,
       roleCode: role.code,
       roleLevel: role.level,
-      permissions: resolvePermissions(role.code, role.permissions),
+      permissions: resolvePermissions(role),
       accessScope: {
         type: user.accessScope.type,
         institutionIds: user.accessScope.institutionIds?.map((id) => id.toString()),
@@ -914,7 +826,7 @@ class AuthService {
       profile: user.profile,
       roleCode: role.code,
       roleLevel: role.level,
-      permissions: resolvePermissions(role.code, role.permissions),
+      permissions: resolvePermissions(role),
       accessScope: {
         type: user.accessScope.type,
         institutionIds: user.accessScope.institutionIds?.map((id) => id.toString()),
@@ -1160,7 +1072,7 @@ class AuthService {
       profile: user.profile,
       roleCode: role.code,
       roleLevel: role.level,
-      permissions: resolvePermissions(role.code, role.permissions),
+      permissions: resolvePermissions(role),
       accessScope: {
         type: user.accessScope.type,
         institutionIds: user.accessScope.institutionIds?.map((id) => id.toString()),

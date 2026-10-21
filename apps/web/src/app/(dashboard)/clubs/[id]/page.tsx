@@ -67,7 +67,7 @@ function FaceRow({
 export default function ClubPage() {
   const { id } = useParams<{ id: string }>();
   const { hasPermission } = usePermissions();
-  const canEdit = hasPermission('communications.calendar', 'edit');
+  const canEdit = hasPermission('clubs.manage', 'edit');
   const q = useQuery({
     queryKey: ['club', id],
     queryFn: () => clubsApi.get(id).then((r) => r.data),

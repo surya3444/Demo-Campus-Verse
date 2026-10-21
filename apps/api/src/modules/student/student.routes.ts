@@ -1,8 +1,16 @@
 import { Router } from 'express';
-import { studentParamGuard } from '../teaching/scope';
+import { ApiError } from '../../middleware/errorHandler';
+import { collections } from '../../config/database';
+import { ObjectId } from 'mongodb';
+import { studentParamGuard, assertTeachingScope } from '../teaching/scope';
 import multer from 'multer';
 import { authenticate } from '../../middleware/auth';
-import { requireBranch, requirePermission } from '../../middleware/rbac';
+import {
+  requireBranch,
+  requirePermission,
+  requireAnyPermission,
+  hasPermission,
+} from '../../middleware/rbac';
 import { requireModule } from '../../middleware/moduleGating';
 import { validateBody } from '../../middleware/validate';
 import { studentController } from './student.controller';
@@ -198,13 +206,32 @@ router.delete(
 router.get('/:id', requirePermission('students.details', 'view'), studentController.findById);
 
 // Student 360: every module's view of one student in a single read
-router.get('/:id/360', requirePermission('students.details', 'view'), async (req, res, next) => {
-  try {
-    success(res, await student360Service.get(req.tenantId!, req.params.id as string, req.user!));
-  } catch (e) {
-    next(e);
+// Roles with student-profile access see anyone in scope; teachers see the
+// students of sections they teach. Each section inside still follows its own
+// permission (fees, health, …).
+router.get(
+  '/:id/360',
+  requireAnyPermission([
+    { module: 'students.details', action: 'view' },
+    { module: 'teaching.myStudents', action: 'view' },
+  ]),
+  async (req, res, next) => {
+    try {
+      if (!hasPermission(req.user, 'students.details', 'view')) {
+        const s = await collections.students.findOne(
+          { _id: new ObjectId(req.params.id as string), tenantId: new ObjectId(req.tenantId!) },
+          { projection: { 'currentEnrollment.sectionId': 1 } }
+        );
+        const sectionId = (s?.currentEnrollment as { sectionId?: ObjectId } | undefined)?.sectionId;
+        if (!sectionId) throw new ApiError('STUDENT_NOT_FOUND', 'Student not found', 404);
+        await assertTeachingScope(req, String(sectionId));
+      }
+      success(res, await student360Service.get(req.tenantId!, req.params.id as string, req.user!));
+    } catch (e) {
+      next(e);
+    }
   }
-});
+);
 
 router.put(
   '/:id',
@@ -269,7 +296,8 @@ router.post(
 
 router.get(
   '/:id/fee-summary',
-  requirePermission('students.details', 'view'),
+  // Fee data is its own per-role switch (students see only their own).
+  requirePermission('students.fees', 'view'),
   studentController.getFeeSummary
 );
 

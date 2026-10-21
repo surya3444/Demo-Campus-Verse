@@ -23,8 +23,8 @@ const h =
     }
   };
 const ctx = (req: Request) => [req.tenantId!, req.branchId!] as const;
-// Clubs are run like campus events: whoever may create calendar events manages clubs.
-const manage = (action: 'create' | 'edit') => requirePermission('communications.calendar', action);
+// Running clubs is its own permission (Roles › Clubs › Manage); browsing and joining are open.
+const manage = (action: 'create' | 'edit') => requirePermission('clubs.manage', action);
 
 // Anyone signed in on the campus can browse and join.
 router.get(

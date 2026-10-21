@@ -44,7 +44,16 @@ export interface ConfirmCard {
 }
 
 /** A single input rendered in an inline action form. `name` maps to an args key. */
-export type FormFieldType = 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'date';
+/** `hidden` carries values the user shouldn't edit (ids, the target endpoint). */
+export type FormFieldType =
+  | 'text'
+  | 'email'
+  | 'tel'
+  | 'number'
+  | 'textarea'
+  | 'select'
+  | 'date'
+  | 'hidden';
 
 export interface FormFieldOption {
   value: string;
@@ -106,6 +115,13 @@ export interface ToolDefinition {
    * renders this form prefilled with whatever the model could extract.
    */
   form?: ActionForm;
+  /**
+   * write tools only: build an editable form for THIS call (e.g. from the target
+   * endpoint's schema). Returns null when a plain confirm card fits better.
+   */
+  buildForm?: (
+    args: Record<string, unknown>
+  ) => { form: ActionForm; values: Record<string, unknown> } | null;
 }
 
 /** A write action proposed to the user, emitted over the `confirm` SSE event. */
@@ -132,6 +148,8 @@ export interface ProposedForm extends ActionForm {
 export interface ToolResult {
   data: unknown;
   link?: string;
+  /** Button text for the link, e.g. "View this timetable". */
+  linkLabel?: string;
 }
 
 /** A single chat turn as sent by the client / replayed to the model. */

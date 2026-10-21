@@ -119,6 +119,7 @@ interface FieldProps {
 }
 
 function Field({ field, value, invalid, disabled, onChange }: FieldProps) {
+  if (field.type === 'hidden') return null;
   const id = `ai-form-${field.name}`;
   const describedBy = field.help ? `${id}-help` : undefined;
 

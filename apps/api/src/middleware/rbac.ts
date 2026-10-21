@@ -1,31 +1,8 @@
-import { ADMIN_ROLE_CODES } from '@campus-verse/shared/constants';
 import { Request, Response, NextFunction } from 'express';
 import { TokenPayload } from '@campus-verse/shared';
 import { tagMiddleware } from './meta';
 import { ApiError } from './errorHandler';
 
-// Admin bypass: roleLevel 0-3 (super admin, org owner, org admin, branch admin)
-// can access modules that the master PERMISSIONS map grants them by definition.
-// This exists so older admin role docs that pre-date a permission being added
-// don't 403 admins on routes they should be able to see by definition of being
-// an admin. Modules added after the initial role seed (teaching, courses,
-// careerConnect, hostel, etc.) all need this safety net.
-const ADMIN_BYPASS_PREFIXES = [
-  'teaching.',
-  'courses.',
-  'careerConnect.',
-  'hostel.',
-  'health.',
-  'certificates.',
-  'communications.',
-  'inventory.',
-  'expense.',
-  'visitor.',
-  'feedback.',
-  'transport.',
-  'obe.',
-  'dashboard.fees',
-];
 
 /**
  * Pure permission check shared by route middleware (requirePermission) and the
@@ -40,14 +17,9 @@ export function hasPermission(
 ): boolean {
   if (!user || !user.permissions) return false;
 
-  // Built-in admin roles only; a custom role at a low level gets no bypass.
-  const isAdmin = user.roleCode
-    ? ADMIN_ROLE_CODES.includes(user.roleCode)
-    : (user.roleLevel ?? 99) <= 3;
-  if (isAdmin && ADMIN_BYPASS_PREFIXES.some((p) => module.startsWith(p))) {
-    return true;
-  }
-
+  // No role-based bypass: built-in roles are topped up with newly added modules
+  // at sign-in (auth/permissionResolver), so an admin's saved choices — including
+  // switching a module off — are honoured everywhere.
   return user.permissions[module]?.includes(action) ?? false;
 }
 

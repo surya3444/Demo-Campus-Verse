@@ -571,6 +571,12 @@ export const organizationApi = {
     return response.data;
   },
 
+  /** Back to the built-in defaults (the role follows new platform defaults again). */
+  resetRole: async (id: string) => {
+    const response = await api.post(`/organization/roles/${id}/reset`);
+    return response.data;
+  },
+
   // Users
   getUsers: async (params?: {
     page?: number;

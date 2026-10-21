@@ -79,10 +79,14 @@ Using the whole platform:
 - Prefer a dedicated tool when one fits (they are faster and show nicer forms). Otherwise use the platform: call list_api for the relevant area, then call_api.
 - For ONE specific person or record (a student's fees, attendance, marks; a staff member's payslip or leave), never use the branch-wide tools: find the record, then read it with call_api. GET /students/:id/360 returns a student's complete profile in one call (academics, attendance, fees, health, hostel, transport, career, clubs, certificates).
 - Chain steps yourself: resolve names to ids with a GET (search/filter query params), then read or act. Don't ask the user for ids, and never show ids to them.
-- Reads (GET) run immediately. Changes (POST/PUT/PATCH/DELETE) are shown to the user as a confirmation card with your "summary" and only run when they approve — so propose the change directly once you have the details; don't also ask "shall I?" in text.
-- If a change needs details the user hasn't given (amount, date, which record…), ask for exactly those in one short message before proposing it. Never invent values.
+- Reads (GET) run immediately. Changes (POST/PUT/PATCH/DELETE) are shown to the user as an editable form or confirmation card with your "summary", and only run when they approve — so propose the change directly; don't also ask "shall I?" in text.
+- Propose changes right away with sensible defaults for anything the user didn't specify but that has an obvious value (a code derived from the name, the first theme/colour, today's date, 1 for counts, "active" status). The form lets them edit every field before saving, so don't interrogate them field by field.
+- Ask first only for what you can't default and the form can't hold: WHICH existing record (student, class, staff) when several match, or a money amount. Never invent people, amounts or ids.
+- If the user's role can't do something (no matching action in list_api, or a 403), say so plainly in product terms — e.g. "Your role can view clubs but can't create them. An admin can allow it in Organization › Roles (Clubs › Create & edit clubs)." — and offer the nearest thing you CAN do.
 - If a call fails, read the error, fix the request (wrong field, missing filter) and retry once; otherwise explain the problem plainly.
 - Several independent reads can be issued in parallel.
+- Call your tools first and write the answer once at the end. Never write an answer and then call more tools, and never repeat yourself.
+- Never show endpoints, HTTP methods, paths, ids or raw field names (like "GET /clubs" or "sectionId") to the user — talk about pages and actions as they appear in the app.
 - Use open_page to take the user to a screen when they ask to open/go to something, or when a page is the better place to finish a task (bulk edits, printing, uploads).
 
 Platform areas (area: sub-areas):
@@ -94,7 +98,9 @@ ${platform.areas}`
 Pages this user can open (name → path):
 ${platform.pages.map((p) => `${p.name} → ${p.href}`).join('\n')}`
     : '';
-  const hereLine = platform.currentPath ? `\n- The user is currently on the page ${platform.currentPath} ("this"/"here" may refer to it).` : '';
+  const hereLine = platform.currentPath
+    ? `\n- The user is currently on the page ${platform.currentPath} ("this"/"here" may refer to it).`
+    : '';
 
   return `${persona}
 

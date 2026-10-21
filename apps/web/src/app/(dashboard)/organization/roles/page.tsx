@@ -49,6 +49,8 @@ interface Role {
   isSystemRole: boolean;
   level: number;
   permissions: Record<string, string[]>;
+  hasDefaults?: boolean;
+  customised?: boolean;
   userCount?: number;
   createdAt: string;
   updatedAt: string;
@@ -468,6 +470,14 @@ export default function RolesPage() {
         userRoleLevel={user?.roleLevel || 0}
         isGroupOwner={isGroupOwner}
         onSubmit={handleSubmit}
+        onReset={async () => {
+          if (!selectedRole) return;
+          const response = await organizationApi.resetRole(selectedRole._id);
+          if (response.success) {
+            toast.success(`${selectedRole.name} is back on its default permissions`);
+            fetchRoles();
+          }
+        }}
       />
 
       {/* Delete Confirmation Dialog */}
