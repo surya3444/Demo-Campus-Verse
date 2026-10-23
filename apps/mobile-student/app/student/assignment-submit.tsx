@@ -107,40 +107,40 @@ export default function AssignmentSubmitScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50">
-        <ActivityIndicator size="large" color="#3b82f6" />
+      <View className="flex-1 items-center justify-center bg-secondary-50">
+        <ActivityIndicator size="large" color="#0749BB" />
       </View>
     );
   }
 
   if (!detail || questions.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50">
-        <Ionicons name="alert-circle-outline" size={48} color="#d1d5db" />
-        <Text className="text-gray-400 mt-3">No questions found</Text>
+      <View className="flex-1 items-center justify-center bg-secondary-50">
+        <Ionicons name="alert-circle-outline" size={48} color="#D3DAE4" />
+        <Text className="text-secondary-400 mt-3">No questions found</Text>
       </View>
     );
   }
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-gray-50"
+      className="flex-1 bg-secondary-50"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       {/* Progress bar */}
-      <View className="bg-white px-4 py-3 border-b border-gray-100">
+      <View className="bg-white px-4 py-3 border-b border-secondary-100">
         <View className="flex-row items-center justify-between mb-2">
-          <Text className="text-sm font-semibold text-gray-700">
+          <Text className="text-sm font-semibold text-secondary-700">
             {answeredCount} of {questions.length} answered
           </Text>
-          <Text className="text-xs text-gray-400">{detail.totalMarks} marks total</Text>
+          <Text className="text-xs text-secondary-400">{detail.totalMarks} marks total</Text>
         </View>
-        <View className="h-2 bg-gray-100 rounded-full overflow-hidden">
+        <View className="h-2 bg-secondary-100 rounded-full overflow-hidden">
           <View
             className="h-full rounded-full"
             style={{
               width: `${(answeredCount / questions.length) * 100}%`,
-              backgroundColor: answeredCount === questions.length ? '#10b981' : '#3b82f6',
+              backgroundColor: answeredCount === questions.length ? '#10b981' : '#0749BB',
             }}
           />
         </View>
@@ -205,7 +205,7 @@ function QuestionCard({
       className="bg-white rounded-2xl mb-3 overflow-hidden"
       style={{
         borderWidth: 1.5,
-        borderColor: isAnswered ? '#dbeafe' : '#f1f5f9',
+        borderColor: isAnswered ? '#E1ECFE' : '#EDF0F3',
       }}
     >
       {/* Header */}
@@ -213,25 +213,25 @@ function QuestionCard({
         <View className="flex-row items-center">
           <View
             className="w-7 h-7 rounded-lg items-center justify-center mr-2"
-            style={{ backgroundColor: isAnswered ? '#eff6ff' : '#f8fafc' }}
+            style={{ backgroundColor: isAnswered ? '#F0F5FE' : '#F9F8F5' }}
           >
             <Text
               className="text-xs font-bold"
-              style={{ color: isAnswered ? '#3b82f6' : '#94a3b8' }}
+              style={{ color: isAnswered ? '#0749BB' : '#8998B3' }}
             >
               {index + 1}
             </Text>
           </View>
-          <View className="px-2 py-0.5 rounded bg-gray-100">
-            <Text className="text-[10px] font-bold text-gray-400">{typeBadge}</Text>
+          <View className="px-2 py-0.5 rounded bg-secondary-100">
+            <Text className="text-[10px] font-bold text-secondary-400">{typeBadge}</Text>
           </View>
         </View>
-        <Text className="text-xs text-gray-400 font-semibold">{question.marks} marks</Text>
+        <Text className="text-xs text-secondary-400 font-semibold">{question.marks} marks</Text>
       </View>
 
       {/* Question text */}
       <View className="px-4 pb-3">
-        <Text className="text-sm font-semibold text-gray-900 leading-5">
+        <Text className="text-sm font-semibold text-secondary-800 leading-5">
           {question.questionText}
         </Text>
       </View>
@@ -247,17 +247,17 @@ function QuestionCard({
                   <View
                     className="flex-row items-center px-3 py-3 rounded-xl"
                     style={{
-                      backgroundColor: selected ? '#eff6ff' : '#f8fafc',
+                      backgroundColor: selected ? '#F0F5FE' : '#F9F8F5',
                       borderWidth: 1.5,
-                      borderColor: selected ? '#3b82f6' : '#f1f5f9',
+                      borderColor: selected ? '#0749BB' : '#EDF0F3',
                     }}
                   >
                     <View
                       className="w-5 h-5 rounded-full items-center justify-center mr-3"
                       style={{
                         borderWidth: 2,
-                        borderColor: selected ? '#3b82f6' : '#d1d5db',
-                        backgroundColor: selected ? '#3b82f6' : 'transparent',
+                        borderColor: selected ? '#0749BB' : '#D3DAE4',
+                        backgroundColor: selected ? '#0749BB' : 'transparent',
                       }}
                     >
                       {selected && <Ionicons name="checkmark" size={12} color="#fff" />}
@@ -265,7 +265,7 @@ function QuestionCard({
                     <Text
                       className="text-sm flex-1"
                       style={{
-                        color: selected ? '#1e40af' : '#4b5563',
+                        color: selected ? '#042A6C' : '#3E5683',
                         fontWeight: selected ? '600' : '400',
                       }}
                     >
@@ -294,20 +294,20 @@ function QuestionCard({
                         ? opt === 'True'
                           ? '#f0fdf4'
                           : '#fef2f2'
-                        : '#f8fafc',
+                        : '#F9F8F5',
                       borderWidth: 1.5,
-                      borderColor: selected ? (opt === 'True' ? '#16a34a' : '#dc2626') : '#f1f5f9',
+                      borderColor: selected ? (opt === 'True' ? '#16a34a' : '#dc2626') : '#EDF0F3',
                     }}
                   >
                     <Ionicons
                       name={opt === 'True' ? 'checkmark-circle' : 'close-circle'}
                       size={20}
-                      color={selected ? (opt === 'True' ? '#16a34a' : '#dc2626') : '#d1d5db'}
+                      color={selected ? (opt === 'True' ? '#16a34a' : '#dc2626') : '#D3DAE4'}
                     />
                     <Text
                       className="text-sm font-semibold mt-1"
                       style={{
-                        color: selected ? (opt === 'True' ? '#16a34a' : '#dc2626') : '#9ca3af',
+                        color: selected ? (opt === 'True' ? '#16a34a' : '#dc2626') : '#8998B3',
                       }}
                     >
                       {opt}
@@ -319,10 +319,10 @@ function QuestionCard({
           </View>
         ) : (
           <TextInput
-            className="bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-900"
-            style={{ borderWidth: 1, borderColor: value ? '#dbeafe' : '#e5e7eb', minHeight: 80 }}
+            className="bg-secondary-50 rounded-xl px-4 py-3 text-sm text-secondary-800"
+            style={{ borderWidth: 1, borderColor: value ? '#E1ECFE' : '#DAE0E7', minHeight: 80 }}
             placeholder="Type your answer..."
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#8998B3"
             value={value}
             onChangeText={onChange}
             multiline
@@ -340,16 +340,16 @@ const s = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#ffffff',
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#EDF0F3',
   },
   submitBtn: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#0749BB',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 14,
     borderRadius: 14,
-    shadowColor: '#3b82f6',
+    shadowColor: '#0749BB',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

@@ -1,5 +1,5 @@
 import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
-import { color, text as t } from '../tokens';
+import { brand, color, text as t } from '../tokens';
 
 type Variant =
   | 'hero'
@@ -29,7 +29,15 @@ type Tone =
   | 'brick'
   | 'onInk'
   | 'onInkMute'
-  | 'onInkFaint';
+  | 'onInkFaint'
+  | 'cyan'
+  | 'navy';
+
+const TONES: Record<Tone, string> = {
+  ...color,
+  cyan: brand.cyan600,
+  navy: brand.navy700,
+} as Record<Tone, string>;
 
 export interface TextProps extends RNTextProps {
   variant?: Variant;
@@ -51,13 +59,10 @@ export function Text({
   const base = t[variant];
   const styles: TextStyle[] = [
     base as TextStyle,
-    { color: color[tone] },
+    { color: TONES[tone] },
     align ? { textAlign: align } : null,
-    italic && (variant === 'hero' || variant === 'display' || variant === 'h1' || variant === 'h2')
-      ? {
-          fontFamily: variant === 'h2' ? 'Fraunces_500Medium_Italic' : 'Fraunces_700Bold_Italic',
-        }
-      : null,
+    // Accent words (formerly serif italics) take the CampusVerse cyan, as on the web.
+    italic ? { color: tone.startsWith('onInk') ? brand.cyan300 : brand.cyan600 } : null,
     Array.isArray(style) ? Object.assign({}, ...style) : (style as TextStyle),
   ].filter(Boolean) as TextStyle[];
 

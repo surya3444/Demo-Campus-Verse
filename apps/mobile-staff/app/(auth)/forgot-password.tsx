@@ -55,8 +55,8 @@ export default function ForgotPasswordScreen() {
           <View className="w-20 h-20 bg-green-100 rounded-full items-center justify-center mb-6">
             <Ionicons name="mail" size={40} color="#22c55e" />
           </View>
-          <Text className="text-2xl font-bold text-gray-900 text-center">Check your email</Text>
-          <Text className="text-gray-500 text-center mt-3 px-4">
+          <Text className="text-2xl font-bold text-secondary-800 text-center">Check your email</Text>
+          <Text className="text-secondary-500 text-center mt-3 px-4">
             If an account exists with {email}, you will receive a password reset link shortly.
           </Text>
           <TouchableOpacity
@@ -80,14 +80,14 @@ export default function ForgotPasswordScreen() {
         <View className="flex-1 px-6 pt-12">
           {/* Back Button */}
           <TouchableOpacity onPress={() => router.back()} className="flex-row items-center mb-8">
-            <Ionicons name="arrow-back" size={24} color="#374151" />
-            <Text className="text-gray-700 ml-2 text-base">Back</Text>
+            <Ionicons name="arrow-back" size={24} color="#2E4470" />
+            <Text className="text-secondary-700 ml-2 text-base">Back</Text>
           </TouchableOpacity>
 
           {/* Header */}
           <View className="mb-8">
-            <Text className="text-3xl font-bold text-gray-900">Forgot Password</Text>
-            <Text className="text-gray-500 mt-2">
+            <Text className="text-3xl font-bold text-secondary-800">Forgot Password</Text>
+            <Text className="text-secondary-500 mt-2">
               Enter your email address and we'll send you instructions to reset your password.
             </Text>
           </View>
@@ -96,17 +96,17 @@ export default function ForgotPasswordScreen() {
           <View>
             {/* Email Input */}
             <View>
-              <Text className="text-sm font-medium text-gray-700 mb-2">Email</Text>
+              <Text className="text-sm font-medium text-secondary-700 mb-2">Email</Text>
               <View
                 className={`flex-row items-center border rounded-xl px-4 py-3 ${
-                  error ? 'border-red-500' : 'border-gray-300'
+                  error ? 'border-red-500' : 'border-secondary-300'
                 }`}
               >
-                <Ionicons name="mail-outline" size={20} color="#6b7280" />
+                <Ionicons name="mail-outline" size={20} color="#526C98" />
                 <TextInput
-                  className="flex-1 ml-3 text-base text-gray-900"
+                  className="flex-1 ml-3 text-base text-secondary-800"
                   placeholder="Enter your email"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="#8998B3"
                   value={email}
                   onChangeText={(text) => {
                     setEmail(text);

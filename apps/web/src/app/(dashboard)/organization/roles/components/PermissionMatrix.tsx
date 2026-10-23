@@ -88,6 +88,7 @@ const LABELS: Record<string, string> = {
   'teaching.myClasses': 'My classes',
   'teaching.myStudents': 'My students',
   'careerConnect.jobBoard': 'Job board',
+  'careerConnect.myProfile': 'My career profile (students)',
   'campusFeed.posts': 'Posts',
 };
 

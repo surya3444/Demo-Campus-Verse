@@ -13,7 +13,7 @@ export default function TeachingLayout() {
         },
         headerShadowVisible: false,
         headerBackTitle: 'Back',
-        headerTintColor: '#4f46e5',
+        headerTintColor: '#053495',
       }}
     >
       <Stack.Screen name="all-classes" options={{ headerTitle: 'My Classes' }} />

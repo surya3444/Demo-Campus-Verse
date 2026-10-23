@@ -21,12 +21,12 @@ const STATUS_COLORS: Record<
   FeedbackStatus,
   { bg: string; fg: string; icon: keyof typeof Ionicons.glyphMap; label: string }
 > = {
-  open: { bg: '#dbeafe', fg: '#1e40af', icon: 'mail-open-outline', label: 'Open' },
+  open: { bg: '#E1ECFE', fg: '#042A6C', icon: 'mail-open-outline', label: 'Open' },
   in_progress: { bg: '#fef3c7', fg: '#92400e', icon: 'time-outline', label: 'In Progress' },
   escalated: { bg: '#fee2e2', fg: '#991b1b', icon: 'alert-circle-outline', label: 'Escalated' },
   resolved: { bg: '#dcfce7', fg: '#166534', icon: 'checkmark-circle', label: 'Resolved' },
   reopened: { bg: '#fef9c3', fg: '#854d0e', icon: 'refresh-outline', label: 'Reopened' },
-  closed: { bg: '#f1f5f9', fg: '#475569', icon: 'lock-closed-outline', label: 'Closed' },
+  closed: { bg: '#EDF0F3', fg: '#3E5683', icon: 'lock-closed-outline', label: 'Closed' },
 };
 
 function formatDateTime(iso: string) {
@@ -90,8 +90,8 @@ export default function FeedbackDetailScreen() {
 
   if (isLoading || !ticket) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#f8fafc', justifyContent: 'center' }}>
-        <ActivityIndicator color="#3b82f6" />
+      <View style={{ flex: 1, backgroundColor: '#F9F8F5', justifyContent: 'center' }}>
+        <ActivityIndicator color="#0749BB" />
       </View>
     );
   }
@@ -105,7 +105,7 @@ export default function FeedbackDetailScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#F9F8F5' }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={90}
     >
@@ -122,16 +122,16 @@ export default function FeedbackDetailScreen() {
 
           <View style={s.metaRow}>
             <View style={s.metaPill}>
-              <Ionicons name="pricetag-outline" size={12} color="#64748b" />
+              <Ionicons name="pricetag-outline" size={12} color="#526C98" />
               <Text style={s.metaText}>{ticket.category}</Text>
             </View>
             <View style={s.metaPill}>
-              <Ionicons name="flag-outline" size={12} color="#64748b" />
+              <Ionicons name="flag-outline" size={12} color="#526C98" />
               <Text style={s.metaText}>{ticket.priority}</Text>
             </View>
             {ticket.isAnonymous && (
               <View style={s.metaPill}>
-                <Ionicons name="eye-off-outline" size={12} color="#64748b" />
+                <Ionicons name="eye-off-outline" size={12} color="#526C98" />
                 <Text style={s.metaText}>Anonymous</Text>
               </View>
             )}
@@ -197,7 +197,7 @@ export default function FeedbackDetailScreen() {
               value={ratingComment}
               onChangeText={setRatingComment}
               placeholder="Optional comment..."
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor="#8998B3"
               multiline
               numberOfLines={3}
               textAlignVertical="top"
@@ -224,7 +224,7 @@ export default function FeedbackDetailScreen() {
         </Text>
         {ticket.responses.length === 0 ? (
           <View style={s.emptyCard}>
-            <Ionicons name="chatbubble-ellipses-outline" size={24} color="#cbd5e1" />
+            <Ionicons name="chatbubble-ellipses-outline" size={24} color="#D3DAE4" />
             <Text style={s.emptyText}>No responses yet</Text>
           </View>
         ) : (
@@ -261,7 +261,7 @@ export default function FeedbackDetailScreen() {
             value={reply}
             onChangeText={setReply}
             placeholder="Add a response..."
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor="#8998B3"
             multiline
             maxLength={5000}
           />
@@ -287,9 +287,9 @@ const s = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  ticketNum: { fontSize: 11, fontWeight: '700', color: '#94a3b8', letterSpacing: 0.5 },
+  ticketNum: { fontSize: 11, fontWeight: '700', color: '#8998B3', letterSpacing: 0.5 },
   statusPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -298,26 +298,26 @@ const s = StyleSheet.create({
     borderRadius: 8,
   },
   statusText: { fontSize: 10, fontWeight: '700', marginLeft: 4 },
-  subject: { fontSize: 18, fontWeight: '700', color: '#1e293b', marginTop: 8, lineHeight: 24 },
+  subject: { fontSize: 18, fontWeight: '700', color: '#042A6C', marginTop: 8, lineHeight: 24 },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   metaPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
   },
-  metaText: { fontSize: 11, color: '#475569', fontWeight: '600', textTransform: 'capitalize' },
+  metaText: { fontSize: 11, color: '#3E5683', fontWeight: '600', textTransform: 'capitalize' },
   description: {
     fontSize: 14,
-    color: '#334155',
+    color: '#2E4470',
     marginTop: 12,
     lineHeight: 20,
   },
-  footer: { marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f1f5f9' },
-  footerText: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
+  footer: { marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#EDF0F3' },
+  footerText: { fontSize: 11, color: '#8998B3', marginTop: 2 },
   resolutionCard: {
     backgroundColor: '#f0fdf4',
     borderRadius: 12,
@@ -345,29 +345,29 @@ const s = StyleSheet.create({
     padding: 14,
     marginTop: 12,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   sectionTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#526C98',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 10,
   },
   textarea: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
     borderRadius: 10,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
     fontSize: 13,
-    color: '#1e293b',
+    color: '#042A6C',
     minHeight: 60,
     marginTop: 12,
   },
   primaryBtn: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#0749BB',
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
@@ -380,20 +380,20 @@ const s = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  emptyText: { fontSize: 12, color: '#94a3b8', marginTop: 6 },
+  emptyText: { fontSize: 12, color: '#8998B3', marginTop: 6 },
   responseCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  respName: { fontSize: 13, fontWeight: '700', color: '#1e293b' },
-  respTime: { fontSize: 11, color: '#94a3b8' },
-  respMessage: { fontSize: 13, color: '#334155', marginTop: 6, lineHeight: 18 },
+  respName: { fontSize: 13, fontWeight: '700', color: '#042A6C' },
+  respTime: { fontSize: 11, color: '#8998B3' },
+  respMessage: { fontSize: 13, color: '#2E4470', marginTop: 6, lineHeight: 18 },
   reopenBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -413,19 +413,19 @@ const s = StyleSheet.create({
     padding: 12,
     backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
+    borderTopColor: '#DAE0E7',
     gap: 8,
   },
   replyInput: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#1e293b',
+    color: '#042A6C',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
     maxHeight: 120,
     minHeight: 40,
   },
@@ -433,7 +433,7 @@ const s = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#0749BB',
     alignItems: 'center',
     justifyContent: 'center',
   },

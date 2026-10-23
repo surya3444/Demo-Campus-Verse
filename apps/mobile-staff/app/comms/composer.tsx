@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiClient } from '@campus-verse/mobile-shared/api/client';
 import { View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,6 +27,7 @@ export default function Composer() {
   const [body, setBody] = useState('');
   const [channels, setChannels] = useState<Channel[]>(['push']);
   const [urgent, setUrgent] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const toggleChannel = (c: Channel) =>
     setChannels((ch) => (ch.includes(c) ? ch.filter((x) => x !== c) : [...ch, c]));
@@ -266,9 +268,29 @@ export default function Composer() {
           size="lg"
           full
           disabled={!valid}
-          onPress={() => {
-            Alert.alert('Sent', `Notice broadcast to ${audience}.`);
-            router.back();
+          loading={sending}
+          onPress={async () => {
+            // Create the announcement, then publish it — it really goes out now.
+            setSending(true);
+            try {
+              const target = audience === 'parents' ? 'parents' : audience === 'branch' ? 'all' : 'students';
+              const created = await apiClient.post('/communications/announcements', {
+                title: title.trim(),
+                content: body.trim(),
+                type: urgent ? 'urgent' : 'general',
+                priority: urgent ? 'high' : 'medium',
+                audience: { type: target },
+              });
+              const id = (created.data?.data as { _id?: string } | undefined)?._id;
+              if (id) await apiClient.put(`/communications/announcements/${id}/publish`);
+              Alert.alert('Notice published', urgent ? 'Sent as urgent.' : 'It is live for its audience now.');
+              router.back();
+            } catch (e: unknown) {
+              const msg = (e as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message;
+              Alert.alert('Not sent', msg ?? 'The notice could not be published. Try again.');
+            } finally {
+              setSending(false);
+            }
           }}
         />
       </ScrollView>

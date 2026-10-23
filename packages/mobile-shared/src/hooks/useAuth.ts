@@ -59,3 +59,15 @@ export function useStudentInfo() {
 
   return null;
 }
+
+/**
+ * Whether the signed-in user's role allows an action — the same permission keys
+ * as the web (e.g. useCan()('finance.feeCounter', 'view')). Use it to show only
+ * what a role can actually open; the API still enforces every call.
+ */
+export function useCan(): (module: string, action?: string) => boolean {
+  const user = useAuthStore((state) => state.user);
+  const perms = user?.permissions ?? {};
+  const owner = user?.roleCode === 'GROUP_OWNER' || user?.roleCode === 'ORG_MODERATOR';
+  return (module: string, action = 'view') => owner || !!perms[module]?.includes(action);
+}

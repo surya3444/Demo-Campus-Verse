@@ -8,6 +8,7 @@ export default function CareerLayout() {
       <Stack.Screen name="job" />
       <Stack.Screen name="applications" />
       <Stack.Screen name="drives" />
+      <Stack.Screen name="live" />
       <Stack.Screen name="counseling" />
     </Stack>
   );

@@ -32,6 +32,9 @@ export interface UserProfile {
   profileImage?: string;
   phone?: string;
   studentId?: string;
+  staffId?: string;
+  /** Effective role permissions from the API (module → actions). */
+  permissions?: Record<string, string[]>;
   parentInfo?: {
     children: Array<{
       studentId: string;

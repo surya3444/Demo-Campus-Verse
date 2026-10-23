@@ -15,7 +15,7 @@ import { useRouter } from 'expo-router';
 import { useCurrentStudentId } from '@campus-verse/mobile-shared/hooks/useAuth';
 import { studentApi, type StudentGrade } from '@/api/student';
 
-const _FC = '#f8fafc';
+const _FC = '#F9F8F5';
 function BottomFade() {
   return (
     <View style={_fs.c} pointerEvents="none">
@@ -34,14 +34,14 @@ const _fs = StyleSheet.create({
 
 function scoreColor(pct: number): string {
   if (pct >= 80) return '#059669';
-  if (pct >= 60) return '#3b82f6';
+  if (pct >= 60) return '#0749BB';
   if (pct >= 40) return '#d97706';
   return '#dc2626';
 }
 
 function scoreBg(pct: number): string {
   if (pct >= 80) return '#f0fdf4';
-  if (pct >= 60) return '#eff6ff';
+  if (pct >= 60) return '#F0F5FE';
   if (pct >= 40) return '#fef3c7';
   return '#fef2f2';
 }
@@ -91,7 +91,7 @@ export default function StudentGradesScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       <View
         style={{
           backgroundColor: '#ffffff',
@@ -99,14 +99,14 @@ export default function StudentGradesScreen() {
           paddingHorizontal: 20,
           paddingBottom: 14,
           borderBottomWidth: 1,
-          borderBottomColor: '#f1f5f9',
+          borderBottomColor: '#EDF0F3',
         }}
       >
         <View style={{ paddingTop: 12 }}>
-          <Text style={{ fontSize: 22, fontWeight: '800', color: '#0f172a', letterSpacing: -0.3 }}>
+          <Text style={{ fontSize: 22, fontWeight: '800', color: '#042A6C', letterSpacing: -0.3 }}>
             My Grades
           </Text>
-          <Text style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>
+          <Text style={{ fontSize: 13, color: '#8998B3', marginTop: 2 }}>
             Performance & Results
           </Text>
         </View>
@@ -115,24 +115,24 @@ export default function StudentGradesScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0749BB" />
         }
         showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
           <View className="items-center py-16">
-            <ActivityIndicator size="large" color="#3b82f6" />
+            <ActivityIndicator size="large" color="#0749BB" />
           </View>
         ) : !grades || grades.length === 0 ? (
           <View
             className="bg-white rounded-2xl p-10 items-center mt-4 mx-4"
             style={{ elevation: 1 }}
           >
-            <View className="w-16 h-16 bg-gray-50 rounded-full items-center justify-center mb-3">
-              <Ionicons name="stats-chart-outline" size={28} color="#94a3b8" />
+            <View className="w-16 h-16 bg-secondary-50 rounded-full items-center justify-center mb-3">
+              <Ionicons name="stats-chart-outline" size={28} color="#8998B3" />
             </View>
-            <Text className="text-gray-900 font-semibold">No grades yet</Text>
-            <Text className="text-gray-400 text-sm mt-1">
+            <Text className="text-secondary-800 font-semibold">No grades yet</Text>
+            <Text className="text-secondary-400 text-sm mt-1">
               Grades will appear here once your work is reviewed
             </Text>
           </View>
@@ -145,8 +145,8 @@ export default function StudentGradesScreen() {
                   icon="layers-outline"
                   label="Total Graded"
                   value={`${stats.total}`}
-                  color="#3b82f6"
-                  bg="#eff6ff"
+                  color="#0749BB"
+                  bg="#F0F5FE"
                 />
                 <SummaryCard
                   icon="trending-up-outline"
@@ -167,7 +167,7 @@ export default function StudentGradesScreen() {
 
             {/* Grade list */}
             <View className="px-4 pt-4">
-              <Text className="text-base font-bold text-gray-900 mb-3">All Grades</Text>
+              <Text className="text-base font-bold text-secondary-800 mb-3">All Grades</Text>
               {grades.map((grade) => (
                 <GradeCard
                   key={grade._id}
@@ -216,7 +216,7 @@ function SummaryCard({
       <Text className="text-lg font-bold" style={{ color }}>
         {value}
       </Text>
-      <Text className="text-[10px] font-semibold text-gray-400 mt-0.5">{label}</Text>
+      <Text className="text-[10px] font-semibold text-secondary-400 mt-0.5">{label}</Text>
     </View>
   );
 }
@@ -230,7 +230,7 @@ function GradeCard({ grade, onPress }: { grade: StudentGrade; onPress: () => voi
     <TouchableOpacity activeOpacity={0.7} onPress={onPress} className="mb-3">
       <View
         className="bg-white rounded-2xl overflow-hidden flex-row items-center"
-        style={{ borderWidth: 1, borderColor: '#f1f5f9', elevation: 1 }}
+        style={{ borderWidth: 1, borderColor: '#EDF0F3', elevation: 1 }}
       >
         {/* Score circle */}
         <View className="w-20 py-4 items-center justify-center">
@@ -246,17 +246,17 @@ function GradeCard({ grade, onPress }: { grade: StudentGrade; onPress: () => voi
 
         {/* Content */}
         <View className="flex-1 py-3 pr-4">
-          <Text className="text-sm font-bold text-gray-900" numberOfLines={1}>
+          <Text className="text-sm font-bold text-secondary-800" numberOfLines={1}>
             {grade.assignmentTitle || 'Assignment'}
           </Text>
           {grade.subjectName ? (
             <View className="flex-row items-center mt-1">
-              <Ionicons name="book-outline" size={12} color="#94a3b8" />
-              <Text className="text-xs text-gray-500 ml-1">{grade.subjectName}</Text>
+              <Ionicons name="book-outline" size={12} color="#8998B3" />
+              <Text className="text-xs text-secondary-500 ml-1">{grade.subjectName}</Text>
             </View>
           ) : null}
           <View className="flex-row items-center mt-1">
-            <Text className="text-xs text-gray-400">
+            <Text className="text-xs text-secondary-400">
               {grade.marksObtained}/{grade.totalMarks} marks
             </Text>
             <View
@@ -269,13 +269,13 @@ function GradeCard({ grade, onPress }: { grade: StudentGrade; onPress: () => voi
             </View>
           </View>
           {grade.remarks ? (
-            <Text className="text-xs text-gray-400 mt-1" numberOfLines={1}>
+            <Text className="text-xs text-secondary-400 mt-1" numberOfLines={1}>
               "{grade.remarks}"
             </Text>
           ) : null}
         </View>
 
-        <Ionicons name="chevron-forward" size={16} color="#d1d5db" style={{ marginRight: 12 }} />
+        <Ionicons name="chevron-forward" size={16} color="#D3DAE4" style={{ marginRight: 12 }} />
       </View>
     </TouchableOpacity>
   );

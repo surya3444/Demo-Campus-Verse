@@ -17,7 +17,7 @@ const TYPE_CONFIG: Record<
   string,
   { icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }
 > = {
-  general: { icon: 'megaphone', color: '#3b82f6', bg: '#dbeafe' },
+  general: { icon: 'megaphone', color: '#0749BB', bg: '#E1ECFE' },
   academic: { icon: 'school', color: '#8b5cf6', bg: '#f3e8ff' },
   event: { icon: 'calendar', color: '#10b981', bg: '#d1fae5' },
   exam: { icon: 'document-text', color: '#f59e0b', bg: '#fef3c7' },
@@ -67,7 +67,7 @@ export default function AnnouncementsScreen() {
   const list = data?.announcements || [];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -91,10 +91,10 @@ export default function AnnouncementsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {isLoading ? (
-          <ActivityIndicator color="#4f46e5" style={{ marginVertical: 40 }} />
+          <ActivityIndicator color="#053495" style={{ marginVertical: 40 }} />
         ) : list.length === 0 ? (
           <View style={s.emptyCard}>
-            <Ionicons name="megaphone-outline" size={36} color="#cbd5e1" />
+            <Ionicons name="megaphone-outline" size={36} color="#D3DAE4" />
             <Text style={s.emptyText}>No announcements</Text>
           </View>
         ) : (
@@ -146,17 +146,17 @@ const s = StyleSheet.create({
     backgroundColor: '#fff',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#EDF0F3',
   },
   filterChip: {
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 18,
     marginRight: 8,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
   },
-  filterChipActive: { backgroundColor: '#4f46e5' },
-  filterText: { fontSize: 12, fontWeight: '600', color: '#64748b' },
+  filterChipActive: { backgroundColor: '#053495' },
+  filterText: { fontSize: 12, fontWeight: '600', color: '#526C98' },
   filterTextActive: { color: '#fff' },
   card: {
     backgroundColor: '#fff',
@@ -164,7 +164,7 @@ const s = StyleSheet.create({
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   iconBox: {
     width: 40,
@@ -173,7 +173,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: { flex: 1, fontSize: 15, fontWeight: '700', color: '#1e293b' },
+  title: { flex: 1, fontSize: 15, fontWeight: '700', color: '#042A6C' },
   urgentPill: {
     backgroundColor: '#fef2f2',
     paddingHorizontal: 6,
@@ -182,16 +182,16 @@ const s = StyleSheet.create({
     marginLeft: 6,
   },
   urgentText: { fontSize: 9, fontWeight: '800', color: '#dc2626' },
-  content: { fontSize: 13, color: '#64748b', marginTop: 4, lineHeight: 18 },
-  meta: { fontSize: 11, color: '#94a3b8' },
-  metaDot: { fontSize: 11, color: '#cbd5e1' },
+  content: { fontSize: 13, color: '#526C98', marginTop: 4, lineHeight: 18 },
+  meta: { fontSize: 11, color: '#8998B3' },
+  metaDot: { fontSize: 11, color: '#D3DAE4' },
   emptyCard: {
     backgroundColor: '#fff',
     borderRadius: 14,
     padding: 40,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  emptyText: { fontSize: 13, color: '#94a3b8', marginTop: 10 },
+  emptyText: { fontSize: 13, color: '#8998B3', marginTop: 10 },
 });

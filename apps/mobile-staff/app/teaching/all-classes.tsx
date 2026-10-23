@@ -18,8 +18,8 @@ const { width: SW } = Dimensions.get('window');
 const PAD = 20;
 const CLASS_W = (SW - PAD * 2 - 12) / 2;
 const ACCENT = [
-  '#4f46e5',
-  '#0891b2',
+  '#053495',
+  '#008AB8',
   '#059669',
   '#d97706',
   '#dc2626',
@@ -70,7 +70,7 @@ function ClassCard({ item, idx }: { item: TeachingClass; idx: number }) {
                 </View>
               ))}
               {subs.length > 2 && (
-                <Text style={{ fontSize: 10, color: '#94a3b8', alignSelf: 'center' }}>
+                <Text style={{ fontSize: 10, color: '#8998B3', alignSelf: 'center' }}>
                   +{subs.length - 2}
                 </Text>
               )}
@@ -103,7 +103,7 @@ export default function AllClassesScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
         {/* Hero header */}
         <View style={s.hero}>
           <View style={s.heroCircle} />
@@ -130,14 +130,14 @@ export default function AllClassesScreen() {
           <ScrollView
             style={{ flex: 1 }}
             refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4f46e5" />
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#053495" />
             }
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ padding: PAD, paddingBottom: 40 }}
           >
             {!classes || !classes.length ? (
               <View style={s.empty}>
-                <Ionicons name="school-outline" size={26} color="#d1d5db" />
+                <Ionicons name="school-outline" size={26} color="#D3DAE4" />
                 <Text style={s.emptyT}>No classes assigned yet</Text>
               </View>
             ) : (
@@ -158,7 +158,7 @@ export default function AllClassesScreen() {
 
 const s = StyleSheet.create({
   hero: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     overflow: 'hidden',
   },
   heroCircle: {
@@ -208,12 +208,12 @@ const s = StyleSheet.create({
     borderRadius: 14,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#EDF0F3',
   },
   clStrip: { height: 4 },
   clBody: { padding: 12 },
-  clTitle: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
-  clSub: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
+  clTitle: { fontSize: 14, fontWeight: '700', color: '#042A6C' },
+  clSub: { fontSize: 11, color: '#8998B3', marginTop: 2 },
   clPill: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginRight: 4 },
 
   /* Empty */
@@ -223,7 +223,7 @@ const s = StyleSheet.create({
     padding: 28,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#EDF0F3',
   },
-  emptyT: { color: '#94a3b8', fontSize: 13, marginTop: 8 },
+  emptyT: { color: '#8998B3', fontSize: 13, marginTop: 8 },
 });

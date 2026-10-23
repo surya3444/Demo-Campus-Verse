@@ -6,7 +6,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { useColorScheme, Alert } from 'react-native';
+import { useColorScheme, Alert, View } from 'react-native';
 import 'react-native-reanimated';
 import { useAuthStore } from '@campus-verse/mobile-shared/store/authStore';
 
@@ -24,11 +24,12 @@ try {
   Updates = null;
 }
 import {
-  Fraunces_500Medium,
-  Fraunces_500Medium_Italic,
-  Fraunces_700Bold,
-  Fraunces_700Bold_Italic,
-} from '@expo-google-fonts/fraunces';
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+} from '@expo-google-fonts/plus-jakarta-sans';
+import { buildCampusFontMap, LaunchScreen } from '@campus-verse/mobile-shared/design';
 import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import {
   JetBrainsMono_400Regular,
@@ -148,7 +149,10 @@ function RootLayoutContent() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="assistant" options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="student" />
+        <Stack.Screen name="clubs" />
+        <Stack.Screen name="benefits" />
         <Stack.Screen name="feed" />
         <Stack.Screen name="support" />
         <Stack.Screen
@@ -168,16 +172,18 @@ export default function RootLayout() {
   const [loaded, error] = useFonts({
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    Fraunces_500Medium,
-    Fraunces_500Medium_Italic,
-    Fraunces_700Bold,
-    Fraunces_700Bold_Italic,
-    DMSans_400Regular,
-    DMSans_500Medium,
-    DMSans_700Bold,
-    JetBrainsMono_400Regular,
-    JetBrainsMono_500Medium,
-    JetBrainsMono_700Bold,
+    ...buildCampusFontMap({
+      PlusJakartaSans_500Medium,
+      PlusJakartaSans_600SemiBold,
+      PlusJakartaSans_700Bold,
+      PlusJakartaSans_800ExtraBold,
+      DMSans_400Regular,
+      DMSans_500Medium,
+      DMSans_700Bold,
+      JetBrainsMono_400Regular,
+      JetBrainsMono_500Medium,
+      JetBrainsMono_700Bold,
+    }),
     ...FontAwesome.font,
   });
 
@@ -196,8 +202,12 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <RootLayoutContent />
-    </QueryClientProvider>
+    <View style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <RootLayoutContent />
+      </QueryClientProvider>
+      {/* The native splash hands over to the animated CampusVerse logo. */}
+      <LaunchScreen variant="light" tagline="Student" />
+    </View>
   );
 }

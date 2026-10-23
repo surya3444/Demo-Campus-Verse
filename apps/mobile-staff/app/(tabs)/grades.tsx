@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { teachingApi, TeachingClass, SectionReportItem } from '@/api/teaching';
 
-const _FC = '#f8fafc';
+const _FC = '#F9F8F5';
 const _STEPS = 40;
 function BottomFade() {
   return (
@@ -38,17 +38,17 @@ function ReportCard({ item, onPress }: { item: SectionReportItem; onPress: () =>
     pct >= 80
       ? '#16a34a'
       : pct >= 60
-        ? '#2563eb'
+        ? '#053495'
         : pct >= 40
           ? '#d97706'
           : pct > 0
             ? '#ef4444'
-            : '#94a3b8';
+            : '#8998B3';
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} className="mb-2.5">
       <View
-        className="bg-white rounded-xl p-4 border border-gray-100"
+        className="bg-white rounded-xl p-4 border border-secondary-100"
         style={{
           elevation: 1,
           shadowColor: '#000',
@@ -60,10 +60,10 @@ function ReportCard({ item, onPress }: { item: SectionReportItem; onPress: () =>
         {/* Title row */}
         <View className="flex-row items-start mb-3">
           <View className="flex-1 mr-3">
-            <Text className="text-[15px] font-semibold text-gray-900" numberOfLines={2}>
+            <Text className="text-[15px] font-semibold text-secondary-800" numberOfLines={2}>
               {item.assignmentTitle}
             </Text>
-            <Text className="text-[11px] text-gray-400 mt-0.5">
+            <Text className="text-[11px] text-secondary-400 mt-0.5">
               Due{' '}
               {new Date(item.dueDate).toLocaleDateString('en-IN', {
                 day: 'numeric',
@@ -77,24 +77,24 @@ function ReportCard({ item, onPress }: { item: SectionReportItem; onPress: () =>
             <Text className="text-xl font-bold" style={{ color: scoreColor }}>
               {pct > 0 ? `${pct.toFixed(0)}%` : '—'}
             </Text>
-            <Text className="text-[10px] text-gray-400">avg</Text>
+            <Text className="text-[10px] text-secondary-400">avg</Text>
           </View>
         </View>
 
         {/* Graded progress */}
         <View>
           <View className="flex-row justify-between mb-1">
-            <Text className="text-[11px] text-gray-500 font-medium">
+            <Text className="text-[11px] text-secondary-500 font-medium">
               {item.studentsGraded}/{item.totalStudents} graded
             </Text>
-            <Text className="text-[11px] text-gray-400">{gradedPct.toFixed(0)}%</Text>
+            <Text className="text-[11px] text-secondary-400">{gradedPct.toFixed(0)}%</Text>
           </View>
-          <View className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <View className="h-1.5 bg-secondary-100 rounded-full overflow-hidden">
             <View
               className="h-1.5 rounded-full"
               style={{
                 width: `${Math.min(gradedPct, 100)}%`,
-                backgroundColor: gradedPct >= 100 ? '#16a34a' : '#4f46e5',
+                backgroundColor: gradedPct >= 100 ? '#16a34a' : '#053495',
               }}
             />
           </View>
@@ -146,11 +146,11 @@ export default function GradebookScreen() {
       : 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       <ScrollView
         style={{ flex: 1 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4f46e5" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#053495" />
         }
         showsVerticalScrollIndicator={false}
       >
@@ -158,27 +158,27 @@ export default function GradebookScreen() {
         <View className="px-4 pt-3">
           <TouchableOpacity
             onPress={() => setPickerOpen(!pickerOpen)}
-            className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex-row items-center justify-between"
+            className="bg-white border border-secondary-200 rounded-xl px-4 py-3 flex-row items-center justify-between"
             activeOpacity={0.7}
           >
             <View className="flex-row items-center flex-1">
-              <View className="w-8 h-8 bg-indigo-50 rounded-lg items-center justify-center mr-3">
-                <Ionicons name="school" size={16} color="#4f46e5" />
+              <View className="w-8 h-8 bg-primary-50 rounded-lg items-center justify-center mr-3">
+                <Ionicons name="school" size={16} color="#053495" />
               </View>
               <Text
-                className={`text-sm font-medium ${selectedSectionId ? 'text-gray-900' : 'text-gray-400'}`}
+                className={`text-sm font-medium ${selectedSectionId ? 'text-secondary-800' : 'text-secondary-400'}`}
               >
                 {selectedClass
                   ? `${selectedClass.className} · ${selectedClass.sectionName}`
                   : 'Select a class'}
               </Text>
             </View>
-            <Ionicons name={pickerOpen ? 'chevron-up' : 'chevron-down'} size={16} color="#94a3b8" />
+            <Ionicons name={pickerOpen ? 'chevron-up' : 'chevron-down'} size={16} color="#8998B3" />
           </TouchableOpacity>
 
           {pickerOpen && classes && classes.length > 0 && (
             <View
-              className="bg-white border border-gray-200 rounded-xl mt-1.5 overflow-hidden"
+              className="bg-white border border-secondary-200 rounded-xl mt-1.5 overflow-hidden"
               style={{ elevation: 2 }}
             >
               {classes.map((cls: TeachingClass) => (
@@ -188,16 +188,16 @@ export default function GradebookScreen() {
                     setSelectedSectionId(cls.sectionId);
                     setPickerOpen(false);
                   }}
-                  className={`px-4 py-3 flex-row items-center border-b border-gray-50 ${cls.sectionId === selectedSectionId ? 'bg-indigo-50' : ''}`}
+                  className={`px-4 py-3 flex-row items-center border-b border-secondary-50 ${cls.sectionId === selectedSectionId ? 'bg-primary-50' : ''}`}
                 >
                   <Text
-                    className={`flex-1 text-sm ${cls.sectionId === selectedSectionId ? 'text-indigo-600 font-semibold' : 'text-gray-700'}`}
+                    className={`flex-1 text-sm ${cls.sectionId === selectedSectionId ? 'text-primary-600 font-semibold' : 'text-secondary-700'}`}
                   >
                     {cls.className} · {cls.sectionName}
                   </Text>
-                  <Text className="text-xs text-gray-400">{cls.studentCount} students</Text>
+                  <Text className="text-xs text-secondary-400">{cls.studentCount} students</Text>
                   {cls.sectionId === selectedSectionId && (
-                    <Ionicons name="checkmark" size={16} color="#4f46e5" className="ml-2" />
+                    <Ionicons name="checkmark" size={16} color="#053495" className="ml-2" />
                   )}
                 </TouchableOpacity>
               ))}
@@ -208,26 +208,26 @@ export default function GradebookScreen() {
         {/* Content */}
         {!selectedSectionId ? (
           <View className="items-center mt-20 px-8">
-            <View className="w-20 h-20 bg-indigo-50 rounded-full items-center justify-center mb-4">
-              <Ionicons name="stats-chart-outline" size={36} color="#4f46e5" />
+            <View className="w-20 h-20 bg-primary-50 rounded-full items-center justify-center mb-4">
+              <Ionicons name="stats-chart-outline" size={36} color="#053495" />
             </View>
-            <Text className="text-gray-900 font-bold text-lg text-center">Select a Class</Text>
-            <Text className="text-gray-400 text-sm mt-2 text-center leading-5">
+            <Text className="text-secondary-800 font-bold text-lg text-center">Select a Class</Text>
+            <Text className="text-secondary-400 text-sm mt-2 text-center leading-5">
               Choose a class above to view assignment grades and performance reports
             </Text>
           </View>
         ) : isLoading ? (
           <View className="items-center py-20">
-            <ActivityIndicator size="large" color="#4f46e5" />
+            <ActivityIndicator size="large" color="#053495" />
           </View>
         ) : (
           <View className="px-4 mt-4">
             {/* Summary cards */}
             {total > 0 && (
               <View className="flex-row mb-4">
-                <View className="flex-1 bg-indigo-50 rounded-xl p-3 mr-2 items-center">
-                  <Text className="text-indigo-700 text-lg font-bold">{total}</Text>
-                  <Text className="text-indigo-500 text-[10px] font-semibold">TOTAL</Text>
+                <View className="flex-1 bg-primary-50 rounded-xl p-3 mr-2 items-center">
+                  <Text className="text-primary-700 text-lg font-bold">{total}</Text>
+                  <Text className="text-primary-500 text-[10px] font-semibold">TOTAL</Text>
                 </View>
                 <View className="flex-1 bg-green-50 rounded-xl p-3 mr-2 items-center">
                   <Text className="text-green-700 text-lg font-bold">{fullyGraded}</Text>
@@ -245,9 +245,9 @@ export default function GradebookScreen() {
             {/* Report list */}
             {items.length === 0 ? (
               <View className="bg-white rounded-2xl p-10 items-center" style={{ elevation: 1 }}>
-                <Ionicons name="clipboard-outline" size={32} color="#94a3b8" />
-                <Text className="text-gray-500 mt-2 font-medium">No Assignments</Text>
-                <Text className="text-gray-400 text-sm mt-1 text-center">
+                <Ionicons name="clipboard-outline" size={32} color="#8998B3" />
+                <Text className="text-secondary-500 mt-2 font-medium">No Assignments</Text>
+                <Text className="text-secondary-400 text-sm mt-1 text-center">
                   No assignments found for this class
                 </Text>
               </View>

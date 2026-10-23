@@ -5,8 +5,8 @@ export default function SupportLayout() {
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: '#ffffff' },
-        headerTitleStyle: { fontWeight: '700', fontSize: 17, color: '#1e293b' },
-        headerTintColor: '#4f46e5',
+        headerTitleStyle: { fontWeight: '700', fontSize: 17, color: '#042A6C' },
+        headerTintColor: '#053495',
         headerShadowVisible: false,
       }}
     >

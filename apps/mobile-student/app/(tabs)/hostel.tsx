@@ -28,7 +28,7 @@ export default function HostelScreen() {
   }, [refetch]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       {/* Header */}
       <View
         style={{
@@ -37,14 +37,14 @@ export default function HostelScreen() {
           paddingHorizontal: 20,
           paddingBottom: 14,
           borderBottomWidth: 1,
-          borderBottomColor: '#f1f5f9',
+          borderBottomColor: '#EDF0F3',
         }}
       >
         <View style={{ paddingTop: 12 }}>
-          <Text style={{ fontSize: 22, fontWeight: '800', color: '#0f172a', letterSpacing: -0.3 }}>
+          <Text style={{ fontSize: 22, fontWeight: '800', color: '#042A6C', letterSpacing: -0.3 }}>
             Hostel
           </Text>
-          <Text style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>My Accommodation</Text>
+          <Text style={{ fontSize: 13, color: '#8998B3', marginTop: 2 }}>My Accommodation</Text>
         </View>
       </View>
 
@@ -52,13 +52,13 @@ export default function HostelScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 100 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0749BB" />
         }
         showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
           <View style={{ alignItems: 'center', paddingTop: 60 }}>
-            <ActivityIndicator size="large" color="#3b82f6" />
+            <ActivityIndicator size="large" color="#0749BB" />
           </View>
         ) : !allocation ? (
           <EmptyState />
@@ -80,7 +80,7 @@ function AllocationCard({ allocation }: { allocation: BedAllocation }) {
           borderRadius: 20,
           overflow: 'hidden',
           borderWidth: 1,
-          borderColor: '#f1f5f9',
+          borderColor: '#EDF0F3',
         }}
       >
         {/* Header Banner */}
@@ -155,7 +155,7 @@ function AllocationCard({ allocation }: { allocation: BedAllocation }) {
           flexDirection: 'row',
           alignItems: 'center',
           borderWidth: 1,
-          borderColor: '#f1f5f9',
+          borderColor: '#EDF0F3',
         }}
       >
         <View
@@ -163,17 +163,17 @@ function AllocationCard({ allocation }: { allocation: BedAllocation }) {
             width: 10,
             height: 10,
             borderRadius: 5,
-            backgroundColor: allocation.status === 'active' ? '#22c55e' : '#94a3b8',
+            backgroundColor: allocation.status === 'active' ? '#22c55e' : '#8998B3',
             marginRight: 10,
           }}
         />
-        <Text style={{ fontSize: 14, fontWeight: '600', color: '#334155', flex: 1 }}>
+        <Text style={{ fontSize: 14, fontWeight: '600', color: '#2E4470', flex: 1 }}>
           Status: {allocation.status.charAt(0).toUpperCase() + allocation.status.slice(1)}
         </Text>
         <Ionicons
           name="checkmark-circle"
           size={20}
-          color={allocation.status === 'active' ? '#22c55e' : '#94a3b8'}
+          color={allocation.status === 'active' ? '#22c55e' : '#8998B3'}
         />
       </View>
     </View>
@@ -184,10 +184,10 @@ function InfoItem({ icon, label, value }: { icon: string; label: string; value: 
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-        <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={14} color="#94a3b8" />
-        <Text style={{ fontSize: 11, color: '#94a3b8', marginLeft: 4 }}>{label}</Text>
+        <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={14} color="#8998B3" />
+        <Text style={{ fontSize: 11, color: '#8998B3', marginLeft: 4 }}>{label}</Text>
       </View>
-      <Text style={{ fontSize: 15, fontWeight: '600', color: '#0f172a' }}>{value}</Text>
+      <Text style={{ fontSize: 15, fontWeight: '600', color: '#042A6C' }}>{value}</Text>
     </View>
   );
 }
@@ -208,13 +208,13 @@ function EmptyState() {
       >
         <Ionicons name="bed-outline" size={36} color="#d97706" />
       </View>
-      <Text style={{ fontSize: 17, fontWeight: '700', color: '#0f172a', marginBottom: 6 }}>
+      <Text style={{ fontSize: 17, fontWeight: '700', color: '#042A6C', marginBottom: 6 }}>
         No Hostel Allocation
       </Text>
       <Text
         style={{
           fontSize: 13,
-          color: '#94a3b8',
+          color: '#8998B3',
           textAlign: 'center',
           paddingHorizontal: 40,
           lineHeight: 20,

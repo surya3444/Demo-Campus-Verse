@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -32,10 +33,10 @@ const STATUS_OPTIONS: {
 
 const MORE_OPTIONS: { key: AttendanceStatus; label: string; color: string }[] = [
   { key: 'half-day', label: 'Half Day', color: '#7c3aed' },
-  { key: 'leave', label: 'Leave', color: '#6b7280' },
+  { key: 'leave', label: 'Leave', color: '#526C98' },
 ];
 
-const _FC = '#f8fafc';
+const _FC = '#F9F8F5';
 const _STEPS = 40;
 function BottomFade() {
   return (
@@ -105,7 +106,7 @@ function StudentRow({
               <Ionicons
                 name={active ? opt.icon : opt.icon}
                 size={14}
-                color={active ? opt.color : '#cbd5e1'}
+                color={active ? opt.color : '#D3DAE4'}
               />
             </TouchableOpacity>
           );
@@ -116,8 +117,8 @@ function StudentRow({
           style={[
             st.statusBtn,
             (currentStatus === 'half-day' || currentStatus === 'leave') && {
-              backgroundColor: '#f8fafc',
-              borderColor: '#6b7280',
+              backgroundColor: '#F9F8F5',
+              borderColor: '#526C98',
             },
           ]}
           disabled={disabled}
@@ -126,7 +127,7 @@ function StudentRow({
             name="ellipsis-horizontal"
             size={14}
             color={
-              currentStatus === 'half-day' || currentStatus === 'leave' ? '#6b7280' : '#cbd5e1'
+              currentStatus === 'half-day' || currentStatus === 'leave' ? '#526C98' : '#D3DAE4'
             }
           />
         </TouchableOpacity>
@@ -152,7 +153,7 @@ function StudentRow({
                   style={{
                     fontSize: 12,
                     fontWeight: active ? '700' : '500',
-                    color: active ? opt.color : '#64748b',
+                    color: active ? opt.color : '#526C98',
                   }}
                 >
                   {opt.label}
@@ -168,7 +169,12 @@ function StudentRow({
 
 export default function AttendanceScreen() {
   const queryClient = useQueryClient();
-  const [selectedSectionId, setSelectedSectionId] = useState('');
+  // Opened from "Take attendance" with the current class preselected.
+  const params = useLocalSearchParams<{ sectionId?: string }>();
+  const [selectedSectionId, setSelectedSectionId] = useState(params.sectionId ?? '');
+  useEffect(() => {
+    if (params.sectionId) setSelectedSectionId(params.sectionId);
+  }, [params.sectionId]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [dateStr] = useState(new Date().toISOString().split('T')[0]);
   const [localStatuses, setLocalStatuses] = useState<Record<string, AttendanceStatus>>({});
@@ -254,7 +260,7 @@ export default function AttendanceScreen() {
             activeOpacity={0.7}
             style={st.picker}
           >
-            <Ionicons name="school" size={18} color="#4f46e5" />
+            <Ionicons name="school" size={18} color="#053495" />
             <Text
               style={selectedSectionId ? st.pickerText : st.pickerPlaceholder}
               numberOfLines={1}
@@ -263,7 +269,7 @@ export default function AttendanceScreen() {
                 ? `${selectedClass.className} — ${selectedClass.sectionName}`
                 : 'Select a class to mark attendance'}
             </Text>
-            <Ionicons name={pickerOpen ? 'chevron-up' : 'chevron-down'} size={16} color="#94a3b8" />
+            <Ionicons name={pickerOpen ? 'chevron-up' : 'chevron-down'} size={16} color="#8998B3" />
           </TouchableOpacity>
           {pickerOpen && classes && (
             <View style={st.optionList}>
@@ -278,19 +284,19 @@ export default function AttendanceScreen() {
                   }}
                   style={[
                     st.optionItem,
-                    cls.sectionId === selectedSectionId && { backgroundColor: '#eef2ff' },
+                    cls.sectionId === selectedSectionId && { backgroundColor: '#F0F5FE' },
                   ]}
                 >
                   <Text
                     style={
                       cls.sectionId === selectedSectionId
-                        ? { color: '#4f46e5', fontWeight: '600' }
-                        : { color: '#1e293b' }
+                        ? { color: '#053495', fontWeight: '600' }
+                        : { color: '#042A6C' }
                     }
                   >
                     {cls.className} — {cls.sectionName}
                   </Text>
-                  <Text style={{ fontSize: 12, color: '#94a3b8' }}>
+                  <Text style={{ fontSize: 12, color: '#8998B3' }}>
                     {cls.studentCount} students
                   </Text>
                 </TouchableOpacity>
@@ -311,8 +317,8 @@ export default function AttendanceScreen() {
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="calendar" size={14} color="#64748b" />
-                <Text style={{ fontSize: 13, color: '#64748b', fontWeight: '600', marginLeft: 6 }}>
+                <Ionicons name="calendar" size={14} color="#526C98" />
+                <Text style={{ fontSize: 13, color: '#526C98', fontWeight: '600', marginLeft: 6 }}>
                   {new Date(dateStr).toLocaleDateString('en-IN', {
                     weekday: 'short',
                     day: 'numeric',
@@ -375,7 +381,7 @@ export default function AttendanceScreen() {
         {/* Summary cards */}
         {records.length > 0 && (
           <View style={{ flexDirection: 'row', paddingHorizontal: 16, marginBottom: 12 }}>
-            <StatPill label="Total" value={summary.total} color="#64748b" />
+            <StatPill label="Total" value={summary.total} color="#526C98" />
             <StatPill label="Present" value={summary.present} color="#16a34a" />
             <StatPill label="Absent" value={summary.absent} color="#ef4444" />
             <StatPill label="Late" value={summary.late} color="#d97706" />
@@ -386,7 +392,7 @@ export default function AttendanceScreen() {
         <View style={{ paddingHorizontal: 16, paddingBottom: dirty ? 80 : 100 }}>
           {!selectedSectionId ? (
             <View style={st.emptyState}>
-              <Ionicons name="checkbox-outline" size={40} color="#d1d5db" />
+              <Ionicons name="checkbox-outline" size={40} color="#D3DAE4" />
               <Text style={st.emptyTitle}>Mark Attendance</Text>
               <Text style={st.emptySubtitle}>
                 Select a class above to start marking attendance for today
@@ -394,11 +400,11 @@ export default function AttendanceScreen() {
             </View>
           ) : isLoading ? (
             <View style={{ alignItems: 'center', paddingVertical: 48 }}>
-              <ActivityIndicator size="large" color="#4f46e5" />
+              <ActivityIndicator size="large" color="#053495" />
             </View>
           ) : records.length === 0 ? (
             <View style={st.emptyState}>
-              <Ionicons name="people-outline" size={40} color="#d1d5db" />
+              <Ionicons name="people-outline" size={40} color="#D3DAE4" />
               <Text style={st.emptyTitle}>No Students</Text>
               <Text style={st.emptySubtitle}>No active students found in this section</Text>
             </View>
@@ -460,11 +466,11 @@ function StatPill({ label, value, color }: { label: string; value: number; color
         borderRadius: 10,
         paddingVertical: 8,
         borderWidth: 1,
-        borderColor: '#f0f0f0',
+        borderColor: '#EDF0F3',
       }}
     >
       <Text style={{ fontSize: 16, fontWeight: '800', color }}>{value}</Text>
-      <Text style={{ fontSize: 9, color: '#94a3b8', fontWeight: '500', marginTop: 1 }}>
+      <Text style={{ fontSize: 9, color: '#8998B3', fontWeight: '500', marginTop: 1 }}>
         {label}
       </Text>
     </View>
@@ -480,16 +486,16 @@ const st = StyleSheet.create({
     paddingHorizontal: 14,
     height: 50,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
   },
-  pickerText: { flex: 1, fontSize: 15, color: '#1e293b', fontWeight: '500', marginLeft: 10 },
-  pickerPlaceholder: { flex: 1, fontSize: 15, color: '#94a3b8', marginLeft: 10 },
+  pickerText: { flex: 1, fontSize: 15, color: '#042A6C', fontWeight: '500', marginLeft: 10 },
+  pickerPlaceholder: { flex: 1, fontSize: 15, color: '#8998B3', marginLeft: 10 },
   optionList: {
     marginTop: 6,
     backgroundColor: '#fff',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
     overflow: 'hidden',
     elevation: 4,
     shadowColor: '#000',
@@ -501,7 +507,7 @@ const st = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 13,
     borderBottomWidth: 1,
-    borderBottomColor: '#f8fafc',
+    borderBottomColor: '#F9F8F5',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -521,21 +527,21 @@ const st = StyleSheet.create({
     padding: 12,
     marginBottom: 6,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#EDF0F3',
   },
   studentInfo: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   avatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
   },
-  avatarText: { color: '#4f46e5', fontSize: 12, fontWeight: '700' },
-  studentName: { fontSize: 14, fontWeight: '600', color: '#1e293b' },
-  studentAdm: { fontSize: 11, color: '#94a3b8', marginTop: 1 },
+  avatarText: { color: '#053495', fontSize: 12, fontWeight: '700' },
+  studentName: { fontSize: 14, fontWeight: '600', color: '#042A6C' },
+  studentAdm: { fontSize: 11, color: '#8998B3', marginTop: 1 },
 
   statusBtns: { flexDirection: 'row', justifyContent: 'flex-end' },
   statusBtn: {
@@ -543,7 +549,7 @@ const st = StyleSheet.create({
     height: 36,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 6,
@@ -555,7 +561,7 @@ const st = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
     marginLeft: 6,
   },
 
@@ -565,13 +571,13 @@ const st = StyleSheet.create({
     padding: 40,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#EDF0F3',
     marginTop: 20,
   },
-  emptyTitle: { fontSize: 16, fontWeight: '700', color: '#1e293b', marginTop: 12 },
+  emptyTitle: { fontSize: 16, fontWeight: '700', color: '#042A6C', marginTop: 12 },
   emptySubtitle: {
     fontSize: 13,
-    color: '#94a3b8',
+    color: '#8998B3',
     marginTop: 4,
     textAlign: 'center',
     lineHeight: 18,
@@ -579,13 +585,13 @@ const st = StyleSheet.create({
 
   saveBar: { position: 'absolute', bottom: 80, left: 16, right: 16, zIndex: 999 },
   saveBtn: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     borderRadius: 14,
     paddingVertical: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#4f46e5',
+    shadowColor: '#053495',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

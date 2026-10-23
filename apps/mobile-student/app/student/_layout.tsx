@@ -13,7 +13,7 @@ export default function StudentLayout() {
         },
         headerShadowVisible: false,
         headerBackTitle: 'Back',
-        headerTintColor: '#3b82f6',
+        headerTintColor: '#0749BB',
       }}
     >
       <Stack.Screen name="assignment-detail" options={{ headerShown: false }} />

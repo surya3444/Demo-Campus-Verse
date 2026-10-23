@@ -36,7 +36,7 @@ function SectionTitle({
 }) {
   return (
     <View style={s.sectionHeader}>
-      <Ionicons name={icon} size={18} color="#1e293b" />
+      <Ionicons name={icon} size={18} color="#042A6C" />
       <Text style={s.sectionTitle}>{title}</Text>
       {count !== undefined && count > 0 && (
         <View style={s.countBadge}>
@@ -60,8 +60,8 @@ function ProfileCard({ record }: { record: HealthRecord }) {
     },
     {
       icon: 'resize-outline' as const,
-      iconColor: '#3b82f6',
-      iconBg: '#eff6ff',
+      iconColor: '#0749BB',
+      iconBg: '#F0F5FE',
       label: 'Height',
       value: record.heightCm ? `${record.heightCm} cm` : '--',
     },
@@ -106,7 +106,7 @@ function ProfileCard({ record }: { record: HealthRecord }) {
           )}
           {record.nextCheckupDate && (
             <View style={s.checkupDateItem}>
-              <Ionicons name="calendar" size={14} color="#3b82f6" />
+              <Ionicons name="calendar" size={14} color="#0749BB" />
               <Text style={s.checkupDateLabel}>Next Checkup:</Text>
               <Text style={s.checkupDateValue}>{formatDate(record.nextCheckupDate)}</Text>
             </View>
@@ -160,7 +160,7 @@ function ConditionsSection({ conditions }: { conditions: HealthRecord['condition
   const statusConfig: Record<string, { bg: string; text: string }> = {
     active: { bg: '#fef2f2', text: '#dc2626' },
     managed: { bg: '#f0fdf4', text: '#16a34a' },
-    resolved: { bg: '#f8fafc', text: '#6b7280' },
+    resolved: { bg: '#F9F8F5', text: '#526C98' },
     monitoring: { bg: '#fffbeb', text: '#d97706' },
   };
 
@@ -248,10 +248,10 @@ function VaccinationTimeline({ vaccinations }: { vaccinations: Vaccination[] }) 
     { icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }
   > = {
     completed: { icon: 'checkmark-circle', color: '#16a34a', bg: '#f0fdf4' },
-    scheduled: { icon: 'time-outline', color: '#2563eb', bg: '#eff6ff' },
+    scheduled: { icon: 'time-outline', color: '#053495', bg: '#F0F5FE' },
     overdue: { icon: 'alert-circle', color: '#dc2626', bg: '#fef2f2' },
     missed: { icon: 'close-circle', color: '#dc2626', bg: '#fef2f2' },
-    exempt: { icon: 'remove-circle-outline', color: '#6b7280', bg: '#f8fafc' },
+    exempt: { icon: 'remove-circle-outline', color: '#526C98', bg: '#F9F8F5' },
   };
 
   const sorted = [...vaccinations].sort((a, b) => {
@@ -303,7 +303,7 @@ function VaccinationTimeline({ vaccinations }: { vaccinations: Vaccination[] }) 
                   <Text style={s.timelineDate}>Scheduled: {formatDate(vax.scheduledDate)}</Text>
                 )}
                 {vax.nextDoseDate && (
-                  <Text style={[s.timelineDate, { color: '#3b82f6' }]}>
+                  <Text style={[s.timelineDate, { color: '#0749BB' }]}>
                     Next dose: {formatDate(vax.nextDoseDate)}
                   </Text>
                 )}
@@ -322,12 +322,12 @@ function CheckupsSection({ checkups }: { checkups: Checkup[] }) {
   if (!checkups || checkups.length === 0) return null;
 
   const typeConfig: Record<string, { label: string; bg: string; text: string }> = {
-    routine: { label: 'Routine', bg: '#eff6ff', text: '#2563eb' },
+    routine: { label: 'Routine', bg: '#F0F5FE', text: '#053495' },
     annual: { label: 'Annual', bg: '#f0fdf4', text: '#16a34a' },
     sports: { label: 'Sports', bg: '#fdf4ff', text: '#a855f7' },
     'pre-admission': { label: 'Pre-Admission', bg: '#fffbeb', text: '#d97706' },
-    'follow-up': { label: 'Follow-up', bg: '#f1f5f9', text: '#475569' },
-    other: { label: 'Other', bg: '#f8fafc', text: '#6b7280' },
+    'follow-up': { label: 'Follow-up', bg: '#EDF0F3', text: '#3E5683' },
+    other: { label: 'Other', bg: '#F9F8F5', text: '#526C98' },
   };
 
   return (
@@ -362,7 +362,7 @@ function CheckupsSection({ checkups }: { checkups: Checkup[] }) {
               )}
               {checkup.conductedBy && (
                 <View style={s.conductedBy}>
-                  <Ionicons name="person-outline" size={12} color="#94a3b8" />
+                  <Ionicons name="person-outline" size={12} color="#8998B3" />
                   <Text style={s.conductedByText}>{checkup.conductedBy}</Text>
                 </View>
               )}
@@ -391,7 +391,7 @@ function VisitsSection({ visits }: { visits: MedicalVisit[] }) {
   const outcomeConfig: Record<string, { label: string; bg: string; text: string }> = {
     returned_to_class: { label: 'Returned to Class', bg: '#f0fdf4', text: '#16a34a' },
     sent_home: { label: 'Sent Home', bg: '#fffbeb', text: '#d97706' },
-    referred: { label: 'Referred', bg: '#eff6ff', text: '#2563eb' },
+    referred: { label: 'Referred', bg: '#F0F5FE', text: '#053495' },
     hospitalized: { label: 'Hospitalized', bg: '#fef2f2', text: '#dc2626' },
     under_observation: { label: 'Under Observation', bg: '#fdf4ff', text: '#a855f7' },
   };
@@ -410,7 +410,7 @@ function VisitsSection({ visits }: { visits: MedicalVisit[] }) {
                     <Ionicons
                       name={visit.visitType === 'emergency' ? 'alert-circle' : 'medical-outline'}
                       size={16}
-                      color={visit.visitType === 'emergency' ? '#dc2626' : '#3b82f6'}
+                      color={visit.visitType === 'emergency' ? '#dc2626' : '#0749BB'}
                     />
                   </View>
                   <Text style={s.visitType}>{typeLabels[visit.visitType] || visit.visitType}</Text>
@@ -467,7 +467,7 @@ function EmergencyContactsSection({ contacts }: { contacts: HealthRecord['emerge
           <View key={`contact-${index}`} style={s.card}>
             <View style={s.contactRow}>
               <View style={s.contactAvatar}>
-                <Ionicons name="person" size={18} color="#6b7280" />
+                <Ionicons name="person" size={18} color="#526C98" />
               </View>
               <View style={{ flex: 1 }}>
                 <View style={s.contactNameRow}>
@@ -485,7 +485,7 @@ function EmergencyContactsSection({ contacts }: { contacts: HealthRecord['emerge
               </View>
             </View>
             <View style={s.contactPhone}>
-              <Ionicons name="call-outline" size={13} color="#94a3b8" />
+              <Ionicons name="call-outline" size={13} color="#8998B3" />
               <Text style={s.contactPhoneText} onPress={() => handleCall(contact.phone)}>
                 {contact.phone}
               </Text>
@@ -503,7 +503,7 @@ function EmptyState() {
   return (
     <View style={s.emptyState}>
       <View style={s.emptyIconWrap}>
-        <Ionicons name="medical-outline" size={48} color="#d1d5db" />
+        <Ionicons name="medical-outline" size={48} color="#D3DAE4" />
       </View>
       <Text style={s.emptyTitle}>No Health Records Found</Text>
       <Text style={s.emptySubtitle}>
@@ -557,7 +557,7 @@ export default function HealthScreen() {
   const showEmpty = !loadingRecord && !record;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       {/* Custom Header */}
       <View
         style={{
@@ -566,13 +566,13 @@ export default function HealthScreen() {
           paddingHorizontal: 20,
           paddingBottom: 14,
           borderBottomWidth: 1,
-          borderBottomColor: '#f1f5f9',
+          borderBottomColor: '#EDF0F3',
         }}
       >
-        <Text style={{ fontSize: 22, fontWeight: '800', color: '#1e293b', letterSpacing: -0.3 }}>
+        <Text style={{ fontSize: 22, fontWeight: '800', color: '#042A6C', letterSpacing: -0.3 }}>
           Health
         </Text>
-        <Text style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>Medical Records</Text>
+        <Text style={{ fontSize: 13, color: '#8998B3', marginTop: 2 }}>Medical Records</Text>
       </View>
 
       <ScrollView
@@ -613,11 +613,11 @@ const s = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1e293b',
+    color: '#042A6C',
     marginLeft: 8,
   },
   countBadge: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#F0F5FE',
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 8,
@@ -626,7 +626,7 @@ const s = StyleSheet.create({
   countBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#3b82f6',
+    color: '#0749BB',
   },
 
   // Card
@@ -635,7 +635,7 @@ const s = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#EDF0F3',
   },
 
   // Profile card metrics
@@ -660,20 +660,20 @@ const s = StyleSheet.create({
   },
   metricLabel: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: '#8998B3',
     fontWeight: '500',
     marginBottom: 2,
   },
   metricValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1e293b',
+    color: '#042A6C',
   },
   checkupDates: {
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#EDF0F3',
     gap: 6,
   },
   checkupDateItem: {
@@ -682,12 +682,12 @@ const s = StyleSheet.create({
   },
   checkupDateLabel: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#8998B3',
     marginLeft: 6,
   },
   checkupDateValue: {
     fontSize: 12,
-    color: '#475569',
+    color: '#3E5683',
     fontWeight: '600',
     marginLeft: 4,
   },
@@ -732,16 +732,16 @@ const s = StyleSheet.create({
   conditionName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#042A6C',
   },
   conditionMeta: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: '#8998B3',
     marginTop: 2,
   },
   conditionNotes: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#526C98',
     marginTop: 4,
     lineHeight: 17,
   },
@@ -761,7 +761,7 @@ const s = StyleSheet.create({
   // Item border
   itemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    borderBottomColor: '#F9F8F5',
   },
 
   // Medications
@@ -782,7 +782,7 @@ const s = StyleSheet.create({
   medName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#042A6C',
   },
   medDetails: {
     flexDirection: 'row',
@@ -791,18 +791,18 @@ const s = StyleSheet.create({
   },
   medDetail: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#526C98',
   },
   medDivider: {
     width: 3,
     height: 3,
     borderRadius: 1.5,
-    backgroundColor: '#d1d5db',
+    backgroundColor: '#D3DAE4',
     marginHorizontal: 8,
   },
   medReason: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: '#8998B3',
     marginTop: 3,
     fontStyle: 'italic',
   },
@@ -827,7 +827,7 @@ const s = StyleSheet.create({
   timelineLine: {
     width: 2,
     flex: 1,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#DAE0E7',
     marginTop: 4,
   },
   timelineContent: {
@@ -842,18 +842,18 @@ const s = StyleSheet.create({
   timelineTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#042A6C',
     flex: 1,
     marginRight: 8,
   },
   timelineMeta: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#526C98',
     marginTop: 2,
   },
   timelineDate: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: '#8998B3',
     marginTop: 2,
   },
 
@@ -875,7 +875,7 @@ const s = StyleSheet.create({
   },
   checkupDate: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#8998B3',
     fontWeight: '500',
   },
   checkupDetail: {
@@ -883,13 +883,13 @@ const s = StyleSheet.create({
   },
   checkupDetailLabel: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: '#8998B3',
     fontWeight: '500',
     marginBottom: 2,
   },
   checkupDetailValue: {
     fontSize: 13,
-    color: '#475569',
+    color: '#3E5683',
     lineHeight: 19,
   },
   conductedBy: {
@@ -898,11 +898,11 @@ const s = StyleSheet.create({
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#f5f5f5',
+    borderTopColor: '#F9F8F5',
   },
   conductedByText: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#8998B3',
     marginLeft: 5,
   },
 
@@ -921,7 +921,7 @@ const s = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 8,
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#F0F5FE',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
@@ -929,16 +929,16 @@ const s = StyleSheet.create({
   visitType: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#042A6C',
   },
   visitDate: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#8998B3',
     fontWeight: '500',
   },
   visitComplaint: {
     fontSize: 13,
-    color: '#475569',
+    color: '#3E5683',
     lineHeight: 19,
     marginBottom: 6,
   },
@@ -948,13 +948,13 @@ const s = StyleSheet.create({
   },
   visitDetailLabel: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#8998B3',
     fontWeight: '500',
     marginRight: 4,
   },
   visitDetailValue: {
     fontSize: 12,
-    color: '#475569',
+    color: '#3E5683',
     flex: 1,
   },
   visitFooter: {
@@ -964,7 +964,7 @@ const s = StyleSheet.create({
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#f5f5f5',
+    borderTopColor: '#F9F8F5',
   },
   outcomeBadge: {
     paddingHorizontal: 10,
@@ -977,7 +977,7 @@ const s = StyleSheet.create({
   },
   visitTime: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: '#8998B3',
   },
 
   // Emergency contacts
@@ -989,7 +989,7 @@ const s = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -1001,10 +1001,10 @@ const s = StyleSheet.create({
   contactName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#042A6C',
   },
   primaryBadge: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#F0F5FE',
     paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: 4,
@@ -1013,11 +1013,11 @@ const s = StyleSheet.create({
   primaryBadgeText: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#3b82f6',
+    color: '#0749BB',
   },
   contactRelation: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#8998B3',
     marginTop: 1,
   },
   callButton: {
@@ -1034,11 +1034,11 @@ const s = StyleSheet.create({
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#f5f5f5',
+    borderTopColor: '#F9F8F5',
   },
   contactPhoneText: {
     fontSize: 13,
-    color: '#3b82f6',
+    color: '#0749BB',
     fontWeight: '500',
     marginLeft: 6,
   },
@@ -1054,7 +1054,7 @@ const s = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
@@ -1062,12 +1062,12 @@ const s = StyleSheet.create({
   emptyTitle: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#374151',
+    color: '#2E4470',
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: '#8998B3',
     textAlign: 'center',
     lineHeight: 20,
   },

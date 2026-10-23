@@ -76,8 +76,8 @@ export default function CourseDetailScreen() {
 
   if (lCourse || !course) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#f8fafc' }}>
-        <ActivityIndicator color="#4f46e5" />
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#F9F8F5' }}>
+        <ActivityIndicator color="#053495" />
       </View>
     );
   }
@@ -85,7 +85,7 @@ export default function CourseDetailScreen() {
   const isPublished = course.status === 'published';
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -100,7 +100,7 @@ export default function CourseDetailScreen() {
             <HeroStat value={enrollments?.length ?? 0} label="Students" />
           </View>
           <TouchableOpacity
-            style={[s.publishBtn, isPublished && { backgroundColor: '#e5e7eb' }]}
+            style={[s.publishBtn, isPublished && { backgroundColor: '#DAE0E7' }]}
             onPress={() => publishMutation.mutate(isPublished ? 'draft' : 'published')}
             disabled={publishMutation.isPending}
             activeOpacity={0.85}
@@ -108,9 +108,9 @@ export default function CourseDetailScreen() {
             <Ionicons
               name={isPublished ? 'archive-outline' : 'rocket-outline'}
               size={14}
-              color={isPublished ? '#64748b' : '#fff'}
+              color={isPublished ? '#526C98' : '#fff'}
             />
-            <Text style={[s.publishText, isPublished && { color: '#64748b' }]}>
+            <Text style={[s.publishText, isPublished && { color: '#526C98' }]}>
               {isPublished ? 'Unpublish' : 'Publish'}
             </Text>
           </TouchableOpacity>
@@ -140,8 +140,8 @@ export default function CourseDetailScreen() {
               ) : (
                 lessons!.map((l: CourseLesson) => (
                   <View key={l._id} style={s.itemCard}>
-                    <View style={[s.itemIcon, { backgroundColor: '#eef2ff' }]}>
-                      <Ionicons name="document-text" size={16} color="#4f46e5" />
+                    <View style={[s.itemIcon, { backgroundColor: '#F0F5FE' }]}>
+                      <Ionicons name="document-text" size={16} color="#053495" />
                     </View>
                     <View style={{ flex: 1, marginLeft: 10 }}>
                       <Text style={s.itemTitle}>{l.title}</Text>
@@ -163,7 +163,7 @@ export default function CourseDetailScreen() {
                       }
                       hitSlop={8}
                     >
-                      <Ionicons name="trash-outline" size={16} color="#94a3b8" />
+                      <Ionicons name="trash-outline" size={16} color="#8998B3" />
                     </TouchableOpacity>
                   </View>
                 ))
@@ -173,7 +173,7 @@ export default function CourseDetailScreen() {
                 onPress={() => router.push(`/courses/lesson-form?courseId=${id}` as never)}
                 activeOpacity={0.85}
               >
-                <Ionicons name="add" size={18} color="#4f46e5" />
+                <Ionicons name="add" size={18} color="#053495" />
                 <Text style={s.addText}>Add Lesson</Text>
               </TouchableOpacity>
             </View>
@@ -208,7 +208,7 @@ export default function CourseDetailScreen() {
                       }
                       hitSlop={8}
                     >
-                      <Ionicons name="trash-outline" size={16} color="#94a3b8" />
+                      <Ionicons name="trash-outline" size={16} color="#8998B3" />
                     </TouchableOpacity>
                   </View>
                 ))
@@ -218,7 +218,7 @@ export default function CourseDetailScreen() {
                 onPress={() => router.push(`/courses/quiz-form?courseId=${id}` as never)}
                 activeOpacity={0.85}
               >
-                <Ionicons name="add" size={18} color="#4f46e5" />
+                <Ionicons name="add" size={18} color="#053495" />
                 <Text style={s.addText}>Add Quiz</Text>
               </TouchableOpacity>
             </View>
@@ -272,9 +272,9 @@ function Empty({ text }: { text: string }) {
 }
 
 const s = StyleSheet.create({
-  hero: { backgroundColor: '#4338ca', padding: 24, paddingTop: 28 },
+  hero: { backgroundColor: '#042A6C', padding: 24, paddingTop: 28 },
   title: { fontSize: 22, fontWeight: '800', color: '#fff' },
-  description: { fontSize: 13, color: '#c7d2fe', marginTop: 6, lineHeight: 19 },
+  description: { fontSize: 13, color: '#C4D9FD', marginTop: 6, lineHeight: 19 },
   heroStats: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -286,7 +286,7 @@ const s = StyleSheet.create({
   statNum: { fontSize: 22, fontWeight: '800', color: '#fff' },
   statLabel: {
     fontSize: 10,
-    color: '#a5b4fc',
+    color: '#84AFFB',
     fontWeight: '700',
     marginTop: 2,
     letterSpacing: 0.5,
@@ -306,12 +306,12 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#EDF0F3',
   },
   tab: { flex: 1, paddingVertical: 14, alignItems: 'center' },
-  tabActive: { borderBottomWidth: 2, borderBottomColor: '#4f46e5' },
-  tabText: { fontSize: 13, fontWeight: '600', color: '#94a3b8' },
-  tabTextActive: { color: '#4f46e5' },
+  tabActive: { borderBottomWidth: 2, borderBottomColor: '#053495' },
+  tabText: { fontSize: 13, fontWeight: '600', color: '#8998B3' },
+  tabTextActive: { color: '#053495' },
   itemCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -320,7 +320,7 @@ const s = StyleSheet.create({
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   itemIcon: {
     width: 34,
@@ -329,35 +329,35 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemTitle: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
-  itemMeta: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
+  itemTitle: { fontSize: 14, fontWeight: '700', color: '#042A6C' },
+  itemMeta: { fontSize: 11, color: '#8998B3', marginTop: 2 },
   progressRing: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  progressText: { fontSize: 11, fontWeight: '800', color: '#4338ca' },
+  progressText: { fontSize: 11, fontWeight: '800', color: '#042A6C' },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     paddingVertical: 12,
     borderRadius: 12,
     marginTop: 6,
   },
-  addText: { fontSize: 13, fontWeight: '700', color: '#4f46e5', marginLeft: 6 },
+  addText: { fontSize: 13, fontWeight: '700', color: '#053495', marginLeft: 6 },
   emptyBlock: {
     backgroundColor: '#fff',
     padding: 30,
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
     marginBottom: 8,
   },
-  emptyText: { fontSize: 13, color: '#94a3b8', textAlign: 'center' },
+  emptyText: { fontSize: 13, color: '#8998B3', textAlign: 'center' },
 });

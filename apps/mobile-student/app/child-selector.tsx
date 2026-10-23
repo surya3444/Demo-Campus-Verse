@@ -16,7 +16,7 @@ function ChildCard({
   return (
     <TouchableOpacity
       className={`flex-row items-center p-4 mx-4 mb-3 rounded-xl border-2 ${
-        isSelected ? 'border-primary bg-primary/5' : 'border-gray-200 bg-white'
+        isSelected ? 'border-primary bg-primary/5' : 'border-secondary-200 bg-white'
       }`}
       onPress={onSelect}
       activeOpacity={0.7}
@@ -24,24 +24,24 @@ function ChildCard({
       {/* Avatar */}
       <View
         className={`w-14 h-14 rounded-full items-center justify-center mr-4 ${
-          isSelected ? 'bg-primary' : 'bg-gray-200'
+          isSelected ? 'bg-primary' : 'bg-secondary-200'
         }`}
       >
-        <Text className={`text-xl font-bold ${isSelected ? 'text-white' : 'text-gray-600'}`}>
+        <Text className={`text-xl font-bold ${isSelected ? 'text-white' : 'text-secondary-600'}`}>
           {child.studentName?.charAt(0) || 'S'}
         </Text>
       </View>
 
       {/* Info */}
       <View className="flex-1">
-        <Text className={`font-semibold text-lg ${isSelected ? 'text-primary' : 'text-gray-900'}`}>
+        <Text className={`font-semibold text-lg ${isSelected ? 'text-primary' : 'text-secondary-800'}`}>
           {child.studentName}
         </Text>
-        <Text className="text-gray-500 text-sm mt-0.5">
+        <Text className="text-secondary-500 text-sm mt-0.5">
           {child.className} - {child.sectionName}
         </Text>
         {child.rollNumber && (
-          <Text className="text-gray-400 text-xs mt-0.5">Roll No: {child.rollNumber}</Text>
+          <Text className="text-secondary-400 text-xs mt-0.5">Roll No: {child.rollNumber}</Text>
         )}
       </View>
 
@@ -67,10 +67,10 @@ export default function ChildSelectorScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-secondary-50">
       {/* Header Info */}
-      <View className="bg-white px-5 py-4 border-b border-gray-100">
-        <Text className="text-gray-500 text-sm">Select a child to view their information</Text>
+      <View className="bg-white px-5 py-4 border-b border-secondary-100">
+        <Text className="text-secondary-500 text-sm">Select a child to view their information</Text>
       </View>
 
       {/* Children List */}
@@ -87,8 +87,8 @@ export default function ChildSelectorScreen() {
         )}
         ListEmptyComponent={
           <View className="items-center py-12">
-            <Ionicons name="people-outline" size={48} color="#9ca3af" />
-            <Text className="text-gray-500 mt-3">No children found</Text>
+            <Ionicons name="people-outline" size={48} color="#8998B3" />
+            <Text className="text-secondary-500 mt-3">No children found</Text>
           </View>
         }
       />

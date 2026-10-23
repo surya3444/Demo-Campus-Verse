@@ -81,8 +81,8 @@ export default function MarksEntryScreen() {
 
   if (!schedule) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-50">
-        <ActivityIndicator color="#4f46e5" />
+      <View className="flex-1 items-center justify-center bg-secondary-50">
+        <ActivityIndicator color="#053495" />
       </View>
     );
   }
@@ -93,7 +93,7 @@ export default function MarksEntryScreen() {
   };
 
   return (
-    <View className="flex-1 bg-slate-50">
+    <View className="flex-1 bg-secondary-50">
       <Stack.Screen
         options={{
           title: `${schedule.subjectName} · ${schedule.sectionName}`,
@@ -103,7 +103,7 @@ export default function MarksEntryScreen() {
               disabled={!dirty || saveMutation.isPending}
               className="px-3 py-1.5 rounded-lg"
               style={{
-                backgroundColor: dirty ? '#4f46e5' : '#cbd5e1',
+                backgroundColor: dirty ? '#053495' : '#D3DAE4',
                 opacity: saveMutation.isPending ? 0.6 : 1,
               }}
             >
@@ -114,11 +114,11 @@ export default function MarksEntryScreen() {
           ),
         }}
       />
-      <View className="bg-white px-4 py-3 border-b border-slate-200">
-        <Text className="text-xs text-slate-500">
+      <View className="bg-white px-4 py-3 border-b border-secondary-200">
+        <Text className="text-xs text-secondary-500">
           {schedule.className} · {new Date(schedule.date).toLocaleDateString()}
         </Text>
-        <Text className="text-sm font-medium text-slate-700 mt-0.5">
+        <Text className="text-sm font-medium text-secondary-700 mt-0.5">
           Total {schedule.totalMarks} marks · Pass {schedule.passMarks}
         </Text>
       </View>
@@ -126,12 +126,12 @@ export default function MarksEntryScreen() {
       <ScrollView contentContainerStyle={{ padding: 12 }}>
         {marksQuery.isLoading ? (
           <View className="items-center justify-center py-16">
-            <ActivityIndicator color="#4f46e5" />
+            <ActivityIndicator color="#053495" />
           </View>
         ) : rows.length === 0 ? (
           <View className="items-center justify-center py-16">
-            <Ionicons name="people-outline" size={48} color="#cbd5e1" />
-            <Text className="text-sm text-slate-500 mt-3">No students enrolled.</Text>
+            <Ionicons name="people-outline" size={48} color="#D3DAE4" />
+            <Text className="text-sm text-secondary-500 mt-3">No students enrolled.</Text>
           </View>
         ) : (
           rows.map((r, i) => (
@@ -148,16 +148,16 @@ export default function MarksEntryScreen() {
             >
               <View className="flex-row items-center justify-between mb-2">
                 <View className="flex-1">
-                  <Text className="font-medium text-slate-900 text-sm">{r.studentName}</Text>
-                  <Text className="text-xs text-slate-500">
+                  <Text className="font-medium text-secondary-800 text-sm">{r.studentName}</Text>
+                  <Text className="text-xs text-secondary-500">
                     {r.rollNumber ? `Roll ${r.rollNumber}` : ''}
                     {r.rollNumber && r.admissionNumber ? ' · ' : ''}
                     {r.admissionNumber || ''}
                   </Text>
                 </View>
                 {r.grade && (
-                  <View className="px-2 py-0.5 rounded bg-indigo-100">
-                    <Text className="text-xs font-semibold text-indigo-700">{r.grade}</Text>
+                  <View className="px-2 py-0.5 rounded bg-primary-100">
+                    <Text className="text-xs font-semibold text-primary-700">{r.grade}</Text>
                   </View>
                 )}
               </View>
@@ -172,7 +172,7 @@ export default function MarksEntryScreen() {
                     })
                   }
                   editable={!r.absent}
-                  className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-base"
+                  className="flex-1 border border-secondary-200 rounded-lg px-3 py-2 text-base"
                   style={{ opacity: r.absent ? 0.4 : 1 }}
                 />
                 <TouchableOpacity
@@ -185,19 +185,19 @@ export default function MarksEntryScreen() {
                   className="px-3 py-2 rounded-lg border"
                   style={{
                     backgroundColor: r.absent ? '#fef2f2' : 'transparent',
-                    borderColor: r.absent ? '#fca5a5' : '#cbd5e1',
+                    borderColor: r.absent ? '#fca5a5' : '#D3DAE4',
                   }}
                 >
                   <Text
                     className="text-xs font-semibold"
-                    style={{ color: r.absent ? '#dc2626' : '#475569' }}
+                    style={{ color: r.absent ? '#dc2626' : '#3E5683' }}
                   >
                     {r.absent ? 'Absent' : 'Mark absent'}
                   </Text>
                 </TouchableOpacity>
               </View>
               {r.percentage != null && !r.absent && (
-                <Text className="text-xs text-slate-500 mt-1.5">
+                <Text className="text-xs text-secondary-500 mt-1.5">
                   {r.percentage}% · {r.passed ? 'Passed' : 'Failed'}
                 </Text>
               )}

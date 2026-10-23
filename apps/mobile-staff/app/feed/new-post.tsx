@@ -49,7 +49,7 @@ export default function NewPostScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#F9F8F5' }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
@@ -65,7 +65,7 @@ export default function NewPostScreen() {
               <Ionicons
                 name={t === 'post' ? 'chatbubble-outline' : 'megaphone-outline'}
                 size={14}
-                color={postType === t ? '#fff' : '#64748b'}
+                color={postType === t ? '#fff' : '#526C98'}
               />
               <Text style={[s.typeChipText, postType === t && { color: '#fff' }]}>
                 {t === 'post' ? 'Post' : 'Notice'}
@@ -82,7 +82,7 @@ export default function NewPostScreen() {
           placeholder={
             postType === 'notice' ? 'Share an important notice...' : "What's on your mind?"
           }
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
           multiline
           numberOfLines={8}
           textAlignVertical="top"
@@ -99,17 +99,17 @@ export default function NewPostScreen() {
             onPress={() => setAudience(a.key)}
             activeOpacity={0.8}
           >
-            <View style={[s.audienceIcon, audience === a.key && { backgroundColor: '#eef2ff' }]}>
+            <View style={[s.audienceIcon, audience === a.key && { backgroundColor: '#F0F5FE' }]}>
               <Ionicons
                 name={a.icon}
                 size={18}
-                color={audience === a.key ? '#4f46e5' : '#64748b'}
+                color={audience === a.key ? '#053495' : '#526C98'}
               />
             </View>
             <Text
               style={[
                 s.audienceLabel,
-                audience === a.key && { color: '#4f46e5', fontWeight: '700' },
+                audience === a.key && { color: '#053495', fontWeight: '700' },
               ]}
             >
               {a.label}
@@ -118,7 +118,7 @@ export default function NewPostScreen() {
               <Ionicons
                 name="checkmark-circle"
                 size={20}
-                color="#4f46e5"
+                color="#053495"
                 style={{ marginLeft: 'auto' }}
               />
             )}
@@ -151,25 +151,25 @@ const s = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 18,
     marginRight: 8,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
   },
-  typeChipActive: { backgroundColor: '#4f46e5' },
-  typeChipText: { fontSize: 12, fontWeight: '600', color: '#64748b', marginLeft: 6 },
+  typeChipActive: { backgroundColor: '#053495' },
+  typeChipText: { fontSize: 12, fontWeight: '600', color: '#526C98', marginLeft: 6 },
   textarea: {
     backgroundColor: '#fff',
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
     fontSize: 15,
-    color: '#1e293b',
+    color: '#042A6C',
     minHeight: 150,
   },
-  counter: { fontSize: 11, color: '#94a3b8', textAlign: 'right', marginTop: 4 },
+  counter: { fontSize: 11, color: '#8998B3', textAlign: 'right', marginTop: 4 },
   label: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#526C98',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 20,
@@ -183,20 +183,20 @@ const s = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 8,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
   },
-  audienceRowActive: { borderColor: '#4f46e5', backgroundColor: '#fafafe' },
+  audienceRowActive: { borderColor: '#053495', backgroundColor: '#F9F8F5' },
   audienceIcon: {
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  audienceLabel: { fontSize: 14, color: '#1e293b', marginLeft: 12 },
+  audienceLabel: { fontSize: 14, color: '#042A6C', marginLeft: 12 },
   submitBtn: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     borderRadius: 14,
     paddingVertical: 16,
     marginTop: 20,

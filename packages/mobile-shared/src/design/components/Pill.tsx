@@ -37,7 +37,7 @@ export function Pill({
   const h = size === 'xs' ? 18 : size === 'sm' ? 22 : 26;
   const fontSize = size === 'xs' ? 9.5 : size === 'sm' ? 10.5 : 11.5;
   const bg = variant === 'solid' ? m.solid : variant === 'outline' ? 'transparent' : m.wash;
-  const fg = variant === 'solid' ? (tone === 'neutral' ? color.onInk : '#FFF7E8') : m.fg;
+  const fg = variant === 'solid' ? (tone === 'neutral' ? color.onInk : '#FFFFFF') : m.fg;
   return (
     <View
       style={[
@@ -58,11 +58,10 @@ export function Pill({
       {leading}
       <Text
         style={{
-          fontFamily: 'JetBrainsMono_700Bold',
-          fontSize,
-          letterSpacing: 1.2,
+          fontFamily: 'DMSans_700Bold',
+          fontSize: fontSize + 0.5,
+          letterSpacing: 0.2,
           color: fg,
-          textTransform: 'uppercase',
         }}
       >
         {label}

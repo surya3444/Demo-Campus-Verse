@@ -104,6 +104,8 @@ export const PERMISSIONS = {
   'careerConnect.drives': ['view', 'create', 'edit', 'delete', 'manage_results'],
   'careerConnect.jobBoard': ['view', 'create', 'edit', 'delete', 'apply', 'manage_applications'],
   'careerConnect.studentProfiles': ['view', 'create', 'edit', 'delete', 'export'],
+  // A student's own career profile only (never anyone else's).
+  'careerConnect.myProfile': ['view', 'edit'],
   'careerConnect.counseling': ['view', 'create', 'edit', 'delete', 'conduct'],
   'careerConnect.resources': ['view', 'create', 'edit', 'delete', 'publish'],
   'careerConnect.alumni': ['view', 'create', 'edit', 'delete', 'verify'],
@@ -865,6 +867,13 @@ export const STUDENT_PERMISSIONS: Record<string, string[]> = {
   'dashboard.fees': ['view'],
   'students.fees': ['view'], // their own fees only (self-scoped)
   'ai.assistant': ['use'],
+  // Career Connect: placement drives + the live job feed, the job board, events
+  // and resources; their own career profile only.
+  'careerConnect.drives': ['view'],
+  'careerConnect.jobBoard': ['view', 'apply'],
+  'careerConnect.myProfile': ['view', 'edit'],
+  'careerConnect.events': ['view', 'register'],
+  'careerConnect.resources': ['view'],
 };
 
 /**

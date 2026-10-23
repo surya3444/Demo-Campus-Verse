@@ -16,7 +16,7 @@ import { useAuthStore, useIsParent } from '@campus-verse/mobile-shared/store/aut
 import { useCurrentStudentId } from '@campus-verse/mobile-shared/hooks/useAuth';
 import { studentApi } from '@/api/student';
 
-const _FC = '#f8fafc';
+const _FC = '#F9F8F5';
 function BottomFade() {
   return (
     <View style={_fs.c} pointerEvents="none">
@@ -56,8 +56,8 @@ interface UnifiedItem {
 const STATUS_STYLE: Record<string, { color: string; bg: string; label: string; icon: string }> = {
   pending: { color: '#f59e0b', bg: '#fef3c7', label: 'Pending', icon: 'time-outline' },
   submitted: {
-    color: '#3b82f6',
-    bg: '#eff6ff',
+    color: '#0749BB',
+    bg: '#F0F5FE',
     label: 'Submitted',
     icon: 'checkmark-circle-outline',
   },
@@ -190,21 +190,21 @@ export default function StudentAssignmentsScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       {/* Header + Filter */}
       <View style={{ backgroundColor: '#ffffff', paddingTop: insets.top }}>
         <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 14 }}>
-          <Text style={{ fontSize: 22, fontWeight: '800', color: '#0f172a', letterSpacing: -0.3 }}>
+          <Text style={{ fontSize: 22, fontWeight: '800', color: '#042A6C', letterSpacing: -0.3 }}>
             My Work
           </Text>
-          <Text style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>
+          <Text style={{ fontSize: 13, color: '#8998B3', marginTop: 2 }}>
             Assignments & Quizzes
           </Text>
         </View>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={{ flexGrow: 0, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' }}
+          style={{ flexGrow: 0, borderBottomWidth: 1, borderBottomColor: '#EDF0F3' }}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12, gap: 8 }}
         >
           {FILTERS.map((f) => {
@@ -220,14 +220,14 @@ export default function StudentAssignmentsScreen() {
                     paddingHorizontal: 14,
                     paddingVertical: 7,
                     borderRadius: 20,
-                    backgroundColor: active ? '#3b82f6' : '#f1f5f9',
+                    backgroundColor: active ? '#0749BB' : '#EDF0F3',
                   }}
                 >
                   <Text
                     style={{
                       fontSize: 13,
                       fontWeight: '600',
-                      color: active ? '#ffffff' : '#64748b',
+                      color: active ? '#ffffff' : '#526C98',
                     }}
                   >
                     {f.label}
@@ -238,14 +238,14 @@ export default function StudentAssignmentsScreen() {
                       paddingHorizontal: 6,
                       paddingVertical: 1,
                       borderRadius: 10,
-                      backgroundColor: active ? 'rgba(255,255,255,0.25)' : '#e2e8f0',
+                      backgroundColor: active ? 'rgba(255,255,255,0.25)' : '#DAE0E7',
                     }}
                   >
                     <Text
                       style={{
                         fontSize: 10,
                         fontWeight: '700',
-                        color: active ? '#ffffff' : '#94a3b8',
+                        color: active ? '#ffffff' : '#8998B3',
                       }}
                     >
                       {count}
@@ -262,20 +262,20 @@ export default function StudentAssignmentsScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 100 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0749BB" />
         }
         showsVerticalScrollIndicator={false}
       >
         {isLoading || !sectionId ? (
           <View className="items-center py-16">
-            <ActivityIndicator size="large" color="#3b82f6" />
+            <ActivityIndicator size="large" color="#0749BB" />
           </View>
         ) : filtered.length === 0 ? (
           <View className="bg-white rounded-2xl p-10 items-center mt-4" style={{ elevation: 1 }}>
-            <View className="w-16 h-16 bg-gray-50 rounded-full items-center justify-center mb-3">
-              <Ionicons name="checkmark-done-outline" size={28} color="#94a3b8" />
+            <View className="w-16 h-16 bg-secondary-50 rounded-full items-center justify-center mb-3">
+              <Ionicons name="checkmark-done-outline" size={28} color="#8998B3" />
             </View>
-            <Text className="text-gray-900 font-semibold">
+            <Text className="text-secondary-800 font-semibold">
               {filter === 'all' ? 'No assignments yet' : `No ${filter} assignments`}
             </Text>
           </View>
@@ -305,7 +305,7 @@ function AssignmentCard({ item, onPress }: { item: UnifiedItem; onPress: () => v
         className="bg-white rounded-2xl overflow-hidden"
         style={{
           borderWidth: item.isOverdue ? 1.5 : 1,
-          borderColor: item.isOverdue ? '#fca5a5' : '#f1f5f9',
+          borderColor: item.isOverdue ? '#fca5a5' : '#EDF0F3',
           elevation: 1,
         }}
       >
@@ -313,7 +313,7 @@ function AssignmentCard({ item, onPress }: { item: UnifiedItem; onPress: () => v
           {/* Header: title + status */}
           <View className="flex-row items-start justify-between mb-2">
             <View className="flex-1 mr-3">
-              <Text className="text-sm font-bold text-gray-900" numberOfLines={2}>
+              <Text className="text-sm font-bold text-secondary-800" numberOfLines={2}>
                 {item.title}
               </Text>
             </View>
@@ -343,23 +343,23 @@ function AssignmentCard({ item, onPress }: { item: UnifiedItem; onPress: () => v
                   item.kind === 'questionnaire' ? 'help-circle-outline' : 'document-text-outline'
                 }
                 size={13}
-                color="#94a3b8"
+                color="#8998B3"
               />
-              <Text className="text-xs text-gray-400 ml-1">
+              <Text className="text-xs text-secondary-400 ml-1">
                 {item.kind === 'questionnaire' ? 'Quiz' : 'Assignment'}
               </Text>
             </View>
 
             {item.subjectName ? (
               <View className="flex-row items-center mr-3">
-                <Ionicons name="book-outline" size={13} color="#94a3b8" />
-                <Text className="text-xs text-gray-500 ml-1 font-medium">{item.subjectName}</Text>
+                <Ionicons name="book-outline" size={13} color="#8998B3" />
+                <Text className="text-xs text-secondary-500 ml-1 font-medium">{item.subjectName}</Text>
               </View>
             ) : null}
 
             <View className="flex-row items-center mr-3">
-              <Ionicons name="trophy-outline" size={13} color="#94a3b8" />
-              <Text className="text-xs text-gray-400 ml-1">{item.totalMarks} marks</Text>
+              <Ionicons name="trophy-outline" size={13} color="#8998B3" />
+              <Text className="text-xs text-secondary-400 ml-1">{item.totalMarks} marks</Text>
             </View>
           </View>
 
@@ -369,11 +369,11 @@ function AssignmentCard({ item, onPress }: { item: UnifiedItem; onPress: () => v
               <Ionicons
                 name="time-outline"
                 size={13}
-                color={item.isOverdue ? '#ef4444' : '#94a3b8'}
+                color={item.isOverdue ? '#ef4444' : '#8998B3'}
               />
               <Text
                 className="text-xs ml-1 font-medium"
-                style={{ color: item.isOverdue ? '#ef4444' : '#94a3b8' }}
+                style={{ color: item.isOverdue ? '#ef4444' : '#8998B3' }}
               >
                 {item.isOverdue ? 'Overdue · ' : 'Due '}
                 {new Date(item.dueDate).toLocaleDateString('en-IN', {

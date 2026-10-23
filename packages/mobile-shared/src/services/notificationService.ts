@@ -52,7 +52,7 @@ export const notificationService = {
           name: 'Default',
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#3b82f6',
+          lightColor: '#0749BB',
         });
 
         // Create channel for announcements
@@ -61,7 +61,7 @@ export const notificationService = {
           description: 'School announcements and notifications',
           importance: Notifications.AndroidImportance.HIGH,
           vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#3b82f6',
+          lightColor: '#0749BB',
         });
 
         // Create channel for attendance

@@ -55,7 +55,7 @@ export function LiveClassChatPanel({ socket }: { socket: Socket }) {
             return (
               <View key={m._id} style={s.msg}>
                 <View style={s.msgHeader}>
-                  <Text style={[s.msgAuthor, isStaff && { color: '#4f46e5' }]}>{m.senderName}</Text>
+                  <Text style={[s.msgAuthor, isStaff && { color: '#053495' }]}>{m.senderName}</Text>
                   {isStaff && (
                     <View style={s.roleTag}>
                       <Text style={s.roleTagText}>{m.senderRole}</Text>
@@ -78,7 +78,7 @@ export function LiveClassChatPanel({ socket }: { socket: Socket }) {
         <TextInput
           style={s.input}
           placeholder={socket.joined ? 'Send a message…' : 'Connecting…'}
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor="#8998B3"
           editable={socket.joined}
           value={text}
           onChangeText={setText}
@@ -99,25 +99,25 @@ export function LiveClassChatPanel({ socket }: { socket: Socket }) {
 
 const s = StyleSheet.create({
   scroll: { padding: 12, paddingBottom: 16 },
-  empty: { textAlign: 'center', color: '#9ca3af', marginTop: 30, fontSize: 13 },
+  empty: { textAlign: 'center', color: '#8998B3', marginTop: 30, fontSize: 13 },
   msg: { marginBottom: 12 },
   msgHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 },
-  msgAuthor: { fontSize: 12, fontWeight: '700', color: '#111827' },
+  msgAuthor: { fontSize: 12, fontWeight: '700', color: '#042A6C' },
   roleTag: {
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: 4,
   },
-  roleTagText: { fontSize: 9, fontWeight: '700', color: '#4f46e5', textTransform: 'uppercase' },
-  msgTime: { fontSize: 10, color: '#9ca3af', marginLeft: 'auto' },
-  msgText: { fontSize: 14, color: '#1f2937', lineHeight: 19 },
+  roleTagText: { fontSize: 9, fontWeight: '700', color: '#053495', textTransform: 'uppercase' },
+  msgTime: { fontSize: 10, color: '#8998B3', marginLeft: 'auto' },
+  msgText: { fontSize: 14, color: '#042A6C', lineHeight: 19 },
   composer: {
     flexDirection: 'row',
     gap: 8,
     padding: 10,
     borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
+    borderTopColor: '#DAE0E7',
     backgroundColor: '#fff',
     alignItems: 'flex-end',
   },
@@ -126,19 +126,19 @@ const s = StyleSheet.create({
     minHeight: 38,
     maxHeight: 100,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
     borderRadius: 18,
     paddingHorizontal: 14,
     paddingVertical: 9,
     fontSize: 14,
-    color: '#111827',
-    backgroundColor: '#f9fafb',
+    color: '#042A6C',
+    backgroundColor: '#F9F8F5',
   },
   sendBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     alignItems: 'center',
     justifyContent: 'center',
   },

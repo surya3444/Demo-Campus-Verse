@@ -18,12 +18,12 @@ const STATUS_COLORS: Record<
   FeedbackStatus,
   { bg: string; fg: string; icon: keyof typeof Ionicons.glyphMap; label: string }
 > = {
-  open: { bg: '#dbeafe', fg: '#1e40af', icon: 'mail-open-outline', label: 'Open' },
+  open: { bg: '#E1ECFE', fg: '#042A6C', icon: 'mail-open-outline', label: 'Open' },
   in_progress: { bg: '#fef3c7', fg: '#92400e', icon: 'time-outline', label: 'In Progress' },
   escalated: { bg: '#fee2e2', fg: '#991b1b', icon: 'alert-circle-outline', label: 'Escalated' },
   resolved: { bg: '#dcfce7', fg: '#166534', icon: 'checkmark-circle', label: 'Resolved' },
   reopened: { bg: '#fef9c3', fg: '#854d0e', icon: 'refresh-outline', label: 'Reopened' },
-  closed: { bg: '#f1f5f9', fg: '#475569', icon: 'lock-closed-outline', label: 'Closed' },
+  closed: { bg: '#EDF0F3', fg: '#3E5683', icon: 'lock-closed-outline', label: 'Closed' },
 };
 
 const FILTERS: Array<{ key: FeedbackStatus | 'all'; label: string }> = [
@@ -62,7 +62,7 @@ export default function FeedbackListScreen() {
   const tickets = data?.data || [];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       {/* Filter chips */}
       <ScrollView
         horizontal
@@ -87,10 +87,10 @@ export default function FeedbackListScreen() {
         contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
       >
         {isLoading ? (
-          <ActivityIndicator style={{ marginTop: 40 }} color="#4f46e5" />
+          <ActivityIndicator style={{ marginTop: 40 }} color="#053495" />
         ) : tickets.length === 0 ? (
           <View style={s.emptyCard}>
-            <Ionicons name="chatbubbles-outline" size={40} color="#cbd5e1" />
+            <Ionicons name="chatbubbles-outline" size={40} color="#D3DAE4" />
             <Text style={s.emptyTitle}>No tickets yet</Text>
             <Text style={s.emptyText}>Submit a concern or feedback and track its status here.</Text>
           </View>
@@ -116,11 +116,11 @@ export default function FeedbackListScreen() {
                 </Text>
                 <View style={s.cardMeta}>
                   <View style={s.metaItem}>
-                    <Ionicons name="pricetag-outline" size={12} color="#64748b" />
+                    <Ionicons name="pricetag-outline" size={12} color="#526C98" />
                     <Text style={s.metaText}>{t.category}</Text>
                   </View>
                   <View style={s.metaItem}>
-                    <Ionicons name="chatbubble-outline" size={12} color="#64748b" />
+                    <Ionicons name="chatbubble-outline" size={12} color="#526C98" />
                     <Text style={s.metaText}>{t.responses.length}</Text>
                   </View>
                   <Text style={s.dateText}>{formatDate(t.createdAt)}</Text>
@@ -149,11 +149,11 @@ const s = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
     marginRight: 8,
   },
-  chipActive: { backgroundColor: '#4f46e5', borderColor: '#4f46e5' },
-  chipText: { fontSize: 13, fontWeight: '600', color: '#475569' },
+  chipActive: { backgroundColor: '#053495', borderColor: '#053495' },
+  chipText: { fontSize: 13, fontWeight: '600', color: '#3E5683' },
   chipTextActive: { color: '#fff' },
   card: {
     backgroundColor: '#fff',
@@ -161,10 +161,10 @@ const s = StyleSheet.create({
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  ticketNum: { fontSize: 11, fontWeight: '700', color: '#94a3b8', letterSpacing: 0.5 },
+  ticketNum: { fontSize: 11, fontWeight: '700', color: '#8998B3', letterSpacing: 0.5 },
   statusPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -173,24 +173,24 @@ const s = StyleSheet.create({
     borderRadius: 8,
   },
   statusText: { fontSize: 10, fontWeight: '700', marginLeft: 4 },
-  subject: { fontSize: 15, fontWeight: '700', color: '#1e293b', marginTop: 8, lineHeight: 20 },
+  subject: { fontSize: 15, fontWeight: '700', color: '#042A6C', marginTop: 8, lineHeight: 20 },
   cardMeta: { flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 12 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaText: { fontSize: 11, color: '#64748b', textTransform: 'capitalize' },
-  dateText: { fontSize: 11, color: '#94a3b8', marginLeft: 'auto' },
+  metaText: { fontSize: 11, color: '#526C98', textTransform: 'capitalize' },
+  dateText: { fontSize: 11, color: '#8998B3', marginLeft: 'auto' },
   emptyCard: {
     backgroundColor: '#fff',
     borderRadius: 14,
     padding: 40,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
     marginTop: 32,
   },
-  emptyTitle: { fontSize: 15, fontWeight: '700', color: '#475569', marginTop: 12 },
+  emptyTitle: { fontSize: 15, fontWeight: '700', color: '#3E5683', marginTop: 12 },
   emptyText: {
     fontSize: 13,
-    color: '#94a3b8',
+    color: '#8998B3',
     marginTop: 6,
     textAlign: 'center',
     lineHeight: 18,
@@ -202,10 +202,10 @@ const s = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#4f46e5',
+    shadowColor: '#053495',
     shadowOpacity: 0.35,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },

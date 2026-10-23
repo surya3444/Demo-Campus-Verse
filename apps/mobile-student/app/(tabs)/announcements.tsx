@@ -11,7 +11,7 @@ const TYPE_CONFIG: Record<
   string,
   { icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }
 > = {
-  general: { icon: 'megaphone', color: '#3b82f6', bg: '#dbeafe' },
+  general: { icon: 'megaphone', color: '#0749BB', bg: '#E1ECFE' },
   academic: { icon: 'school', color: '#8b5cf6', bg: '#f3e8ff' },
   event: { icon: 'calendar', color: '#10b981', bg: '#d1fae5' },
   exam: { icon: 'document-text', color: '#f59e0b', bg: '#fef3c7' },
@@ -80,14 +80,14 @@ export default function AnnouncementsScreen() {
   const unreadCount = announcements.filter((a) => !a.isAcknowledged).length;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       {/* Header */}
       <View
         style={{
           backgroundColor: '#ffffff',
           paddingTop: insets.top,
           borderBottomWidth: 1,
-          borderBottomColor: '#f1f5f9',
+          borderBottomColor: '#EDF0F3',
         }}
       >
         <View
@@ -102,18 +102,18 @@ export default function AnnouncementsScreen() {
         >
           <View>
             <Text
-              style={{ fontSize: 22, fontWeight: '800', color: '#0f172a', letterSpacing: -0.3 }}
+              style={{ fontSize: 22, fontWeight: '800', color: '#042A6C', letterSpacing: -0.3 }}
             >
               Announcements
             </Text>
-            <Text style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>Updates & Notices</Text>
+            <Text style={{ fontSize: 13, color: '#8998B3', marginTop: 2 }}>Updates & Notices</Text>
           </View>
           <View
             style={{
               width: 34,
               height: 34,
               borderRadius: 17,
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#0749BB',
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: 2,
@@ -139,14 +139,14 @@ export default function AnnouncementsScreen() {
                   paddingHorizontal: 14,
                   paddingVertical: 7,
                   borderRadius: 20,
-                  backgroundColor: filter === key ? '#3b82f6' : '#f1f5f9',
+                  backgroundColor: filter === key ? '#0749BB' : '#EDF0F3',
                 }}
               >
                 <Text
                   style={{
                     fontSize: 13,
                     fontWeight: '600',
-                    color: filter === key ? '#ffffff' : '#64748b',
+                    color: filter === key ? '#ffffff' : '#526C98',
                   }}
                 >
                   {label}
@@ -163,7 +163,7 @@ export default function AnnouncementsScreen() {
           style={{
             marginHorizontal: 16,
             marginTop: 12,
-            backgroundColor: '#eff6ff',
+            backgroundColor: '#F0F5FE',
             paddingHorizontal: 14,
             paddingVertical: 8,
             borderRadius: 10,
@@ -171,8 +171,8 @@ export default function AnnouncementsScreen() {
             alignItems: 'center',
           }}
         >
-          <Ionicons name="notifications" size={16} color="#3b82f6" />
-          <Text style={{ color: '#3b82f6', fontWeight: '600', fontSize: 13, marginLeft: 8 }}>
+          <Ionicons name="notifications" size={16} color="#0749BB" />
+          <Text style={{ color: '#0749BB', fontWeight: '600', fontSize: 13, marginLeft: 8 }}>
             {unreadCount} unread announcement{unreadCount > 1 ? 's' : ''}
           </Text>
         </View>
@@ -183,7 +183,7 @@ export default function AnnouncementsScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 100 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0749BB" />
         }
         showsVerticalScrollIndicator={false}
       >
@@ -194,18 +194,18 @@ export default function AnnouncementsScreen() {
                 width: 72,
                 height: 72,
                 borderRadius: 36,
-                backgroundColor: '#f1f5f9',
+                backgroundColor: '#EDF0F3',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: 12,
               }}
             >
-              <Ionicons name="megaphone-outline" size={32} color="#94a3b8" />
+              <Ionicons name="megaphone-outline" size={32} color="#8998B3" />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '600', color: '#0f172a' }}>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: '#042A6C' }}>
               No announcements
             </Text>
-            <Text style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>
+            <Text style={{ fontSize: 13, color: '#8998B3', marginTop: 4 }}>
               Check back later for updates
             </Text>
           </View>
@@ -251,10 +251,10 @@ function AnnouncementCard({
         borderRadius: 14,
         marginBottom: 10,
         borderWidth: 1,
-        borderColor: isUrgent ? '#fca5a5' : '#f1f5f9',
+        borderColor: isUrgent ? '#fca5a5' : '#EDF0F3',
         overflow: 'hidden',
         borderLeftWidth: isUrgent ? 4 : 1,
-        borderLeftColor: isUrgent ? '#ef4444' : '#f1f5f9',
+        borderLeftColor: isUrgent ? '#ef4444' : '#EDF0F3',
       }}
     >
       <View style={{ padding: 14, flexDirection: 'row', alignItems: 'flex-start' }}>
@@ -276,23 +276,23 @@ function AnnouncementCard({
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
           >
             <Text
-              style={{ fontSize: 14, fontWeight: '600', color: '#0f172a', flex: 1, marginRight: 8 }}
+              style={{ fontSize: 14, fontWeight: '600', color: '#042A6C', flex: 1, marginRight: 8 }}
               numberOfLines={1}
             >
               {announcement.title}
             </Text>
             {!announcement.isAcknowledged && (
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#3b82f6' }} />
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#0749BB' }} />
             )}
           </View>
           <Text
-            style={{ fontSize: 13, color: '#64748b', marginTop: 4, lineHeight: 18 }}
+            style={{ fontSize: 13, color: '#526C98', marginTop: 4, lineHeight: 18 }}
             numberOfLines={2}
           >
             {announcement.content}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-            <Text style={{ fontSize: 11, color: '#94a3b8' }}>
+            <Text style={{ fontSize: 11, color: '#8998B3' }}>
               {fmtDate(announcement.publishedAt)}
             </Text>
             {isUrgent && (
@@ -334,13 +334,13 @@ function AnnouncementDetail({
             paddingHorizontal: 20,
             paddingVertical: 14,
             borderBottomWidth: 1,
-            borderBottomColor: '#f1f5f9',
+            borderBottomColor: '#EDF0F3',
           }}
         >
           <TouchableOpacity onPress={onClose} style={{ padding: 4 }}>
-            <Ionicons name="close" size={24} color="#374151" />
+            <Ionicons name="close" size={24} color="#2E4470" />
           </TouchableOpacity>
-          <Text style={{ fontSize: 16, fontWeight: '600', color: '#0f172a' }}>Announcement</Text>
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#042A6C' }}>Announcement</Text>
           <View style={{ width: 32 }} />
         </View>
 
@@ -376,7 +376,7 @@ function AnnouncementDetail({
             style={{
               fontSize: 22,
               fontWeight: '700',
-              color: '#0f172a',
+              color: '#042A6C',
               marginBottom: 8,
               lineHeight: 28,
             }}
@@ -385,22 +385,22 @@ function AnnouncementDetail({
           </Text>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-            <Text style={{ fontSize: 13, color: '#94a3b8' }}>
+            <Text style={{ fontSize: 13, color: '#8998B3' }}>
               {fmtDate(announcement.publishedAt)}
             </Text>
-            <Text style={{ color: '#d1d5db', marginHorizontal: 8 }}>·</Text>
-            <Text style={{ fontSize: 13, color: '#94a3b8' }}>
+            <Text style={{ color: '#D3DAE4', marginHorizontal: 8 }}>·</Text>
+            <Text style={{ fontSize: 13, color: '#8998B3' }}>
               By {announcement.createdBy?.displayName || 'Admin'}
             </Text>
           </View>
 
-          <Text style={{ fontSize: 15, color: '#475569', lineHeight: 24 }}>
+          <Text style={{ fontSize: 15, color: '#3E5683', lineHeight: 24 }}>
             {announcement.content}
           </Text>
 
           {announcement.attachments && announcement.attachments.length > 0 && (
             <View style={{ marginTop: 24 }}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#0f172a', marginBottom: 10 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#042A6C', marginBottom: 10 }}>
                 Attachments
               </Text>
               {announcement.attachments.map((att, i) => (
@@ -409,20 +409,20 @@ function AnnouncementDetail({
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    backgroundColor: '#f8fafc',
+                    backgroundColor: '#F9F8F5',
                     padding: 12,
                     borderRadius: 10,
                     marginBottom: 6,
                   }}
                 >
-                  <Ionicons name="document" size={18} color="#64748b" />
+                  <Ionicons name="document" size={18} color="#526C98" />
                   <Text
-                    style={{ flex: 1, fontSize: 13, color: '#334155', marginLeft: 8 }}
+                    style={{ flex: 1, fontSize: 13, color: '#2E4470', marginLeft: 8 }}
                     numberOfLines={1}
                   >
                     {att.name}
                   </Text>
-                  <Ionicons name="download-outline" size={18} color="#3b82f6" />
+                  <Ionicons name="download-outline" size={18} color="#0749BB" />
                 </View>
               ))}
             </View>
@@ -436,14 +436,14 @@ function AnnouncementDetail({
               paddingTop: 12,
               paddingBottom: insets.bottom + 16,
               borderTopWidth: 1,
-              borderTopColor: '#f1f5f9',
+              borderTopColor: '#EDF0F3',
             }}
           >
             <TouchableOpacity
               onPress={onAcknowledge}
               activeOpacity={0.8}
               style={{
-                backgroundColor: '#3b82f6',
+                backgroundColor: '#0749BB',
                 paddingVertical: 14,
                 borderRadius: 14,
                 alignItems: 'center',

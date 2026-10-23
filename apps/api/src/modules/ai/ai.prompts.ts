@@ -4,6 +4,7 @@ import { now } from '../../utils/dates';
 import type { ToolContext } from './ai.types';
 
 interface AssistantContext {
+  userName: string;
   branchName: string;
   institutionType: string;
   academicBatchName: string | null;
@@ -28,7 +29,13 @@ export async function loadAssistantContext(ctx: ToolContext): Promise<AssistantC
     ),
   ]);
 
+  const me = await collections.users.findOne(
+    { _id: new ObjectId(ctx.user.userId) },
+    { projection: { 'profile.firstName': 1, 'profile.lastName': 1, email: 1 } }
+  );
+  const profile = (me?.profile ?? {}) as { firstName?: string; lastName?: string };
   return {
+    userName: [profile.firstName, profile.lastName].filter(Boolean).join(' ') || ctx.user.email,
     branchName: (branch?.name as string) ?? 'this branch',
     institutionType: (branch?.institutionType as string) ?? 'institution',
     academicBatchName: (batch?.name as string) ?? null,
@@ -108,7 +115,7 @@ Context:
 - Branch: "${context.branchName}" (a ${context.institutionType}).
 - ${batchLine}
 - Today is ${context.today} (Asia/Kolkata).
-- The user's role is ${context.roleCode}.${hereLine}
+- You are talking to ${context.userName} (role ${context.roleCode}). "I", "me" and "my" mean them — e.g. "my timetable" for a teacher is get_timetable with teacher "${context.userName}", and "my classes/leave/payslips" are theirs.${hereLine}
 
 ${toolsLine}
 

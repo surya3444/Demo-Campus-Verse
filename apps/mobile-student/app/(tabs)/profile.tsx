@@ -44,7 +44,7 @@ function ProfileHeader() {
   return (
     <View
       style={{
-        backgroundColor: '#1e1b4b',
+        backgroundColor: '#031F4F',
         paddingHorizontal: 20,
         paddingTop: insets.top + 16,
         paddingBottom: 36,
@@ -100,9 +100,9 @@ function ProfileHeader() {
             width: 18,
             height: 18,
             borderRadius: 9,
-            backgroundColor: '#06b6d4',
+            backgroundColor: '#00A8E0',
             borderWidth: 3,
-            borderColor: '#1e1b4b',
+            borderColor: '#031F4F',
           }}
         />
       </View>
@@ -134,11 +134,11 @@ function ProfileHeader() {
             borderColor: 'rgba(6,182,212,0.4)',
           }}
         >
-          <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#06b6d4' }} />
+          <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#00A8E0' }} />
           <Text
             style={{
               fontFamily: 'SpaceMono',
-              color: '#06b6d4',
+              color: '#00A8E0',
               fontSize: 10,
               letterSpacing: 1.4,
               marginLeft: 6,
@@ -191,31 +191,31 @@ interface MenuItemProps {
 function MenuItem({ icon, label, value, onPress, rightElement, destructive }: MenuItemProps) {
   return (
     <TouchableOpacity
-      className="flex-row items-center px-5 py-4 bg-white border-b border-gray-100"
+      className="flex-row items-center px-5 py-4 bg-white border-b border-secondary-100"
       onPress={onPress}
       disabled={!onPress && !rightElement}
       activeOpacity={onPress ? 0.7 : 1}
     >
       <View
         className="w-10 h-10 rounded-full items-center justify-center mr-4"
-        style={{ backgroundColor: destructive ? '#fef2f2' : '#f8fafc' }}
+        style={{ backgroundColor: destructive ? '#fef2f2' : '#F9F8F5' }}
       >
-        <Ionicons name={icon} size={20} color={destructive ? '#ef4444' : '#6b7280'} />
+        <Ionicons name={icon} size={20} color={destructive ? '#ef4444' : '#526C98'} />
       </View>
       <View className="flex-1">
-        <Text className={`font-medium ${destructive ? 'text-red-500' : 'text-gray-900'}`}>
+        <Text className={`font-medium ${destructive ? 'text-red-500' : 'text-secondary-800'}`}>
           {label}
         </Text>
-        {value && <Text className="text-gray-500 text-sm mt-0.5">{value}</Text>}
+        {value && <Text className="text-secondary-500 text-sm mt-0.5">{value}</Text>}
       </View>
-      {rightElement || (onPress && <Ionicons name="chevron-forward" size={20} color="#9ca3af" />)}
+      {rightElement || (onPress && <Ionicons name="chevron-forward" size={20} color="#8998B3" />)}
     </TouchableOpacity>
   );
 }
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <Text className="text-gray-500 text-xs font-medium uppercase px-5 pt-6 pb-2">{title}</Text>
+    <Text className="text-secondary-500 text-xs font-medium uppercase px-5 pt-6 pb-2">{title}</Text>
   );
 }
 
@@ -274,7 +274,7 @@ export default function ProfileScreen() {
   const currentBranch = user?.branches?.find((b) => b.branchId === selectedBranchId);
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-secondary-50">
       <ProfileHeader />
 
       {/* Account Info */}
@@ -308,8 +308,8 @@ export default function ProfileScreen() {
                 value={biometricEnabled}
                 onValueChange={handleBiometricToggle}
                 disabled={biometricLoading}
-                trackColor={{ false: '#e5e7eb', true: '#93c5fd' }}
-                thumbColor={biometricEnabled ? '#3b82f6' : '#f4f4f5'}
+                trackColor={{ false: '#DAE0E7', true: '#84AFFB' }}
+                thumbColor={biometricEnabled ? '#0749BB' : '#F9F8F5'}
               />
             }
           />
@@ -344,7 +344,7 @@ export default function ProfileScreen() {
 
       {/* App Version */}
       <View className="items-center pb-8">
-        <Text className="text-gray-400 text-sm">CampusVerse v1.0.0</Text>
+        <Text className="text-secondary-400 text-sm">CampusVerse v1.0.0</Text>
       </View>
     </ScrollView>
   );

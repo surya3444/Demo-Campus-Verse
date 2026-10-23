@@ -20,17 +20,17 @@ import { transportApi } from '@/api/transport';
 /* ─────────────────────────── Tokens ─────────────────────────── */
 
 const C = {
-  bg: '#F7F8FA',
+  bg: '#F9F8F5',
   surface: '#FFFFFF',
-  surfaceAlt: '#F1F3F7',
-  border: '#EEF1F5',
-  navy: '#0F172A',
-  textMuted: '#64748B',
-  textFaint: '#94A3B8',
-  brand: '#4338CA',
-  brandSoft: '#EEF2FF',
-  cyan: '#06B6D4',
-  cyanSoft: '#CFFAFE',
+  surfaceAlt: '#EDF0F3',
+  border: '#EDF0F3',
+  navy: '#042A6C',
+  textMuted: '#526C98',
+  textFaint: '#8998B3',
+  brand: '#042A6C',
+  brandSoft: '#F0F5FE',
+  cyan: '#00A8E0',
+  cyanSoft: '#D6F5FF',
   emerald: '#10B981',
   emeraldSoft: '#D1FAE5',
   amber: '#F59E0B',
@@ -41,7 +41,7 @@ const C = {
 
 const SHADOW_SOFT = Platform.select({
   ios: {
-    shadowColor: '#0F172A',
+    shadowColor: '#042A6C',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 16,

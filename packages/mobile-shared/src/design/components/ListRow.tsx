@@ -32,7 +32,7 @@ export function ListRow({
   const titleTone = tone;
   const subTone = tone === 'onInk' ? 'onInkMute' : 'inkMute';
   const metaTone = tone === 'onInk' ? 'onInkFaint' : 'inkFaint';
-  const ruleColor = tone === 'onInk' ? 'rgba(245,240,230,0.12)' : color.rule;
+  const ruleColor = tone === 'onInk' ? 'rgba(255,255,255,0.12)' : color.rule;
 
   const Wrap = onPress ? TouchableOpacity : View;
   return (

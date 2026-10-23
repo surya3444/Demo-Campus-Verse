@@ -1,6 +1,7 @@
 import { View, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { ChevronLeft } from 'lucide-react-native';
 import { Text } from './Text';
 import { color } from '../tokens';
 
@@ -23,7 +24,6 @@ export function PageHeader({
 }: PageHeaderProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const eye = tone === 'onInk' ? 'onInkMute' : 'inkFaint';
   return (
     <View style={{ paddingTop: insets.top + 8, paddingBottom: 8 }}>
       <View
@@ -35,10 +35,23 @@ export function PageHeader({
         }}
       >
         {back ? (
-          <TouchableOpacity onPress={() => router.back()} hitSlop={10} activeOpacity={0.6}>
-            <Text variant="bodyStrong" tone={tone}>
-              ← Back
-            </Text>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            hitSlop={10}
+            activeOpacity={0.7}
+            accessibilityLabel="Back"
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: tone === 'onInk' ? 'rgba(255,255,255,0.12)' : color.card,
+              borderWidth: 1,
+              borderColor: tone === 'onInk' ? 'rgba(255,255,255,0.16)' : color.rule,
+            }}
+          >
+            <ChevronLeft size={20} color={tone === 'onInk' ? '#FFFFFF' : color.ink} />
           </TouchableOpacity>
         ) : (
           <View />
@@ -47,7 +60,7 @@ export function PageHeader({
         {right}
       </View>
       {eyebrow && (
-        <Text variant="eyebrow" tone={eye}>
+        <Text variant="eyebrow" tone={tone === 'onInk' ? 'onInkMute' : 'cyan'}>
           {eyebrow}
         </Text>
       )}
@@ -56,12 +69,7 @@ export function PageHeader({
         {title}
       </Text>
       <View style={{ height: 18 }} />
-      <View
-        style={{
-          height: 1,
-          backgroundColor: tone === 'onInk' ? 'rgba(245,240,230,0.18)' : color.ink,
-        }}
-      />
+
     </View>
   );
 }

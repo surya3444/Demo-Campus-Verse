@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { teachingApi, Assignment } from '@/api/teaching';
 
-const _FC = '#f8fafc';
+const _FC = '#F9F8F5';
 const _STEPS = 40;
 function BottomFade() {
   return (
@@ -43,8 +43,8 @@ const STATUS_STYLE: Record<
   string,
   { color: string; bg: string; label: string; icon: keyof typeof Ionicons.glyphMap }
 > = {
-  draft: { color: '#64748b', bg: '#f1f5f9', label: 'Draft', icon: 'document-outline' },
-  published: { color: '#2563eb', bg: '#dbeafe', label: 'Published', icon: 'paper-plane-outline' },
+  draft: { color: '#526C98', bg: '#EDF0F3', label: 'Draft', icon: 'document-outline' },
+  published: { color: '#053495', bg: '#E1ECFE', label: 'Published', icon: 'paper-plane-outline' },
   grading: { color: '#d97706', bg: '#fef3c7', label: 'Grading', icon: 'create-outline' },
   completed: {
     color: '#16a34a',
@@ -85,7 +85,7 @@ function AssignmentCard({ assignment }: { assignment: Assignment }) {
       className="mb-2.5"
     >
       <View
-        className="bg-white rounded-xl overflow-hidden border border-gray-100"
+        className="bg-white rounded-xl overflow-hidden border border-secondary-100"
         style={{
           elevation: 1,
           shadowColor: '#000',
@@ -97,7 +97,7 @@ function AssignmentCard({ assignment }: { assignment: Assignment }) {
         <View className="p-4">
           {/* Title + Status */}
           <View className="flex-row items-start mb-2">
-            <Text className="text-[15px] font-semibold text-gray-900 flex-1 mr-2" numberOfLines={2}>
+            <Text className="text-[15px] font-semibold text-secondary-800 flex-1 mr-2" numberOfLines={2}>
               {assignment.title}
             </Text>
             <View
@@ -116,30 +116,30 @@ function AssignmentCard({ assignment }: { assignment: Assignment }) {
             {assignment.subjectName && (
               <View className="flex-row items-center mr-3">
                 <View className="w-2 h-2 rounded-full bg-cyan-400 mr-1.5" />
-                <Text className="text-xs text-gray-500 font-medium">{assignment.subjectName}</Text>
+                <Text className="text-xs text-secondary-500 font-medium">{assignment.subjectName}</Text>
               </View>
             )}
             {assignment.className && (
               <View className="flex-row items-center mr-3">
-                <Ionicons name="people-outline" size={11} color="#94a3b8" />
-                <Text className="text-xs text-gray-400 ml-1">
+                <Ionicons name="people-outline" size={11} color="#8998B3" />
+                <Text className="text-xs text-secondary-400 ml-1">
                   {assignment.className}
                   {assignment.sectionName ? ` · ${assignment.sectionName}` : ''}
                 </Text>
               </View>
             )}
             <View className="flex-row items-center">
-              <Ionicons name="ribbon-outline" size={11} color="#94a3b8" />
-              <Text className="text-xs text-gray-400 ml-1">{assignment.totalMarks} marks</Text>
+              <Ionicons name="ribbon-outline" size={11} color="#8998B3" />
+              <Text className="text-xs text-secondary-400 ml-1">{assignment.totalMarks} marks</Text>
             </View>
           </View>
 
           {/* Footer: due date + quick actions */}
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center">
-              <Ionicons name="time-outline" size={12} color={isOverdue ? '#ef4444' : '#94a3b8'} />
+              <Ionicons name="time-outline" size={12} color={isOverdue ? '#ef4444' : '#8998B3'} />
               <Text
-                className={`text-[11px] ml-1 font-medium ${isOverdue ? 'text-red-500' : 'text-gray-400'}`}
+                className={`text-[11px] ml-1 font-medium ${isOverdue ? 'text-red-500' : 'text-secondary-400'}`}
               >
                 {isOverdue ? 'Overdue · ' : ''}
                 {new Date(assignment.dueDate).toLocaleDateString('en-IN', {
@@ -155,14 +155,14 @@ function AssignmentCard({ assignment }: { assignment: Assignment }) {
               <TouchableOpacity
                 onPress={() => publishMutation.mutate()}
                 disabled={publishMutation.isPending}
-                className="flex-row items-center bg-blue-50 px-2.5 py-1 rounded-lg"
+                className="flex-row items-center bg-primary-50 px-2.5 py-1 rounded-lg"
               >
                 {publishMutation.isPending ? (
-                  <ActivityIndicator size={10} color="#2563eb" />
+                  <ActivityIndicator size={10} color="#053495" />
                 ) : (
                   <>
-                    <Ionicons name="paper-plane" size={11} color="#2563eb" />
-                    <Text className="text-[11px] text-blue-600 font-semibold ml-1">Publish</Text>
+                    <Ionicons name="paper-plane" size={11} color="#053495" />
+                    <Text className="text-[11px] text-primary-600 font-semibold ml-1">Publish</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -218,10 +218,10 @@ function FilterChip({
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} className="mr-2">
       <View
-        className={`px-3 py-1.5 rounded-lg ${active ? '' : 'border border-gray-200'}`}
-        style={active ? { backgroundColor: '#4f46e5' } : { backgroundColor: '#fff' }}
+        className={`px-3 py-1.5 rounded-lg ${active ? '' : 'border border-secondary-200'}`}
+        style={active ? { backgroundColor: '#053495' } : { backgroundColor: '#fff' }}
       >
-        <Text className={`text-xs font-semibold ${active ? 'text-white' : 'text-gray-500'}`}>
+        <Text className={`text-xs font-semibold ${active ? 'text-white' : 'text-secondary-500'}`}>
           {label}
         </Text>
       </View>
@@ -251,9 +251,9 @@ export default function AssignmentsScreen() {
   const assignments = data?.data || [];
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-secondary-50">
       {/* Filters */}
-      <View className="bg-white px-4 pt-3 pb-2 border-b border-gray-100">
+      <View className="bg-white px-4 pt-3 pb-2 border-b border-secondary-100">
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {STATUS_FILTERS.map((f) => (
             <FilterChip
@@ -268,7 +268,7 @@ export default function AssignmentsScreen() {
 
       {/* Count */}
       <View className="px-4 pt-3 pb-1">
-        <Text className="text-xs text-gray-400 font-medium">
+        <Text className="text-xs text-secondary-400 font-medium">
           {data?.meta?.total ?? assignments.length} assignment{assignments.length !== 1 ? 's' : ''}
         </Text>
       </View>
@@ -276,21 +276,21 @@ export default function AssignmentsScreen() {
       <ScrollView
         className="flex-1 px-4"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4f46e5" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#053495" />
         }
         showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
           <View className="items-center py-16">
-            <ActivityIndicator size="large" color="#4f46e5" />
+            <ActivityIndicator size="large" color="#053495" />
           </View>
         ) : assignments.length === 0 ? (
           <View className="bg-white rounded-2xl p-10 items-center mt-4" style={{ elevation: 1 }}>
-            <View className="w-16 h-16 bg-indigo-50 rounded-full items-center justify-center mb-3">
-              <Ionicons name="clipboard-outline" size={28} color="#4f46e5" />
+            <View className="w-16 h-16 bg-primary-50 rounded-full items-center justify-center mb-3">
+              <Ionicons name="clipboard-outline" size={28} color="#053495" />
             </View>
-            <Text className="text-gray-900 font-semibold">No Assignments</Text>
-            <Text className="text-gray-400 text-sm mt-1 text-center">
+            <Text className="text-secondary-800 font-semibold">No Assignments</Text>
+            <Text className="text-secondary-400 text-sm mt-1 text-center">
               {statusFilter !== 'all'
                 ? 'No assignments match this filter'
                 : 'Create your first assignment'}
@@ -315,11 +315,11 @@ export default function AssignmentsScreen() {
           zIndex: 999,
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: '#4f46e5',
+          backgroundColor: '#053495',
           paddingHorizontal: 18,
           paddingVertical: 14,
           borderRadius: 16,
-          shadowColor: '#4f46e5',
+          shadowColor: '#053495',
           shadowOffset: { width: 0, height: 6 },
           shadowOpacity: 0.35,
           shadowRadius: 12,

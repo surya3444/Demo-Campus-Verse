@@ -33,15 +33,15 @@ export default function PayslipDetailScreen() {
 
   if (isLoading || !data) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#f8fafc' }}>
-        <ActivityIndicator color="#4f46e5" />
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#F9F8F5' }}>
+        <ActivityIndicator color="#053495" />
       </View>
     );
   }
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#F9F8F5' }}
       contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
     >
       {/* Hero */}
@@ -156,22 +156,22 @@ function KV({ k, v }: { k: string; v: string }) {
 
 const s = StyleSheet.create({
   hero: {
-    backgroundColor: '#4338ca',
+    backgroundColor: '#042A6C',
     padding: 24,
     borderRadius: 16,
     alignItems: 'center',
     marginBottom: 14,
   },
   period: {
-    color: '#c7d2fe',
+    color: '#C4D9FD',
     fontSize: 13,
     fontWeight: '700',
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
-  netLabel: { color: '#a5b4fc', fontSize: 12, marginTop: 10 },
+  netLabel: { color: '#84AFFB', fontSize: 12, marginTop: 10 },
   netAmount: { color: '#fff', fontSize: 34, fontWeight: '800', marginTop: 4 },
-  paidOn: { color: '#c7d2fe', fontSize: 12, marginTop: 6 },
+  paidOn: { color: '#C4D9FD', fontSize: 12, marginTop: 6 },
   row: { flexDirection: 'row', marginBottom: 14 },
   tile: {
     flex: 1,
@@ -181,44 +181,44 @@ const s = StyleSheet.create({
     padding: 14,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  tileValue: { fontSize: 22, fontWeight: '800', color: '#1e293b' },
-  tileLabel: { fontSize: 11, color: '#94a3b8', marginTop: 2, fontWeight: '600' },
+  tileValue: { fontSize: 22, fontWeight: '800', color: '#042A6C' },
+  tileLabel: { fontSize: 11, color: '#8998B3', marginTop: 2, fontWeight: '600' },
   card: {
     backgroundColor: '#fff',
     borderRadius: 14,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  cardTitle: { fontSize: 14, fontWeight: '700', color: '#1e293b', marginBottom: 10 },
+  cardTitle: { fontSize: 14, fontWeight: '700', color: '#042A6C', marginBottom: 10 },
   line: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  lineLabel: { fontSize: 13, color: '#475569' },
-  lineAmount: { fontSize: 13, color: '#1e293b', fontWeight: '600' },
+  lineLabel: { fontSize: 13, color: '#3E5683' },
+  lineAmount: { fontSize: 13, color: '#042A6C', fontWeight: '600' },
   sectionTotal: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#EDF0F3',
   },
-  sectionTotalLabel: { fontSize: 13, fontWeight: '700', color: '#64748b' },
+  sectionTotalLabel: { fontSize: 13, fontWeight: '700', color: '#526C98' },
   sectionTotalAmount: { fontSize: 15, fontWeight: '800' },
   netRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     padding: 16,
     borderRadius: 12,
     marginBottom: 14,
     alignItems: 'center',
   },
-  netRowLabel: { fontSize: 14, fontWeight: '700', color: '#4338ca' },
-  netRowAmount: { fontSize: 20, fontWeight: '800', color: '#4338ca' },
+  netRowLabel: { fontSize: 14, fontWeight: '700', color: '#042A6C' },
+  netRowAmount: { fontSize: 20, fontWeight: '800', color: '#042A6C' },
   kv: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5 },
-  kvK: { fontSize: 12, color: '#94a3b8', fontWeight: '600' },
-  kvV: { fontSize: 13, color: '#1e293b', fontWeight: '600' },
+  kvK: { fontSize: 12, color: '#8998B3', fontWeight: '600' },
+  kvV: { fontSize: 13, color: '#042A6C', fontWeight: '600' },
 });

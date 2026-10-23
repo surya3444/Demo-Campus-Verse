@@ -22,9 +22,9 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, { bg: string; fg: string }> = {
-  scheduled: { bg: '#dbeafe', fg: '#1d4ed8' },
+  scheduled: { bg: '#E1ECFE', fg: '#053A94' },
   live: { bg: '#fee2e2', fg: '#dc2626' },
-  ended: { bg: '#e5e7eb', fg: '#374151' },
+  ended: { bg: '#DAE0E7', fg: '#2E4470' },
   cancelled: { bg: '#fed7aa', fg: '#c2410c' },
 };
 
@@ -59,7 +59,7 @@ export default function LiveClassesListScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 8 }}>
-          <Ionicons name="chevron-back" size={26} color="#111827" />
+          <Ionicons name="chevron-back" size={26} color="#042A6C" />
         </TouchableOpacity>
         <Text style={s.headerTitle}>Live Classes</Text>
       </View>
@@ -83,10 +83,10 @@ export default function LiveClassesListScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {isLoading ? (
-          <ActivityIndicator color="#3b82f6" style={{ marginTop: 30 }} />
+          <ActivityIndicator color="#0749BB" style={{ marginTop: 30 }} />
         ) : classes.length === 0 ? (
           <View style={s.empty}>
-            <Ionicons name="videocam-outline" size={42} color="#cbd5e1" />
+            <Ionicons name="videocam-outline" size={42} color="#D3DAE4" />
             <Text style={s.emptyText}>
               {tab === 'live' ? 'No live classes right now' : `No ${tab} classes`}
             </Text>
@@ -127,7 +127,7 @@ function ClassCard({ cls, onPress }: { cls: LiveClass; onPress: () => void }) {
         </Text>
       ) : null}
       <View style={s.cardMeta}>
-        <Ionicons name="calendar-outline" size={14} color="#6b7280" />
+        <Ionicons name="calendar-outline" size={14} color="#526C98" />
         <Text style={s.cardMetaText}>
           {new Date(cls.scheduledStart).toLocaleString([], {
             month: 'short',
@@ -139,13 +139,13 @@ function ClassCard({ cls, onPress }: { cls: LiveClass; onPress: () => void }) {
       </View>
       {cls.hostName ? (
         <View style={s.cardMeta}>
-          <Ionicons name="person-outline" size={14} color="#6b7280" />
+          <Ionicons name="person-outline" size={14} color="#526C98" />
           <Text style={s.cardMetaText}>Host: {cls.hostName}</Text>
         </View>
       ) : null}
       {cls.subjectName || cls.sectionName ? (
         <View style={s.cardMeta}>
-          <Ionicons name="school-outline" size={14} color="#6b7280" />
+          <Ionicons name="school-outline" size={14} color="#526C98" />
           <Text style={s.cardMetaText}>
             {[cls.className, cls.sectionName, cls.subjectName].filter(Boolean).join(' · ')}
           </Text>
@@ -162,7 +162,7 @@ function ClassCard({ cls, onPress }: { cls: LiveClass; onPress: () => void }) {
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#f9fafb' },
+  root: { flex: 1, backgroundColor: '#F9F8F5' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -170,41 +170,41 @@ const s = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 10,
   },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: '#111827' },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: '#042A6C' },
   tabs: {
     flexDirection: 'row',
     paddingHorizontal: 12,
     gap: 6,
     marginBottom: 4,
   },
-  tab: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 16, backgroundColor: '#e5e7eb' },
-  tabActive: { backgroundColor: '#3b82f6' },
-  tabText: { color: '#6b7280', fontSize: 12, fontWeight: '600' },
+  tab: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 16, backgroundColor: '#DAE0E7' },
+  tabActive: { backgroundColor: '#0749BB' },
+  tabText: { color: '#526C98', fontSize: 12, fontWeight: '600' },
   tabTextActive: { color: '#fff' },
   empty: { alignItems: 'center', marginTop: 40, gap: 8 },
-  emptyText: { color: '#94a3b8', fontSize: 13 },
+  emptyText: { color: '#8998B3', fontSize: 13 },
   card: {
     backgroundColor: '#fff',
     borderRadius: 14,
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#EDF0F3',
   },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', gap: 8, marginBottom: 4 },
-  cardTitle: { flex: 1, fontWeight: '700', color: '#111827', fontSize: 15 },
+  cardTitle: { flex: 1, fontWeight: '700', color: '#042A6C', fontSize: 15 },
   badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 },
   badgeText: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
-  cardDesc: { color: '#6b7280', fontSize: 13, marginBottom: 8 },
+  cardDesc: { color: '#526C98', fontSize: 13, marginBottom: 8 },
   cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
-  cardMetaText: { color: '#6b7280', fontSize: 12 },
+  cardMetaText: { color: '#526C98', fontSize: 12 },
   joinHint: {
     marginTop: 10,
     flexDirection: 'row',
     gap: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#0749BB',
     paddingVertical: 9,
     borderRadius: 10,
   },

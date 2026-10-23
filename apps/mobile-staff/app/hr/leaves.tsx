@@ -21,7 +21,7 @@ const STATUS_COLORS: Record<
   pending: { bg: '#fef3c7', fg: '#92400e', icon: 'time-outline' },
   approved: { bg: '#dcfce7', fg: '#166534', icon: 'checkmark-circle' },
   rejected: { bg: '#fee2e2', fg: '#991b1b', icon: 'close-circle' },
-  cancelled: { bg: '#f1f5f9', fg: '#64748b', icon: 'ban-outline' },
+  cancelled: { bg: '#EDF0F3', fg: '#526C98', icon: 'ban-outline' },
 };
 
 function formatDate(iso: string) {
@@ -75,7 +75,7 @@ export default function LeavesScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       <ScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
@@ -83,10 +83,10 @@ export default function LeavesScreen() {
         {/* Balance cards */}
         <Text style={s.sectionTitle}>Leave Balance</Text>
         {bLoading ? (
-          <ActivityIndicator style={{ marginVertical: 24 }} color="#4f46e5" />
+          <ActivityIndicator style={{ marginVertical: 24 }} color="#053495" />
         ) : !balance || balance.length === 0 ? (
           <View style={s.emptyCard}>
-            <Ionicons name="calendar-outline" size={28} color="#cbd5e1" />
+            <Ionicons name="calendar-outline" size={28} color="#D3DAE4" />
             <Text style={s.emptyText}>No leave types configured</Text>
           </View>
         ) : (
@@ -117,10 +117,10 @@ export default function LeavesScreen() {
         {/* History */}
         <Text style={[s.sectionTitle, { marginTop: 24 }]}>Leave History</Text>
         {lLoading ? (
-          <ActivityIndicator style={{ marginVertical: 24 }} color="#4f46e5" />
+          <ActivityIndicator style={{ marginVertical: 24 }} color="#053495" />
         ) : !leaves?.data || leaves.data.length === 0 ? (
           <View style={s.emptyCard}>
-            <Ionicons name="document-text-outline" size={28} color="#cbd5e1" />
+            <Ionicons name="document-text-outline" size={28} color="#D3DAE4" />
             <Text style={s.emptyText}>No leave history yet</Text>
           </View>
         ) : (
@@ -168,7 +168,7 @@ const s = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#526C98',
     marginBottom: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -181,26 +181,26 @@ const s = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   balLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#526C98',
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
-  balNumber: { fontSize: 28, fontWeight: '800', color: '#4f46e5', marginTop: 4 },
-  balMeta: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
+  balNumber: { fontSize: 28, fontWeight: '800', color: '#053495', marginTop: 4 },
+  balMeta: { fontSize: 11, color: '#8998B3', marginTop: 2 },
   applyBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     borderRadius: 14,
     paddingVertical: 14,
     marginTop: 16,
-    shadowColor: '#4f46e5',
+    shadowColor: '#053495',
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
@@ -213,11 +213,11 @@ const s = StyleSheet.create({
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   leaveHeader: { flexDirection: 'row', alignItems: 'flex-start' },
-  leaveType: { fontSize: 15, fontWeight: '700', color: '#1e293b' },
-  leaveDates: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  leaveType: { fontSize: 15, fontWeight: '700', color: '#042A6C' },
+  leaveDates: { fontSize: 12, color: '#526C98', marginTop: 2 },
   statusPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -226,7 +226,7 @@ const s = StyleSheet.create({
     borderRadius: 8,
   },
   statusText: { fontSize: 10, fontWeight: '700', marginLeft: 4 },
-  leaveReason: { fontSize: 13, color: '#475569', marginTop: 8, lineHeight: 18 },
+  leaveReason: { fontSize: 13, color: '#3E5683', marginTop: 8, lineHeight: 18 },
   rejectionText: { fontSize: 12, color: '#991b1b', marginTop: 6, fontStyle: 'italic' },
   cancelBtn: {
     marginTop: 10,
@@ -243,7 +243,7 @@ const s = StyleSheet.create({
     padding: 30,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  emptyText: { fontSize: 13, color: '#94a3b8', marginTop: 8 },
+  emptyText: { fontSize: 13, color: '#8998B3', marginTop: 8 },
 });

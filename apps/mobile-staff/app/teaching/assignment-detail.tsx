@@ -22,16 +22,16 @@ import { teachingApi, Grade } from '@/api/teaching';
 type TabKey = 'details' | 'grades';
 
 const STATUS_CFG: Record<string, { color: string; label: string }> = {
-  draft: { color: '#64748b', label: 'Draft' },
-  published: { color: '#2563eb', label: 'Published' },
+  draft: { color: '#526C98', label: 'Draft' },
+  published: { color: '#053495', label: 'Published' },
   grading: { color: '#d97706', label: 'Grading' },
   completed: { color: '#16a34a', label: 'Completed' },
 };
 
 // Hero colors per status
 const HERO_COLORS: Record<string, string> = {
-  draft: '#64748b',
-  published: '#4f46e5',
+  draft: '#526C98',
+  published: '#053495',
   grading: '#d97706',
   completed: '#059669',
 };
@@ -50,7 +50,7 @@ function GradeRow({
   editable: boolean;
 }) {
   const pct = grade.marksObtained > 0 ? (grade.marksObtained / totalMarks) * 100 : 0;
-  const gc = pct >= 80 ? '#16a34a' : pct >= 60 ? '#2563eb' : pct >= 40 ? '#d97706' : '#ef4444';
+  const gc = pct >= 80 ? '#16a34a' : pct >= 60 ? '#053495' : pct >= 40 ? '#d97706' : '#ef4444';
 
   return (
     <View style={st.gradeRow}>
@@ -65,10 +65,10 @@ function GradeRow({
           </Text>
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 14, fontWeight: '600', color: '#1e293b' }}>
+          <Text style={{ fontSize: 14, fontWeight: '600', color: '#042A6C' }}>
             {grade.studentName}
           </Text>
-          <Text style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>
+          <Text style={{ fontSize: 11, color: '#8998B3', marginTop: 1 }}>
             {grade.admissionNumber}
           </Text>
         </View>
@@ -77,7 +77,7 @@ function GradeRow({
             <Text style={{ fontSize: 16, fontWeight: '800', color: gc }}>
               {grade.marksObtained}/{totalMarks}
             </Text>
-            <Text style={{ fontSize: 10, color: '#94a3b8' }}>{pct.toFixed(0)}%</Text>
+            <Text style={{ fontSize: 10, color: '#8998B3' }}>{pct.toFixed(0)}%</Text>
           </View>
         )}
       </View>
@@ -86,7 +86,7 @@ function GradeRow({
           <TextInput
             style={st.gradeInput}
             placeholder={`/ ${totalMarks}`}
-            placeholderTextColor="#cbd5e1"
+            placeholderTextColor="#D3DAE4"
             value={grade.marksInput ?? grade.marksObtained?.toString() ?? ''}
             onChangeText={onMarksChange}
             keyboardType="numeric"
@@ -94,7 +94,7 @@ function GradeRow({
           <TextInput
             style={[st.gradeInput, { flex: 2, marginLeft: 8 }]}
             placeholder="Remarks"
-            placeholderTextColor="#cbd5e1"
+            placeholderTextColor="#D3DAE4"
             value={grade.remarksInput ?? grade.remarks ?? ''}
             onChangeText={onRemarksChange}
           />
@@ -210,12 +210,12 @@ export default function AssignmentDetailScreen() {
         <View
           style={{
             flex: 1,
-            backgroundColor: '#f8fafc',
+            backgroundColor: '#F9F8F5',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <ActivityIndicator size="large" color="#4f46e5" />
+          <ActivityIndicator size="large" color="#053495" />
         </View>
       </>
     );
@@ -227,20 +227,20 @@ export default function AssignmentDetailScreen() {
         <View
           style={{
             flex: 1,
-            backgroundColor: '#f8fafc',
+            backgroundColor: '#F9F8F5',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Ionicons name="clipboard-outline" size={48} color="#94a3b8" />
-          <Text style={{ color: '#94a3b8', marginTop: 8 }}>Assignment not found</Text>
+          <Ionicons name="clipboard-outline" size={48} color="#8998B3" />
+          <Text style={{ color: '#8998B3', marginTop: 8 }}>Assignment not found</Text>
         </View>
       </>
     );
   }
 
   const sCfg = STATUS_CFG[assignment.status] || STATUS_CFG.draft;
-  const heroColor = HERO_COLORS[assignment.status] || '#4f46e5';
+  const heroColor = HERO_COLORS[assignment.status] || '#053495';
   const isOverdue = new Date(assignment.dueDate) < new Date() && assignment.status !== 'completed';
   const canGrade = assignment.status === 'grading' || assignment.status === 'completed';
   const grades = gradesData?.grades || [];
@@ -253,7 +253,7 @@ export default function AssignmentDetailScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={0}
       >
-        <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+        <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
           {/* Hero */}
           <View style={[st.hero, { backgroundColor: heroColor }]}>
             <View style={st.heroCircle} />
@@ -347,7 +347,7 @@ export default function AssignmentDetailScreen() {
                   {assignment.subjectName && (
                     <MetaRow
                       icon="book"
-                      color="#4f46e5"
+                      color="#053495"
                       label="Subject"
                       value={assignment.subjectName}
                     />
@@ -355,7 +355,7 @@ export default function AssignmentDetailScreen() {
                   {assignment.className && (
                     <MetaRow
                       icon="people"
-                      color="#0891b2"
+                      color="#008AB8"
                       label="Class"
                       value={`${assignment.className}${assignment.sectionName ? ` - ${assignment.sectionName}` : ''}`}
                     />
@@ -383,19 +383,19 @@ export default function AssignmentDetailScreen() {
                       <View
                         style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}
                       >
-                        <Ionicons name="reader" size={16} color="#4f46e5" />
+                        <Ionicons name="reader" size={16} color="#053495" />
                         <Text
                           style={{
                             fontSize: 15,
                             fontWeight: '700',
-                            color: '#1e293b',
+                            color: '#042A6C',
                             marginLeft: 8,
                           }}
                         >
                           Description
                         </Text>
                       </View>
-                      <Text style={{ fontSize: 14, color: '#475569', lineHeight: 20 }}>
+                      <Text style={{ fontSize: 14, color: '#3E5683', lineHeight: 20 }}>
                         {assignment.description}
                       </Text>
                     </View>
@@ -407,7 +407,7 @@ export default function AssignmentDetailScreen() {
                       <ActionButton
                         label="Publish Assignment"
                         icon="paper-plane"
-                        color="#2563eb"
+                        color="#053495"
                         loading={publishMutation.isPending}
                         onPress={() => publishMutation.mutate()}
                       />
@@ -436,19 +436,19 @@ export default function AssignmentDetailScreen() {
                 <View style={{ paddingHorizontal: 20, paddingTop: 8 }}>
                   {!canGrade ? (
                     <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-                      <Ionicons name="lock-closed-outline" size={36} color="#94a3b8" />
-                      <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
+                      <Ionicons name="lock-closed-outline" size={36} color="#8998B3" />
+                      <Text style={{ color: '#8998B3', marginTop: 8, textAlign: 'center' }}>
                         Start grading to enter marks
                       </Text>
                     </View>
                   ) : gradesLoading ? (
                     <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-                      <ActivityIndicator size="large" color="#4f46e5" />
+                      <ActivityIndicator size="large" color="#053495" />
                     </View>
                   ) : grades.length === 0 ? (
                     <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-                      <Ionicons name="people-outline" size={36} color="#94a3b8" />
-                      <Text style={{ color: '#94a3b8', marginTop: 8 }}>No students to grade</Text>
+                      <Ionicons name="people-outline" size={36} color="#8998B3" />
+                      <Text style={{ color: '#8998B3', marginTop: 8 }}>No students to grade</Text>
                     </View>
                   ) : (
                     grades.map((g) => (
@@ -509,7 +509,7 @@ export default function AssignmentDetailScreen() {
                           style={st.menuItem}
                           activeOpacity={0.6}
                         >
-                          <Ionicons name="create-outline" size={20} color="#4f46e5" />
+                          <Ionicons name="create-outline" size={20} color="#053495" />
                           <Text style={st.menuItemText}>Edit Assignment</Text>
                         </TouchableOpacity>
                         <View style={st.menuDivider} />
@@ -561,8 +561,8 @@ function MetaRow({
         <Ionicons name={icon} size={16} color={color} />
       </View>
       <View>
-        <Text style={{ fontSize: 11, color: '#94a3b8', fontWeight: '500' }}>{label}</Text>
-        <Text style={{ fontSize: 14, color: '#1e293b', fontWeight: '600', marginTop: 1 }}>
+        <Text style={{ fontSize: 11, color: '#8998B3', fontWeight: '500' }}>{label}</Text>
+        <Text style={{ fontSize: 14, color: '#042A6C', fontWeight: '600', marginTop: 1 }}>
           {value}
         </Text>
       </View>
@@ -652,33 +652,33 @@ const st = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 12,
     marginHorizontal: 4,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
   },
-  tabBtnActive: { backgroundColor: '#eef2ff' },
-  tabText: { fontSize: 13, fontWeight: '500', color: '#94a3b8' },
-  tabTextActive: { color: '#4f46e5', fontWeight: '700' },
+  tabBtnActive: { backgroundColor: '#F0F5FE' },
+  tabText: { fontSize: 13, fontWeight: '500', color: '#8998B3' },
+  tabTextActive: { color: '#053495', fontWeight: '700' },
 
-  gradeRow: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f8fafc' },
+  gradeRow: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F9F8F5' },
   gradeAvatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
   },
-  gradeAvatarText: { color: '#4f46e5', fontSize: 12, fontWeight: '700' },
+  gradeAvatarText: { color: '#053495', fontSize: 12, fontWeight: '700' },
   gradeInput: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 13,
-    color: '#1e293b',
+    color: '#042A6C',
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#EDF0F3',
   },
 
   saveBar: {
@@ -686,14 +686,14 @@ const st = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#EDF0F3',
   },
   saveBtn: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
-    shadowColor: '#4f46e5',
+    shadowColor: '#053495',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -718,6 +718,6 @@ const st = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
   },
-  menuItemText: { fontSize: 15, fontWeight: '600', color: '#1e293b', marginLeft: 12 },
-  menuDivider: { height: 1, backgroundColor: '#f1f5f9', marginHorizontal: 16 },
+  menuItemText: { fontSize: 15, fontWeight: '600', color: '#042A6C', marginLeft: 12 },
+  menuDivider: { height: 1, backgroundColor: '#EDF0F3', marginHorizontal: 16 },
 });

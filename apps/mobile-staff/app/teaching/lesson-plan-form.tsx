@@ -65,7 +65,7 @@ function Dropdown({
         <Text style={selected ? s.selectText : s.selectPlaceholder} numberOfLines={1}>
           {selected?.label || placeholder}
         </Text>
-        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={16} color="#94a3b8" />
+        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={16} color="#8998B3" />
       </TouchableOpacity>
       {open && items.length > 0 && (
         <View style={s.optionList}>
@@ -92,7 +92,7 @@ function Dropdown({
                     }}
                   >
                     <Text style={active ? s.optionTextActive : s.optionText}>{item.label}</Text>
-                    {active && <Ionicons name="checkmark" size={16} color="#4f46e5" />}
+                    {active && <Ionicons name="checkmark" size={16} color="#053495" />}
                   </View>
                 )}
               </TouchableOpacity>
@@ -236,7 +236,7 @@ export default function LessonPlanFormScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
         {/* Hero */}
         <View style={s.hero}>
           <View style={s.heroCircle} />
@@ -251,9 +251,9 @@ export default function LessonPlanFormScreen() {
                   <ActivityIndicator color="#fff" />
                 ) : (
                   <View style={s.saveChip}>
-                    <Ionicons name="checkmark" size={16} color="#4f46e5" />
+                    <Ionicons name="checkmark" size={16} color="#053495" />
                     <Text
-                      style={{ color: '#4f46e5', fontWeight: '700', fontSize: 14, marginLeft: 4 }}
+                      style={{ color: '#053495', fontWeight: '700', fontSize: 14, marginLeft: 4 }}
                     >
                       Save
                     </Text>
@@ -278,7 +278,7 @@ export default function LessonPlanFormScreen() {
               <TextInput
                 style={s.input}
                 placeholder="e.g. Introduction to Light — Reflection"
-                placeholderTextColor="#c7c7cc"
+                placeholderTextColor="#C2CBD8"
                 value={title}
                 onChangeText={setTitle}
               />
@@ -320,7 +320,7 @@ export default function LessonPlanFormScreen() {
                 <TextInput
                   style={s.input}
                   placeholder="YYYY-MM-DD"
-                  placeholderTextColor="#c7c7cc"
+                  placeholderTextColor="#C2CBD8"
                   value={date}
                   onChangeText={setDate}
                 />
@@ -330,7 +330,7 @@ export default function LessonPlanFormScreen() {
                 <TextInput
                   style={s.input}
                   placeholder="45 min"
-                  placeholderTextColor="#c7c7cc"
+                  placeholderTextColor="#C2CBD8"
                   value={duration}
                   onChangeText={setDuration}
                   keyboardType="numeric"
@@ -351,13 +351,13 @@ export default function LessonPlanFormScreen() {
                     <Ionicons
                       name={val === 'draft' ? 'document-outline' : 'checkmark-circle'}
                       size={14}
-                      color={status === val ? '#4f46e5' : '#94a3b8'}
+                      color={status === val ? '#053495' : '#8998B3'}
                     />
                     <Text
                       style={{
                         fontSize: 13,
                         fontWeight: status === val ? '700' : '500',
-                        color: status === val ? '#4f46e5' : '#64748b',
+                        color: status === val ? '#053495' : '#526C98',
                         marginLeft: 6,
                       }}
                     >
@@ -369,14 +369,14 @@ export default function LessonPlanFormScreen() {
             </Field>
 
             {/* Divider */}
-            <View style={{ height: 1, backgroundColor: '#e5e7eb', marginBottom: 20 }} />
+            <View style={{ height: 1, backgroundColor: '#DAE0E7', marginBottom: 20 }} />
 
             {/* Objectives */}
             <Field label="Lesson Objectives">
               <TextInput
                 style={[s.input, { minHeight: 80 }]}
                 placeholder="By the end of this lesson, students will be able to..."
-                placeholderTextColor="#c7c7cc"
+                placeholderTextColor="#C2CBD8"
                 value={description}
                 onChangeText={setDescription}
                 multiline
@@ -396,9 +396,9 @@ export default function LessonPlanFormScreen() {
               >
                 <Text style={[s.label, { marginBottom: 0 }]}>Step-by-Step Procedure</Text>
                 <TouchableOpacity onPress={addStep} activeOpacity={0.7} style={s.addBtn}>
-                  <Ionicons name="add-circle" size={16} color="#4f46e5" />
+                  <Ionicons name="add-circle" size={16} color="#053495" />
                   <Text
-                    style={{ color: '#4f46e5', fontSize: 12, fontWeight: '600', marginLeft: 4 }}
+                    style={{ color: '#053495', fontSize: 12, fontWeight: '600', marginLeft: 4 }}
                   >
                     Add Step
                   </Text>
@@ -416,14 +416,14 @@ export default function LessonPlanFormScreen() {
                     <TextInput
                       style={s.stepTitleInput}
                       placeholder="Step title"
-                      placeholderTextColor="#c7c7cc"
+                      placeholderTextColor="#C2CBD8"
                       value={step.title}
                       onChangeText={(v) => updateStep(idx, { title: v })}
                     />
                     <TextInput
                       style={s.stepDurInput}
                       placeholder="min"
-                      placeholderTextColor="#c7c7cc"
+                      placeholderTextColor="#C2CBD8"
                       value={step.duration}
                       onChangeText={(v) => updateStep(idx, { duration: v })}
                       keyboardType="numeric"
@@ -434,14 +434,14 @@ export default function LessonPlanFormScreen() {
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                         style={{ marginLeft: 8 }}
                       >
-                        <Ionicons name="close-circle" size={20} color="#e5e7eb" />
+                        <Ionicons name="close-circle" size={20} color="#DAE0E7" />
                       </TouchableOpacity>
                     )}
                   </View>
                   <TextInput
                     style={[s.input, { minHeight: 44, marginTop: 8 }]}
                     placeholder="Describe this step..."
-                    placeholderTextColor="#c7c7cc"
+                    placeholderTextColor="#C2CBD8"
                     value={step.description}
                     onChangeText={(v) => updateStep(idx, { description: v })}
                     multiline
@@ -452,9 +452,9 @@ export default function LessonPlanFormScreen() {
 
               <TouchableOpacity onPress={addStep} activeOpacity={0.6} style={s.addHint}>
                 <View style={s.addHintCircle}>
-                  <Ionicons name="add" size={14} color="#94a3b8" />
+                  <Ionicons name="add" size={14} color="#8998B3" />
                 </View>
-                <Text style={{ color: '#94a3b8', fontSize: 13 }}>Add another step</Text>
+                <Text style={{ color: '#8998B3', fontSize: 13 }}>Add another step</Text>
               </TouchableOpacity>
             </View>
 
@@ -463,7 +463,7 @@ export default function LessonPlanFormScreen() {
               <TextInput
                 style={[s.input, { minHeight: 80 }]}
                 placeholder="One per line — textbook, slides, videos, handouts..."
-                placeholderTextColor="#c7c7cc"
+                placeholderTextColor="#C2CBD8"
                 value={resources}
                 onChangeText={setResources}
                 multiline
@@ -495,7 +495,7 @@ export default function LessonPlanFormScreen() {
 
 const s = StyleSheet.create({
   // Hero
-  hero: { backgroundColor: '#4f46e5', overflow: 'hidden' },
+  hero: { backgroundColor: '#053495', overflow: 'hidden' },
   heroCircle: {
     position: 'absolute',
     width: 160,
@@ -534,16 +534,16 @@ const s = StyleSheet.create({
   },
 
   // Fields
-  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6 },
+  label: { fontSize: 13, fontWeight: '600', color: '#2E4470', marginBottom: 6 },
   input: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#1e293b',
+    color: '#042A6C',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
   },
 
   // Select dropdown
@@ -556,17 +556,17 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     height: 48,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
   },
-  selectText: { fontSize: 15, color: '#1e293b', flex: 1 },
-  selectPlaceholder: { fontSize: 15, color: '#c7c7cc', flex: 1 },
+  selectText: { fontSize: 15, color: '#042A6C', flex: 1 },
+  selectPlaceholder: { fontSize: 15, color: '#C2CBD8', flex: 1 },
 
   optionList: {
     marginTop: 6,
     backgroundColor: '#fff',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
     overflow: 'hidden',
     elevation: 4,
     shadowColor: '#000',
@@ -578,11 +578,11 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 13,
     borderBottomWidth: 1,
-    borderBottomColor: '#f8fafc',
+    borderBottomColor: '#F9F8F5',
   },
-  optionActive: { backgroundColor: '#eef2ff' },
-  optionText: { fontSize: 15, color: '#1e293b' },
-  optionTextActive: { fontSize: 15, color: '#4f46e5', fontWeight: '600' },
+  optionActive: { backgroundColor: '#F0F5FE' },
+  optionText: { fontSize: 15, color: '#042A6C' },
+  optionTextActive: { fontSize: 15, color: '#053495', fontWeight: '600' },
 
   // Status
   statusRow: { flexDirection: 'row', gap: 10 },
@@ -594,28 +594,28 @@ const s = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
     backgroundColor: '#fff',
   },
   statusPillActive: {
-    borderColor: '#4f46e5',
-    backgroundColor: '#eef2ff',
+    borderColor: '#053495',
+    backgroundColor: '#F0F5FE',
   },
 
   // Steps
   stepCard: {
     marginBottom: 12,
-    backgroundColor: '#fafafa',
+    backgroundColor: '#F9F8F5',
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#EDF0F3',
   },
   stepBadge: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
@@ -624,7 +624,7 @@ const s = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#042A6C',
     paddingVertical: 0,
   },
   stepDurInput: {
@@ -632,11 +632,11 @@ const s = StyleSheet.create({
     height: 30,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
     backgroundColor: '#fff',
     textAlign: 'center',
     fontSize: 13,
-    color: '#1e293b',
+    color: '#042A6C',
     marginLeft: 8,
   },
 
@@ -647,7 +647,7 @@ const s = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: '#d1d5db',
+    borderColor: '#D3DAE4',
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
@@ -656,13 +656,13 @@ const s = StyleSheet.create({
 
   // Submit
   submitBtn: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     borderRadius: 14,
     paddingVertical: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#4f46e5',
+    shadowColor: '#053495',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,

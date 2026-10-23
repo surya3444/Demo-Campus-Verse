@@ -73,7 +73,7 @@ export default function LeaveApplyScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#F9F8F5' }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
@@ -102,7 +102,7 @@ export default function LeaveApplyScreen() {
           value={fromDate}
           onChangeText={setFromDate}
           placeholder="YYYY-MM-DD"
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
         />
 
         <Text style={s.label}>To Date</Text>
@@ -111,7 +111,7 @@ export default function LeaveApplyScreen() {
           value={toDate}
           onChangeText={setToDate}
           placeholder="YYYY-MM-DD"
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
         />
 
         {days > 0 && (
@@ -128,7 +128,7 @@ export default function LeaveApplyScreen() {
           value={reason}
           onChangeText={setReason}
           placeholder="Brief reason for your leave..."
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
           multiline
           numberOfLines={5}
           textAlignVertical="top"
@@ -153,7 +153,7 @@ const s = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#526C98',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 18,
@@ -168,48 +168,48 @@ const s = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     borderWidth: 2,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
   },
-  typeCardActive: { borderColor: '#4f46e5', backgroundColor: '#eef2ff' },
-  typeName: { fontSize: 13, fontWeight: '700', color: '#1e293b' },
-  typeNameActive: { color: '#4338ca' },
-  typeBal: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
-  typeBalActive: { color: '#6366f1' },
+  typeCardActive: { borderColor: '#053495', backgroundColor: '#F0F5FE' },
+  typeName: { fontSize: 13, fontWeight: '700', color: '#042A6C' },
+  typeNameActive: { color: '#042A6C' },
+  typeBal: { fontSize: 11, color: '#8998B3', marginTop: 2 },
+  typeBalActive: { color: '#0749BB' },
   input: {
     backgroundColor: '#fff',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
-    color: '#1e293b',
+    color: '#042A6C',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
   },
   daysBanner: {
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     borderRadius: 10,
     padding: 12,
     marginTop: 14,
     alignItems: 'center',
   },
-  daysText: { fontSize: 14, color: '#4338ca', fontWeight: '600' },
+  daysText: { fontSize: 14, color: '#042A6C', fontWeight: '600' },
   textarea: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
     fontSize: 14,
-    color: '#1e293b',
+    color: '#042A6C',
     minHeight: 100,
   },
   submitBtn: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     borderRadius: 14,
     paddingVertical: 16,
     marginTop: 24,
     alignItems: 'center',
-    shadowColor: '#4f46e5',
+    shadowColor: '#053495',
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },

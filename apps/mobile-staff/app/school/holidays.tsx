@@ -15,9 +15,9 @@ import { holidaysApi, Holiday } from '@campus-verse/mobile-shared';
 const TYPE_COLORS: Record<string, string> = {
   national: '#dc2626',
   religious: '#d97706',
-  school: '#4f46e5',
+  school: '#053495',
   state: '#059669',
-  other: '#64748b',
+  other: '#526C98',
 };
 
 const MONTHS = [
@@ -69,7 +69,7 @@ export default function HolidaysScreen() {
   const yearOptions = [currentYear, currentYear + 1, currentYear - 1];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       <View style={s.filterBar}>
         {yearOptions.map((y) => (
           <TouchableOpacity
@@ -88,10 +88,10 @@ export default function HolidaysScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {isLoading ? (
-          <ActivityIndicator style={{ marginVertical: 40 }} color="#4f46e5" />
+          <ActivityIndicator style={{ marginVertical: 40 }} color="#053495" />
         ) : sorted.length === 0 ? (
           <View style={s.emptyCard}>
-            <Ionicons name="calendar-outline" size={36} color="#cbd5e1" />
+            <Ionicons name="calendar-outline" size={36} color="#D3DAE4" />
             <Text style={s.emptyText}>No holidays declared for {year}</Text>
           </View>
         ) : (
@@ -143,22 +143,22 @@ const s = StyleSheet.create({
     padding: 12,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#EDF0F3',
   },
   yearChip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 10,
     marginRight: 8,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
   },
-  yearChipActive: { backgroundColor: '#4f46e5' },
-  yearText: { fontSize: 13, fontWeight: '600', color: '#64748b' },
+  yearChipActive: { backgroundColor: '#053495' },
+  yearText: { fontSize: 13, fontWeight: '600', color: '#526C98' },
   yearTextActive: { color: '#fff' },
   monthHeader: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#4338ca',
+    color: '#042A6C',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 8,
@@ -170,7 +170,7 @@ const s = StyleSheet.create({
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   dateBadge: {
     width: 56,
@@ -181,18 +181,18 @@ const s = StyleSheet.create({
   },
   dateDay: { fontSize: 22, fontWeight: '800' },
   dateDow: { fontSize: 10, fontWeight: '700', marginTop: -2 },
-  title: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
-  desc: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  title: { fontSize: 14, fontWeight: '700', color: '#042A6C' },
+  desc: { fontSize: 12, color: '#526C98', marginTop: 2 },
   typePill: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
   typeText: { fontSize: 9, fontWeight: '700' },
-  optional: { fontSize: 10, color: '#94a3b8', marginLeft: 8, fontStyle: 'italic' },
+  optional: { fontSize: 10, color: '#8998B3', marginLeft: 8, fontStyle: 'italic' },
   emptyCard: {
     backgroundColor: '#fff',
     borderRadius: 14,
     padding: 40,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  emptyText: { fontSize: 13, color: '#94a3b8', marginTop: 10 },
+  emptyText: { fontSize: 13, color: '#8998B3', marginTop: 10 },
 });

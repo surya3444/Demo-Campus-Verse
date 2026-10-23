@@ -36,7 +36,7 @@ export default function CourseFormScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#F9F8F5' }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
@@ -46,7 +46,7 @@ export default function CourseFormScreen() {
           value={title}
           onChangeText={setTitle}
           placeholder="e.g. Introduction to Algebra"
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
           autoFocus
         />
 
@@ -56,7 +56,7 @@ export default function CourseFormScreen() {
           value={description}
           onChangeText={setDescription}
           placeholder="What will students learn?"
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
           multiline
           numberOfLines={5}
           textAlignVertical="top"
@@ -83,7 +83,7 @@ const s = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#526C98',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 14,
@@ -95,22 +95,22 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
-    color: '#1e293b',
+    color: '#042A6C',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
   },
   textarea: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 14,
     fontSize: 14,
-    color: '#1e293b',
+    color: '#042A6C',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
     minHeight: 100,
   },
   submitBtn: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',

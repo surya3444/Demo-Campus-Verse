@@ -23,21 +23,21 @@ const MONTHS = [
 const WEEK_DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 const TYPE_COLORS: Record<CalendarEvent['type'], string> = {
-  academic: '#3b82f6',
+  academic: '#0749BB',
   cultural: '#8b5cf6',
   sports: '#10b981',
   exam: '#ef4444',
   holiday: '#f59e0b',
-  ptm: '#0891b2',
+  ptm: '#008AB8',
 };
 
 const TYPE_BG: Record<CalendarEvent['type'], string> = {
-  academic: '#dbeafe',
+  academic: '#E1ECFE',
   cultural: '#f3e8ff',
   sports: '#d1fae5',
   exam: '#fef2f2',
   holiday: '#fef3c7',
-  ptm: '#cffafe',
+  ptm: '#D6F5FF',
 };
 
 const TYPE_ICONS: Record<CalendarEvent['type'], keyof typeof Ionicons.glyphMap> = {
@@ -125,8 +125,8 @@ function CalendarDayCell({
 }
 
 function EventCard({ event }: { event: CalendarEvent }) {
-  const color = TYPE_COLORS[event.type] || '#6b7280';
-  const bgColor = TYPE_BG[event.type] || '#f8fafc';
+  const color = TYPE_COLORS[event.type] || '#526C98';
+  const bgColor = TYPE_BG[event.type] || '#F9F8F5';
   const icon = TYPE_ICONS[event.type] || 'calendar';
   const locationText = getLocationText(event.location);
   const locationIcon = getLocationIcon(event.location);
@@ -144,13 +144,13 @@ function EventCard({ event }: { event: CalendarEvent }) {
           </Text>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-            <Ionicons name="time-outline" size={13} color="#9ca3af" />
+            <Ionicons name="time-outline" size={13} color="#8998B3" />
             <Text style={styles.eventMeta}>{formatEventTime(event)}</Text>
           </View>
 
           {locationText && (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
-              <Ionicons name={locationIcon} size={13} color="#9ca3af" />
+              <Ionicons name={locationIcon} size={13} color="#8998B3" />
               <Text style={styles.eventMeta} numberOfLines={1}>
                 {locationText}
               </Text>
@@ -273,7 +273,7 @@ export default function CalendarScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       {/* Custom Header */}
       <View
         style={{
@@ -282,28 +282,28 @@ export default function CalendarScreen() {
           paddingHorizontal: 20,
           paddingBottom: 12,
           borderBottomWidth: 1,
-          borderBottomColor: '#f8fafc',
+          borderBottomColor: '#F9F8F5',
         }}
       >
         <View
           style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
         >
           <View>
-            <Text style={{ fontSize: 22, fontWeight: '800', color: '#111827' }}>Calendar</Text>
-            <Text style={{ fontSize: 13, color: '#9ca3af', marginTop: 2 }}>Events & Schedule</Text>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: '#042A6C' }}>Calendar</Text>
+            <Text style={{ fontSize: 13, color: '#8998B3', marginTop: 2 }}>Events & Schedule</Text>
           </View>
           {!isViewingCurrentMonth && (
             <TouchableOpacity
               onPress={goToToday}
               activeOpacity={0.7}
               style={{
-                backgroundColor: '#eff6ff',
+                backgroundColor: '#F0F5FE',
                 paddingHorizontal: 12,
                 paddingVertical: 6,
                 borderRadius: 8,
               }}
             >
-              <Text style={{ fontSize: 13, fontWeight: '600', color: '#3b82f6' }}>Today</Text>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: '#0749BB' }}>Today</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -327,13 +327,13 @@ export default function CalendarScreen() {
           }}
         >
           <TouchableOpacity onPress={goToPreviousMonth} activeOpacity={0.6} style={styles.arrowBtn}>
-            <Ionicons name="chevron-back" size={20} color="#374151" />
+            <Ionicons name="chevron-back" size={20} color="#2E4470" />
           </TouchableOpacity>
-          <Text style={{ fontSize: 17, fontWeight: '700', color: '#111827' }}>
+          <Text style={{ fontSize: 17, fontWeight: '700', color: '#042A6C' }}>
             {MONTHS[currentMonth]} {currentYear}
           </Text>
           <TouchableOpacity onPress={goToNextMonth} activeOpacity={0.6} style={styles.arrowBtn}>
-            <Ionicons name="chevron-forward" size={20} color="#374151" />
+            <Ionicons name="chevron-forward" size={20} color="#2E4470" />
           </TouchableOpacity>
         </View>
 
@@ -360,7 +360,7 @@ export default function CalendarScreen() {
                   style={{
                     fontSize: 12,
                     fontWeight: '600',
-                    color: i === 0 || i === 6 ? '#d1d5db' : '#9ca3af',
+                    color: i === 0 || i === 6 ? '#D3DAE4' : '#8998B3',
                     textAlign: 'center',
                   }}
                 >
@@ -396,10 +396,10 @@ export default function CalendarScreen() {
         {/* Events Section */}
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-            <Text style={{ fontSize: 17, fontWeight: '700', color: '#1e293b', flex: 1 }}>
+            <Text style={{ fontSize: 17, fontWeight: '700', color: '#042A6C', flex: 1 }}>
               Events
             </Text>
-            <Text style={{ fontSize: 13, color: '#9ca3af' }}>
+            <Text style={{ fontSize: 13, color: '#8998B3' }}>
               {selectedDay} {MONTHS[currentMonth].slice(0, 3)} {currentYear}
             </Text>
           </View>
@@ -412,7 +412,7 @@ export default function CalendarScreen() {
                 padding: 40,
                 alignItems: 'center',
                 borderWidth: 1,
-                borderColor: '#f0f0f0',
+                borderColor: '#EDF0F3',
               }}
             >
               <View
@@ -420,16 +420,16 @@ export default function CalendarScreen() {
                   width: 56,
                   height: 56,
                   borderRadius: 28,
-                  backgroundColor: '#f9fafb',
+                  backgroundColor: '#F9F8F5',
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginBottom: 12,
                 }}
               >
-                <Ionicons name="calendar-outline" size={28} color="#d1d5db" />
+                <Ionicons name="calendar-outline" size={28} color="#D3DAE4" />
               </View>
-              <Text style={{ fontSize: 15, fontWeight: '600', color: '#6b7280' }}>No events</Text>
-              <Text style={{ fontSize: 13, color: '#9ca3af', marginTop: 4, textAlign: 'center' }}>
+              <Text style={{ fontSize: 15, fontWeight: '600', color: '#526C98' }}>No events</Text>
+              <Text style={{ fontSize: 13, color: '#8998B3', marginTop: 4, textAlign: 'center' }}>
                 There are no events scheduled for this day.
               </Text>
             </View>
@@ -440,7 +440,7 @@ export default function CalendarScreen() {
 
         {/* Legend */}
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          <Text style={{ fontSize: 13, fontWeight: '600', color: '#9ca3af', marginBottom: 10 }}>
+          <Text style={{ fontSize: 13, fontWeight: '600', color: '#8998B3', marginBottom: 10 }}>
             Event Types
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -463,7 +463,7 @@ export default function CalendarScreen() {
                     marginRight: 6,
                   }}
                 />
-                <Text style={{ fontSize: 12, color: '#6b7280', textTransform: 'capitalize' }}>
+                <Text style={{ fontSize: 12, color: '#526C98', textTransform: 'capitalize' }}>
                   {type === 'ptm' ? 'PTM' : type}
                 </Text>
               </View>
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -511,24 +511,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dayCircleSelected: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#0749BB',
   },
   dayCircleToday: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#F0F5FE',
     borderWidth: 1.5,
-    borderColor: '#bfdbfe',
+    borderColor: '#C4D9FD',
   },
   dayText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#374151',
+    color: '#2E4470',
   },
   dayTextSelected: {
     color: '#ffffff',
     fontWeight: '700',
   },
   dayTextToday: {
-    color: '#3b82f6',
+    color: '#0749BB',
     fontWeight: '700',
   },
   dotRow: {
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderLeftWidth: 4,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#EDF0F3',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03,
@@ -571,17 +571,17 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#042A6C',
     lineHeight: 20,
   },
   eventMeta: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: '#8998B3',
     marginLeft: 5,
   },
   eventDesc: {
     fontSize: 13,
-    color: '#6b7280',
+    color: '#526C98',
     marginTop: 6,
     lineHeight: 18,
   },

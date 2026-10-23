@@ -89,3 +89,29 @@ export const careerConnectApi = {
   // Student profile (for "my profile" view)
   getMyProfile: async () => fetchApi(apiClient.get('/career-connect/student-profiles/my')),
 };
+
+/** A live opening from the Virtual Placement Office feed (public Indian job sources). */
+export interface LiveJob {
+  id: string;
+  title: string;
+  company: string;
+  logo?: string | null;
+  website?: string;
+  location?: string;
+  city?: string;
+  remote?: boolean;
+  type?: string;
+  salary?: string | null;
+  url: string;
+  postedAt?: string;
+  source?: string;
+  category?: string;
+  fresher?: boolean;
+}
+
+export const vpoApi = {
+  jobs: (params?: { search?: string; category?: string; city?: string; fresher?: string; page?: number; limit?: number }) =>
+    fetchApi<{ jobs: LiveJob[]; total: number; categories?: Array<{ name: string; count: number }> | string[]; updatedAt?: string }>(
+      apiClient.get('/career-connect/vpo/jobs', { params })
+    ),
+};

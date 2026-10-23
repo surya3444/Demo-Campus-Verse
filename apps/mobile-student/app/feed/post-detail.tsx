@@ -97,8 +97,8 @@ export default function PostDetailScreen() {
 
   if (isLoading || !post) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#f8fafc' }}>
-        <ActivityIndicator color="#4f46e5" />
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#F9F8F5' }}>
+        <ActivityIndicator color="#053495" />
       </View>
     );
   }
@@ -121,7 +121,7 @@ export default function PostDetailScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#F9F8F5' }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
@@ -158,14 +158,14 @@ export default function PostDetailScreen() {
               <Ionicons
                 name={post.isLikedByMe ? 'heart' : 'heart-outline'}
                 size={22}
-                color={post.isLikedByMe ? '#ef4444' : '#64748b'}
+                color={post.isLikedByMe ? '#ef4444' : '#526C98'}
               />
               <Text style={[s.actionText, post.isLikedByMe && { color: '#ef4444' }]}>
                 {post.likeCount}
               </Text>
             </TouchableOpacity>
             <View style={s.actionBtn}>
-              <Ionicons name="chatbubble-outline" size={20} color="#64748b" />
+              <Ionicons name="chatbubble-outline" size={20} color="#526C98" />
               <Text style={s.actionText}>{post.commentCount}</Text>
             </View>
           </View>
@@ -208,7 +208,7 @@ export default function PostDetailScreen() {
               Replying to <Text style={{ fontWeight: '700' }}>{replyingTo.name}</Text>
             </Text>
             <TouchableOpacity onPress={() => setReplyingTo(null)} hitSlop={10}>
-              <Ionicons name="close" size={16} color="#64748b" />
+              <Ionicons name="close" size={16} color="#526C98" />
             </TouchableOpacity>
           </View>
         )}
@@ -219,7 +219,7 @@ export default function PostDetailScreen() {
             value={replyText}
             onChangeText={setReplyText}
             placeholder="Write a comment..."
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor="#8998B3"
             multiline
             maxLength={2000}
           />
@@ -311,7 +311,7 @@ const s = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   avatar: { width: 40, height: 40, borderRadius: 20 },
@@ -319,14 +319,14 @@ const s = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarInitials: { fontWeight: '800', color: '#4338ca', fontSize: 13 },
-  authorName: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
-  timestamp: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
-  content: { fontSize: 15, color: '#1e293b', lineHeight: 22 },
+  avatarInitials: { fontWeight: '800', color: '#042A6C', fontSize: 13 },
+  authorName: { fontSize: 14, fontWeight: '700', color: '#042A6C' },
+  timestamp: { fontSize: 11, color: '#8998B3', marginTop: 2 },
+  content: { fontSize: 15, color: '#042A6C', lineHeight: 22 },
   mediaGrid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10, marginHorizontal: -2 },
   mediaItem: {
     width: '48%',
@@ -334,21 +334,21 @@ const s = StyleSheet.create({
     marginHorizontal: '1%',
     marginBottom: 4,
     borderRadius: 8,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
   },
   actions: {
     flexDirection: 'row',
     marginTop: 12,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#EDF0F3',
   },
   actionBtn: { flexDirection: 'row', alignItems: 'center', marginRight: 20 },
-  actionText: { fontSize: 13, color: '#64748b', marginLeft: 6, fontWeight: '600' },
+  actionText: { fontSize: 13, color: '#526C98', marginLeft: 6, fontWeight: '600' },
   commentsTitle: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#64748b',
+    color: '#526C98',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginTop: 20,
@@ -360,35 +360,35 @@ const s = StyleSheet.create({
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   commentHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
   commentAvatar: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  commentAvatarText: { fontWeight: '800', color: '#4338ca', fontSize: 11 },
-  commentAuthor: { fontSize: 13, fontWeight: '700', color: '#1e293b' },
+  commentAvatarText: { fontWeight: '800', color: '#042A6C', fontSize: 11 },
+  commentAuthor: { fontSize: 13, fontWeight: '700', color: '#042A6C' },
   commentRole: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
     paddingHorizontal: 5,
     paddingVertical: 1,
     borderRadius: 3,
     marginLeft: 6,
   },
-  commentRoleText: { fontSize: 8, fontWeight: '700', color: '#475569' },
-  commentTime: { fontSize: 10, color: '#94a3b8', marginTop: 1 },
-  commentContent: { fontSize: 13, color: '#1e293b', lineHeight: 18 },
+  commentRoleText: { fontSize: 8, fontWeight: '700', color: '#3E5683' },
+  commentTime: { fontSize: 10, color: '#8998B3', marginTop: 1 },
+  commentContent: { fontSize: 13, color: '#042A6C', lineHeight: 18 },
   commentActions: { flexDirection: 'row', marginTop: 8 },
-  commentActionText: { fontSize: 11, fontWeight: '700', color: '#4f46e5', marginRight: 16 },
+  commentActionText: { fontSize: 11, fontWeight: '700', color: '#053495', marginRight: 16 },
   replyBar: {
     backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#eef0f4',
+    borderTopColor: '#EDF0F3',
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
@@ -399,22 +399,22 @@ const s = StyleSheet.create({
     marginBottom: 6,
     paddingHorizontal: 4,
   },
-  replyingToText: { fontSize: 12, color: '#64748b' },
+  replyingToText: { fontSize: 12, color: '#526C98' },
   replyInput: {
     flex: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
     borderRadius: 18,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#1e293b',
+    color: '#042A6C',
     maxHeight: 90,
   },
   sendBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
@@ -425,7 +425,7 @@ const s = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  emptyText: { fontSize: 13, color: '#94a3b8' },
+  emptyText: { fontSize: 13, color: '#8998B3' },
 });

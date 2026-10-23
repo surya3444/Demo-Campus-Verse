@@ -39,7 +39,7 @@ export default function PayslipsScreen() {
   const yearOptions = [currentYear, currentYear - 1, currentYear - 2];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       {/* Year filter */}
       <View style={s.filterBar}>
         {yearOptions.map((y) => (
@@ -59,10 +59,10 @@ export default function PayslipsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {isLoading ? (
-          <ActivityIndicator style={{ marginVertical: 40 }} color="#4f46e5" />
+          <ActivityIndicator style={{ marginVertical: 40 }} color="#053495" />
         ) : !data?.data || data.data.length === 0 ? (
           <View style={s.emptyCard}>
-            <Ionicons name="document-text-outline" size={36} color="#cbd5e1" />
+            <Ionicons name="document-text-outline" size={36} color="#D3DAE4" />
             <Text style={s.emptyText}>No payslips found for {year}</Text>
           </View>
         ) : (
@@ -110,7 +110,7 @@ function StatusPill({ status }: { status: string }) {
   const map: Record<string, { bg: string; fg: string }> = {
     disbursed: { bg: '#dcfce7', fg: '#166534' },
     paid: { bg: '#dcfce7', fg: '#166534' },
-    finalized: { bg: '#dbeafe', fg: '#1e40af' },
+    finalized: { bg: '#E1ECFE', fg: '#042A6C' },
     draft: { bg: '#fef3c7', fg: '#92400e' },
     pending: { bg: '#fef3c7', fg: '#92400e' },
     failed: { bg: '#fee2e2', fg: '#991b1b' },
@@ -129,17 +129,17 @@ const s = StyleSheet.create({
     padding: 12,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#EDF0F3',
   },
   yearChip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 10,
     marginRight: 8,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
   },
-  yearChipActive: { backgroundColor: '#4f46e5' },
-  yearText: { fontSize: 13, fontWeight: '600', color: '#64748b' },
+  yearChipActive: { backgroundColor: '#053495' },
+  yearText: { fontSize: 13, fontWeight: '600', color: '#526C98' },
   yearTextActive: { color: '#fff' },
   card: {
     backgroundColor: '#fff',
@@ -147,20 +147,20 @@ const s = StyleSheet.create({
     padding: 16,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   cardHead: { flexDirection: 'row', alignItems: 'center' },
   monthBadge: {
     width: 54,
     height: 54,
     borderRadius: 12,
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  monthText: { fontSize: 13, fontWeight: '800', color: '#4338ca' },
-  amount: { fontSize: 22, fontWeight: '800', color: '#1e293b' },
-  amountLabel: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
+  monthText: { fontSize: 13, fontWeight: '800', color: '#042A6C' },
+  amount: { fontSize: 22, fontWeight: '800', color: '#042A6C' },
+  amountLabel: { fontSize: 11, color: '#8998B3', marginTop: 2 },
   pill: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
   pillText: { fontSize: 9, fontWeight: '700' },
   cardStats: {
@@ -168,18 +168,18 @@ const s = StyleSheet.create({
     marginTop: 14,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#EDF0F3',
   },
   stat: { flex: 1 },
-  statLabel: { fontSize: 10, color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase' },
-  statValue: { fontSize: 13, color: '#1e293b', fontWeight: '700', marginTop: 2 },
+  statLabel: { fontSize: 10, color: '#8998B3', fontWeight: '600', textTransform: 'uppercase' },
+  statValue: { fontSize: 13, color: '#042A6C', fontWeight: '700', marginTop: 2 },
   emptyCard: {
     backgroundColor: '#fff',
     borderRadius: 14,
     padding: 40,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  emptyText: { fontSize: 13, color: '#94a3b8', marginTop: 10 },
+  emptyText: { fontSize: 13, color: '#8998B3', marginTop: 10 },
 });

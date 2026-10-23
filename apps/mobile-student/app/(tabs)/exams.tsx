@@ -23,14 +23,14 @@ import {
 } from '@/api/exams';
 
 const C = {
-  navy: '#1e1b4b',
-  cyan: '#06b6d4',
-  bg: '#f8fafc',
+  navy: '#031F4F',
+  cyan: '#00A8E0',
+  bg: '#F9F8F5',
   card: '#ffffff',
-  border: '#e2e8f0',
-  text: '#0f172a',
-  textMuted: '#64748b',
-  textFaint: '#94a3b8',
+  border: '#DAE0E7',
+  text: '#042A6C',
+  textMuted: '#526C98',
+  textFaint: '#8998B3',
   success: '#059669',
   warning: '#d97706',
   danger: '#dc2626',
@@ -39,7 +39,7 @@ const C = {
 function gradeColor(percent: number, passed: boolean) {
   if (!passed) return C.danger;
   if (percent >= 80) return C.success;
-  if (percent >= 60) return '#3b82f6';
+  if (percent >= 60) return '#0749BB';
   return C.warning;
 }
 
@@ -132,12 +132,12 @@ export default function StudentExamsScreen() {
     hallTicketsQuery.isLoading;
 
   return (
-    <View className="flex-1 bg-slate-50" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-secondary-50" style={{ paddingTop: insets.top }}>
       <View className="px-5 pt-3 pb-2">
-        <Text className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+        <Text className="text-xs font-semibold uppercase tracking-widest text-secondary-500">
           Examinations
         </Text>
-        <Text className="font-bold text-2xl text-slate-900 mt-0.5">Exams & results</Text>
+        <Text className="font-bold text-2xl text-secondary-800 mt-0.5">Exams & results</Text>
       </View>
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120 }}
@@ -211,7 +211,7 @@ function SectionLabel({
   return (
     <View className="flex-row items-center gap-2 mt-5 mb-2 px-1">
       <Ionicons name={icon} size={14} color={C.textMuted} />
-      <Text className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+      <Text className="text-xs font-semibold uppercase tracking-widest text-secondary-500">
         {label}
       </Text>
     </View>
@@ -229,8 +229,8 @@ function UpcomingCard({ schedule }: { schedule: ExamSchedule }) {
         <Text style={cardStyles.month}>{month}</Text>
       </View>
       <View className="flex-1 ml-3">
-        <Text className="font-semibold text-slate-900 text-base">{schedule.subjectName}</Text>
-        <Text className="text-xs text-slate-500 mt-0.5">
+        <Text className="font-semibold text-secondary-800 text-base">{schedule.subjectName}</Text>
+        <Text className="text-xs text-secondary-500 mt-0.5">
           {schedule.startTime} – {schedule.endTime} · {schedule.totalMarks} marks
           {schedule.room ? ` · ${schedule.room}` : ''}
         </Text>
@@ -253,14 +253,14 @@ function ResultCard({ result }: { result: ExamResult }) {
         )}
       </View>
       <View className="flex-1 ml-3">
-        <Text className="font-semibold text-slate-900 text-base">{result.subjectName}</Text>
-        <Text className="text-xs text-slate-500 mt-0.5">
+        <Text className="font-semibold text-secondary-800 text-base">{result.subjectName}</Text>
+        <Text className="text-xs text-secondary-500 mt-0.5">
           {result.absent
             ? 'Absent'
             : `${result.marksObtained}/${result.totalMarks} · ${result.percentage}%`}
         </Text>
         {result.remarks ? (
-          <Text className="text-xs text-slate-500 italic mt-1">{result.remarks}</Text>
+          <Text className="text-xs text-secondary-500 italic mt-1">{result.remarks}</Text>
         ) : null}
       </View>
       {!result.absent && (
@@ -288,25 +288,25 @@ function HallTicketCard({ ticket }: { ticket: HallTicketSummary }) {
     <TouchableOpacity onPress={open} activeOpacity={0.7} disabled={!ticket.pdfUrl}>
       <View style={cardStyles.card}>
         <View
-          style={[cardStyles.gradeChip, { backgroundColor: '#eef2ff', borderColor: '#c7d2fe' }]}
+          style={[cardStyles.gradeChip, { backgroundColor: '#F0F5FE', borderColor: '#C4D9FD' }]}
         >
-          <Ionicons name="ticket" size={22} color="#4f46e5" />
+          <Ionicons name="ticket" size={22} color="#053495" />
         </View>
         <View className="flex-1 ml-3">
-          <Text className="font-semibold text-slate-900 text-base">{ticket.examName}</Text>
-          <Text className="text-xs text-slate-500 mt-0.5">
+          <Text className="font-semibold text-secondary-800 text-base">{ticket.examName}</Text>
+          <Text className="text-xs text-secondary-500 mt-0.5">
             {ticket.termName}
             {ticket.seatNumber ? ` · Seat ${ticket.seatNumber}` : ''}
             {ticket.venue ? ` · ${ticket.venue}` : ''}
           </Text>
-          <Text className="text-[10px] text-slate-400 mt-0.5">
+          <Text className="text-[10px] text-secondary-400 mt-0.5">
             {ticket.papers.length} paper{ticket.papers.length === 1 ? '' : 's'}
           </Text>
         </View>
         {ticket.pdfUrl ? (
-          <Ionicons name="download-outline" size={20} color="#4f46e5" />
+          <Ionicons name="download-outline" size={20} color="#053495" />
         ) : (
-          <Text className="text-[10px] text-slate-400 italic">PDF pending</Text>
+          <Text className="text-[10px] text-secondary-400 italic">PDF pending</Text>
         )}
       </View>
     </TouchableOpacity>
@@ -332,22 +332,22 @@ function ReportCardCard({ card }: { card: ReportCardSummary }) {
           <Ionicons name="document-text" size={22} color={color} />
         </View>
         <View className="flex-1 ml-3">
-          <Text className="font-semibold text-slate-900 text-base">{card.examName}</Text>
-          <Text className="text-xs text-slate-500 mt-0.5">
+          <Text className="font-semibold text-secondary-800 text-base">{card.examName}</Text>
+          <Text className="text-xs text-secondary-500 mt-0.5">
             {card.termName} · {card.overall.percentage}%
             {card.overall.grade ? ` · Grade ${card.overall.grade}` : ''}
             {card.overall.rank ? ` · Rank ${card.overall.rank}` : ''}
           </Text>
           {card.publishedAt && (
-            <Text className="text-[10px] text-slate-400 mt-0.5">
+            <Text className="text-[10px] text-secondary-400 mt-0.5">
               Published {new Date(card.publishedAt).toLocaleDateString()}
             </Text>
           )}
         </View>
         {card.pdfUrl ? (
-          <Ionicons name="download-outline" size={20} color="#4f46e5" />
+          <Ionicons name="download-outline" size={20} color="#053495" />
         ) : (
-          <Text className="text-[10px] text-slate-400 italic">PDF pending</Text>
+          <Text className="text-[10px] text-secondary-400 italic">PDF pending</Text>
         )}
       </View>
     </TouchableOpacity>
@@ -366,8 +366,8 @@ function EmptyState({
   return (
     <View className="items-center justify-center bg-white rounded-2xl py-8 mb-2">
       <Ionicons name={icon} size={40} color={C.textFaint} />
-      <Text className="text-sm font-medium text-slate-700 mt-2">{title}</Text>
-      <Text className="text-xs text-slate-500 mt-1 max-w-[260px] text-center">{subtitle}</Text>
+      <Text className="text-sm font-medium text-secondary-700 mt-2">{title}</Text>
+      <Text className="text-xs text-secondary-500 mt-1 max-w-[260px] text-center">{subtitle}</Text>
     </View>
   );
 }
@@ -393,7 +393,7 @@ const cardStyles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: C.border,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
     alignItems: 'center',
     justifyContent: 'center',
   },

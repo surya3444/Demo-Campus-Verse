@@ -8,7 +8,7 @@ const TYPE_CONFIG: Record<
   string,
   { icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }
 > = {
-  general: { icon: 'megaphone', color: '#3b82f6', bg: '#dbeafe' },
+  general: { icon: 'megaphone', color: '#0749BB', bg: '#E1ECFE' },
   academic: { icon: 'school', color: '#8b5cf6', bg: '#f3e8ff' },
   event: { icon: 'calendar', color: '#10b981', bg: '#d1fae5' },
   exam: { icon: 'document-text', color: '#f59e0b', bg: '#fef3c7' },
@@ -26,8 +26,8 @@ export default function AnnouncementDetail() {
 
   if (isLoading || !data) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#f8fafc' }}>
-        <ActivityIndicator color="#4f46e5" />
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#F9F8F5' }}>
+        <ActivityIndicator color="#053495" />
       </View>
     );
   }
@@ -37,7 +37,7 @@ export default function AnnouncementDetail() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#F9F8F5' }}
       contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
     >
       <View style={[s.hero, { backgroundColor: cfg.bg }]}>
@@ -53,10 +53,10 @@ export default function AnnouncementDetail() {
       <Text style={s.title}>{data.title}</Text>
 
       <View style={s.metaRow}>
-        <Ionicons name="person-outline" size={14} color="#94a3b8" />
+        <Ionicons name="person-outline" size={14} color="#8998B3" />
         <Text style={s.metaText}>{data.createdBy?.displayName || 'Admin'}</Text>
         <Text style={s.metaDot}> · </Text>
-        <Ionicons name="time-outline" size={14} color="#94a3b8" />
+        <Ionicons name="time-outline" size={14} color="#8998B3" />
         <Text style={s.metaText}>
           {publishedDate.toLocaleDateString('en-IN', {
             day: 'numeric',
@@ -75,7 +75,7 @@ export default function AnnouncementDetail() {
           <Text style={s.sectionTitle}>Attachments</Text>
           {data.attachments.map((a, i) => (
             <View key={i} style={s.attachment}>
-              <Ionicons name="document-attach" size={18} color="#4f46e5" />
+              <Ionicons name="document-attach" size={18} color="#053495" />
               <Text style={s.attachmentName} numberOfLines={1}>
                 {a.name}
               </Text>
@@ -104,23 +104,23 @@ const s = StyleSheet.create({
     marginLeft: 'auto',
   },
   urgentText: { color: '#fff', fontSize: 10, fontWeight: '800' },
-  title: { fontSize: 22, fontWeight: '800', color: '#1e293b', marginBottom: 8 },
+  title: { fontSize: 22, fontWeight: '800', color: '#042A6C', marginBottom: 8 },
   metaRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  metaText: { fontSize: 12, color: '#64748b', marginLeft: 4 },
-  metaDot: { fontSize: 12, color: '#cbd5e1', marginHorizontal: 6 },
+  metaText: { fontSize: 12, color: '#526C98', marginLeft: 4 },
+  metaDot: { fontSize: 12, color: '#D3DAE4', marginHorizontal: 6 },
   contentCard: {
     backgroundColor: '#fff',
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  content: { fontSize: 14, color: '#1e293b', lineHeight: 22 },
+  content: { fontSize: 14, color: '#042A6C', lineHeight: 22 },
   section: { marginTop: 18 },
   sectionTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#526C98',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 8,
@@ -133,7 +133,7 @@ const s = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 6,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  attachmentName: { fontSize: 13, color: '#1e293b', marginLeft: 10, flex: 1 },
+  attachmentName: { fontSize: 13, color: '#042A6C', marginLeft: 10, flex: 1 },
 });

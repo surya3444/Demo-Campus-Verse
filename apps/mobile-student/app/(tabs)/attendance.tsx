@@ -32,9 +32,9 @@ function getStatusColor(status: AttendanceRecord['status']): string {
     case 'half-day':
       return '#8b5cf6';
     case 'excused':
-      return '#3b82f6';
+      return '#0749BB';
     default:
-      return '#9ca3af';
+      return '#8998B3';
   }
 }
 
@@ -49,9 +49,9 @@ function getStatusBg(status: AttendanceRecord['status']): string {
     case 'half-day':
       return '#f3e8ff';
     case 'excused':
-      return '#dbeafe';
+      return '#E1ECFE';
     default:
-      return '#f8fafc';
+      return '#F9F8F5';
   }
 }
 
@@ -71,13 +71,13 @@ function CalendarDay({ day, status, isToday, isCurrentMonth }: CalendarDayProps)
     <View
       className={`w-10 h-10 rounded-full items-center justify-center m-0.5`}
       style={{
-        backgroundColor: status ? getStatusBg(status) : isToday ? '#eff6ff' : 'transparent',
+        backgroundColor: status ? getStatusBg(status) : isToday ? '#F0F5FE' : 'transparent',
         opacity: isCurrentMonth ? 1 : 0.4,
       }}
     >
       <Text
         className={`text-sm ${
-          isToday ? 'font-bold text-primary' : status ? 'font-medium' : 'text-gray-600'
+          isToday ? 'font-bold text-primary' : status ? 'font-medium' : 'text-secondary-600'
         }`}
         style={{ color: status ? getStatusColor(status) : undefined }}
       >
@@ -160,19 +160,19 @@ export default function AttendanceScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-gray-50"
+      className="flex-1 bg-secondary-50"
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       {/* Month Navigation */}
-      <View className="bg-white px-5 py-4 flex-row items-center justify-between border-b border-gray-100">
+      <View className="bg-white px-5 py-4 flex-row items-center justify-between border-b border-secondary-100">
         <TouchableOpacity onPress={goToPreviousMonth} className="p-2">
-          <Ionicons name="chevron-back" size={24} color="#374151" />
+          <Ionicons name="chevron-back" size={24} color="#2E4470" />
         </TouchableOpacity>
-        <Text className="text-lg font-semibold text-gray-900">
+        <Text className="text-lg font-semibold text-secondary-800">
           {MONTHS[currentMonth]} {currentYear}
         </Text>
         <TouchableOpacity onPress={goToNextMonth} className="p-2">
-          <Ionicons name="chevron-forward" size={24} color="#374151" />
+          <Ionicons name="chevron-forward" size={24} color="#2E4470" />
         </TouchableOpacity>
       </View>
 
@@ -203,7 +203,7 @@ export default function AttendanceScreen() {
         {/* Day Headers */}
         <View className="flex-row justify-around mb-2">
           {DAYS.map((day) => (
-            <Text key={day} className="text-gray-500 text-xs font-medium w-10 text-center">
+            <Text key={day} className="text-secondary-500 text-xs font-medium w-10 text-center">
               {day}
             </Text>
           ))}
@@ -227,7 +227,7 @@ export default function AttendanceScreen() {
 
       {/* Legend */}
       <View className="px-5 mb-6">
-        <Text className="text-gray-600 font-medium mb-3">Legend</Text>
+        <Text className="text-secondary-600 font-medium mb-3">Legend</Text>
         <View className="flex-row flex-wrap">
           {[
             { status: 'present', label: 'Present' },
@@ -241,7 +241,7 @@ export default function AttendanceScreen() {
                 className="w-4 h-4 rounded-full mr-2"
                 style={{ backgroundColor: getStatusColor(status as AttendanceRecord['status']) }}
               />
-              <Text className="text-gray-600 text-sm">{label}</Text>
+              <Text className="text-secondary-600 text-sm">{label}</Text>
             </View>
           ))}
         </View>

@@ -80,15 +80,15 @@ export default function WorkloadScreen() {
 
   if (cLoading || tLoading || !summary) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#f8fafc' }}>
-        <ActivityIndicator color="#4f46e5" />
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#F9F8F5' }}>
+        <ActivityIndicator color="#053495" />
       </View>
     );
   }
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#F9F8F5' }}
       contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
     >
       {/* Summary tiles */}
@@ -99,7 +99,7 @@ export default function WorkloadScreen() {
       </View>
 
       <View style={s.row}>
-        <Tile icon="school" value={summary.totalSections} label="Sections" color="#0891b2" />
+        <Tile icon="school" value={summary.totalSections} label="Sections" color="#008AB8" />
         <Tile icon="book" value={summary.totalSubjects} label="Subjects" color="#7c3aed" />
       </View>
 
@@ -211,21 +211,21 @@ function EmptyBlock({ text }: { text: string }) {
 
 const s = StyleSheet.create({
   heroCard: {
-    backgroundColor: '#4338ca',
+    backgroundColor: '#042A6C',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
     marginBottom: 12,
   },
   heroLabel: {
-    color: '#c7d2fe',
+    color: '#C4D9FD',
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   heroNumber: { color: '#fff', fontSize: 54, fontWeight: '800', marginTop: 6 },
-  heroSub: { color: '#a5b4fc', fontSize: 13, marginTop: 2 },
+  heroSub: { color: '#84AFFB', fontSize: 13, marginTop: 2 },
   row: { flexDirection: 'row', marginBottom: 14, marginHorizontal: -4 },
   tile: {
     flex: 1,
@@ -235,7 +235,7 @@ const s = StyleSheet.create({
     padding: 14,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   tileIcon: {
     width: 40,
@@ -245,12 +245,12 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 6,
   },
-  tileValue: { fontSize: 22, fontWeight: '800', color: '#1e293b' },
-  tileLabel: { fontSize: 11, fontWeight: '600', color: '#94a3b8', marginTop: 1 },
+  tileValue: { fontSize: 22, fontWeight: '800', color: '#042A6C' },
+  tileLabel: { fontSize: 11, fontWeight: '600', color: '#8998B3', marginTop: 1 },
   sectionTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#526C98',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 18,
@@ -264,48 +264,48 @@ const s = StyleSheet.create({
     padding: 14,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  cardTitle: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
-  cardSub: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
+  cardTitle: { fontSize: 14, fontWeight: '700', color: '#042A6C' },
+  cardSub: { fontSize: 12, color: '#8998B3', marginTop: 2 },
   periodBadge: {
     alignItems: 'center',
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 8,
     minWidth: 70,
   },
-  periodNum: { fontSize: 18, fontWeight: '800', color: '#4338ca' },
-  periodLabel: { fontSize: 9, color: '#6366f1', fontWeight: '600' },
+  periodNum: { fontSize: 18, fontWeight: '800', color: '#042A6C' },
+  periodLabel: { fontSize: 9, color: '#0749BB', fontWeight: '600' },
   classesCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 4,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   classRow: { padding: 10 },
-  classRowBorder: { borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
-  classTitle: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
-  classSub: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
+  classRowBorder: { borderBottomWidth: 1, borderBottomColor: '#EDF0F3' },
+  classTitle: { fontSize: 14, fontWeight: '700', color: '#042A6C' },
+  classSub: { fontSize: 12, color: '#8998B3', marginTop: 2 },
   subjectPill: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
     marginRight: 4,
     marginTop: 4,
   },
-  subjectPillText: { fontSize: 10, fontWeight: '700', color: '#475569' },
+  subjectPillText: { fontSize: 10, fontWeight: '700', color: '#3E5683' },
   emptyBlock: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  emptyText: { fontSize: 13, color: '#94a3b8' },
+  emptyText: { fontSize: 13, color: '#8998B3' },
 });

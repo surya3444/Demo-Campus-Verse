@@ -21,7 +21,7 @@ export function Segmented<T extends string>({
   onChange,
   tone = 'ink',
 }: SegmentedProps<T>) {
-  const ruleColor = tone === 'onInk' ? 'rgba(245,240,230,0.18)' : color.rule;
+  const ruleColor = tone === 'onInk' ? 'rgba(255,255,255,0.18)' : color.rule;
   return (
     <View>
       <ScrollView

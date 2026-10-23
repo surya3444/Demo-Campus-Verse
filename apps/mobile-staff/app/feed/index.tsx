@@ -70,9 +70,9 @@ export default function FeedScreen() {
   const posts = data?.data || [];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       {isLoading ? (
-        <ActivityIndicator color="#4f46e5" style={{ marginVertical: 40 }} />
+        <ActivityIndicator color="#053495" style={{ marginVertical: 40 }} />
       ) : (
         <FlatList
           data={posts}
@@ -81,7 +81,7 @@ export default function FeedScreen() {
           contentContainerStyle={{ paddingVertical: 12, paddingBottom: 100 }}
           ListEmptyComponent={
             <View style={s.emptyCard}>
-              <Ionicons name="newspaper-outline" size={36} color="#cbd5e1" />
+              <Ionicons name="newspaper-outline" size={36} color="#D3DAE4" />
               <Text style={s.emptyText}>No posts yet</Text>
               <Text style={s.emptySub}>Be the first to share something with your campus.</Text>
             </View>
@@ -153,7 +153,7 @@ function PostCard({
         )}
         {isAuthor && (
           <TouchableOpacity onPress={onDelete} style={s.moreBtn} hitSlop={10}>
-            <Ionicons name="trash-outline" size={18} color="#94a3b8" />
+            <Ionicons name="trash-outline" size={18} color="#8998B3" />
           </TouchableOpacity>
         )}
       </View>
@@ -180,14 +180,14 @@ function PostCard({
           <Ionicons
             name={post.isLikedByMe ? 'heart' : 'heart-outline'}
             size={20}
-            color={post.isLikedByMe ? '#ef4444' : '#64748b'}
+            color={post.isLikedByMe ? '#ef4444' : '#526C98'}
           />
           <Text style={[s.actionText, post.isLikedByMe && { color: '#ef4444' }]}>
             {post.likeCount}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={s.actionBtn} onPress={onOpen} hitSlop={10}>
-          <Ionicons name="chatbubble-outline" size={18} color="#64748b" />
+          <Ionicons name="chatbubble-outline" size={18} color="#526C98" />
           <Text style={s.actionText}>{post.commentCount}</Text>
         </TouchableOpacity>
       </View>
@@ -203,7 +203,7 @@ const s = StyleSheet.create({
     marginHorizontal: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   avatar: { width: 40, height: 40, borderRadius: 20 },
@@ -211,21 +211,21 @@ const s = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarInitials: { fontWeight: '800', color: '#4338ca', fontSize: 13 },
-  authorName: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
+  avatarInitials: { fontWeight: '800', color: '#042A6C', fontSize: 13 },
+  authorName: { fontSize: 14, fontWeight: '700', color: '#042A6C' },
   roleBadge: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
     marginLeft: 6,
   },
-  roleBadgeText: { fontSize: 9, fontWeight: '700', color: '#475569' },
-  timestamp: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
+  roleBadgeText: { fontSize: 9, fontWeight: '700', color: '#3E5683' },
+  timestamp: { fontSize: 11, color: '#8998B3', marginTop: 2 },
   pinBadge: {
     width: 24,
     height: 24,
@@ -236,7 +236,7 @@ const s = StyleSheet.create({
     marginRight: 6,
   },
   moreBtn: { padding: 4 },
-  content: { fontSize: 14, color: '#1e293b', lineHeight: 20 },
+  content: { fontSize: 14, color: '#042A6C', lineHeight: 20 },
   mediaGrid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10, marginHorizontal: -2 },
   mediaItem: {
     width: '48%',
@@ -244,17 +244,17 @@ const s = StyleSheet.create({
     marginHorizontal: '1%',
     marginBottom: 4,
     borderRadius: 8,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
   },
   actions: {
     flexDirection: 'row',
     marginTop: 12,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#EDF0F3',
   },
   actionBtn: { flexDirection: 'row', alignItems: 'center', marginRight: 20 },
-  actionText: { fontSize: 13, color: '#64748b', marginLeft: 6, fontWeight: '600' },
+  actionText: { fontSize: 13, color: '#526C98', marginLeft: 6, fontWeight: '600' },
   fab: {
     position: 'absolute',
     right: 20,
@@ -262,10 +262,10 @@ const s = StyleSheet.create({
     width: 54,
     height: 54,
     borderRadius: 27,
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#4f46e5',
+    shadowColor: '#053495',
     shadowOpacity: 0.35,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 6 },
@@ -279,8 +279,8 @@ const s = StyleSheet.create({
     padding: 40,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  emptyText: { fontSize: 15, fontWeight: '700', color: '#64748b', marginTop: 10 },
-  emptySub: { fontSize: 12, color: '#94a3b8', marginTop: 4, textAlign: 'center' },
+  emptyText: { fontSize: 15, fontWeight: '700', color: '#526C98', marginTop: 10 },
+  emptySub: { fontSize: 12, color: '#8998B3', marginTop: 4, textAlign: 'center' },
 });

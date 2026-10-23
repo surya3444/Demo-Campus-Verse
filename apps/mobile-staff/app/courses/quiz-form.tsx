@@ -99,7 +99,7 @@ export default function QuizFormScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#F9F8F5' }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
@@ -109,7 +109,7 @@ export default function QuizFormScreen() {
           value={title}
           onChangeText={setTitle}
           placeholder="Unit 1 Quiz"
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
         />
 
         <Text style={s.label}>Description (optional)</Text>
@@ -118,7 +118,7 @@ export default function QuizFormScreen() {
           value={description}
           onChangeText={setDescription}
           placeholder="Instructions for students"
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
           multiline
           textAlignVertical="top"
         />
@@ -145,7 +145,7 @@ export default function QuizFormScreen() {
                     <Text
                       style={[
                         s.typeSwitchText,
-                        q.type === t && { color: '#4338ca', fontWeight: '700' },
+                        q.type === t && { color: '#042A6C', fontWeight: '700' },
                       ]}
                     >
                       {t === 'mcq' ? 'MCQ' : t === 'true_false' ? 'T/F' : 'Text'}
@@ -159,7 +159,7 @@ export default function QuizFormScreen() {
                   hitSlop={8}
                   style={{ marginLeft: 8 }}
                 >
-                  <Ionicons name="trash-outline" size={16} color="#94a3b8" />
+                  <Ionicons name="trash-outline" size={16} color="#8998B3" />
                 </TouchableOpacity>
               )}
             </View>
@@ -169,7 +169,7 @@ export default function QuizFormScreen() {
               value={q.question}
               onChangeText={(v) => updateQuestion(qIdx, { question: v })}
               placeholder="Enter question"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor="#8998B3"
               multiline
             />
 
@@ -191,7 +191,7 @@ export default function QuizFormScreen() {
                       value={opt}
                       onChangeText={(v) => updateOption(qIdx, oIdx, v)}
                       placeholder={`Option ${oIdx + 1}`}
-                      placeholderTextColor="#94a3b8"
+                      placeholderTextColor="#8998B3"
                     />
                   </View>
                 ))}
@@ -215,7 +215,7 @@ export default function QuizFormScreen() {
             )}
 
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-              <Text style={{ fontSize: 12, color: '#64748b', marginRight: 8 }}>Marks:</Text>
+              <Text style={{ fontSize: 12, color: '#526C98', marginRight: 8 }}>Marks:</Text>
               <TextInput
                 style={s.marksInput}
                 value={String(q.marks)}
@@ -227,7 +227,7 @@ export default function QuizFormScreen() {
         ))}
 
         <TouchableOpacity style={s.addQBtn} onPress={addQuestion} activeOpacity={0.8}>
-          <Ionicons name="add" size={18} color="#4f46e5" />
+          <Ionicons name="add" size={18} color="#053495" />
           <Text style={s.addQText}>Add Question</Text>
         </TouchableOpacity>
 
@@ -252,7 +252,7 @@ const s = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#526C98',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 14,
@@ -264,18 +264,18 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
-    color: '#1e293b',
+    color: '#042A6C',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
   },
   textareaSmall: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 14,
     fontSize: 14,
-    color: '#1e293b',
+    color: '#042A6C',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
     minHeight: 70,
   },
   questionCard: {
@@ -284,19 +284,19 @@ const s = StyleSheet.create({
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  qNum: { fontSize: 13, fontWeight: '800', color: '#4338ca' },
-  typeSwitch: { flexDirection: 'row', backgroundColor: '#f1f5f9', borderRadius: 8, padding: 2 },
+  qNum: { fontSize: 13, fontWeight: '800', color: '#042A6C' },
+  typeSwitch: { flexDirection: 'row', backgroundColor: '#EDF0F3', borderRadius: 8, padding: 2 },
   typeSwitchBtn: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
   typeSwitchActive: { backgroundColor: '#fff' },
-  typeSwitchText: { fontSize: 10, fontWeight: '600', color: '#64748b' },
+  typeSwitchText: { fontSize: 10, fontWeight: '600', color: '#526C98' },
   qInput: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
     borderRadius: 10,
     padding: 10,
     fontSize: 14,
-    color: '#1e293b',
+    color: '#042A6C',
     minHeight: 50,
   },
   optionRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
@@ -305,56 +305,56 @@ const s = StyleSheet.create({
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: '#cbd5e1',
+    borderColor: '#D3DAE4',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
   },
-  optionRadioActive: { borderColor: '#4f46e5' },
-  optionRadioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#4f46e5' },
+  optionRadioActive: { borderColor: '#053495' },
+  optionRadioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#053495' },
   optionInput: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 8,
     fontSize: 13,
-    color: '#1e293b',
+    color: '#042A6C',
   },
   tfBtn: {
     flex: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#EDF0F3',
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
     marginRight: 8,
   },
-  tfBtnActive: { backgroundColor: '#4f46e5' },
-  tfText: { fontSize: 13, fontWeight: '700', color: '#64748b' },
+  tfBtnActive: { backgroundColor: '#053495' },
+  tfText: { fontSize: 13, fontWeight: '700', color: '#526C98' },
   marksInput: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 4,
     fontSize: 13,
-    color: '#1e293b',
+    color: '#042A6C',
     width: 50,
     textAlign: 'center',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
   },
   addQBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     paddingVertical: 12,
     borderRadius: 12,
     marginTop: 4,
   },
-  addQText: { fontSize: 13, fontWeight: '700', color: '#4f46e5', marginLeft: 6 },
+  addQText: { fontSize: 13, fontWeight: '700', color: '#053495', marginLeft: 6 },
   submitBtn: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',

@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { teachingApi, LessonPlan } from '@/api/teaching';
 
-const _FC = '#f8fafc';
+const _FC = '#F9F8F5';
 const _STEPS = 40;
 function BottomFade() {
   return (
@@ -44,14 +44,14 @@ const TEACHING_FILTERS = [
 ];
 
 const STATUS_BADGE: Record<string, { color: string; bg: string; label: string }> = {
-  draft: { color: '#64748b', bg: '#f1f5f9', label: 'Draft' },
-  published: { color: '#2563eb', bg: '#dbeafe', label: 'Published' },
+  draft: { color: '#526C98', bg: '#EDF0F3', label: 'Draft' },
+  published: { color: '#053495', bg: '#E1ECFE', label: 'Published' },
 };
 
 const TEACHING_BADGE: Record<string, { color: string; bg: string; label: string }> = {
-  not_started: { color: '#94a3b8', bg: '#f1f5f9', label: 'Not Started' },
-  ongoing: { color: '#2563eb', bg: '#dbeafe', label: 'In Progress' },
-  delivered: { color: '#4f46e5', bg: '#eef2ff', label: 'Delivered' },
+  not_started: { color: '#8998B3', bg: '#EDF0F3', label: 'Not Started' },
+  ongoing: { color: '#053495', bg: '#E1ECFE', label: 'In Progress' },
+  delivered: { color: '#053495', bg: '#F0F5FE', label: 'Delivered' },
   completed_with_assignment: { color: '#d97706', bg: '#fef3c7', label: 'Done + HW' },
   completed: { color: '#16a34a', bg: '#dcfce7', label: 'Completed' },
 };
@@ -75,7 +75,7 @@ function LessonCard({ plan }: { plan: LessonPlan }) {
       className="mb-2.5"
     >
       <View
-        className="bg-white rounded-xl p-4 border border-gray-100"
+        className="bg-white rounded-xl p-4 border border-secondary-100"
         style={{
           elevation: 1,
           shadowColor: '#000',
@@ -86,7 +86,7 @@ function LessonCard({ plan }: { plan: LessonPlan }) {
       >
         {/* Title + status */}
         <View className="flex-row items-start mb-2">
-          <Text className="text-[15px] font-semibold text-gray-900 flex-1 mr-2" numberOfLines={2}>
+          <Text className="text-[15px] font-semibold text-secondary-800 flex-1 mr-2" numberOfLines={2}>
             {plan.title}
           </Text>
           <View className="px-2 py-0.5 rounded" style={{ backgroundColor: sBadge.bg }}>
@@ -100,14 +100,14 @@ function LessonCard({ plan }: { plan: LessonPlan }) {
         <View className="flex-row items-center flex-wrap mb-2.5">
           {plan.subjectName && (
             <View className="flex-row items-center mr-3">
-              <View className="w-2 h-2 rounded-full bg-indigo-400 mr-1.5" />
-              <Text className="text-xs text-gray-500 font-medium">{plan.subjectName}</Text>
+              <View className="w-2 h-2 rounded-full bg-primary-400 mr-1.5" />
+              <Text className="text-xs text-secondary-500 font-medium">{plan.subjectName}</Text>
             </View>
           )}
           {plan.className && (
             <View className="flex-row items-center mr-3">
-              <Ionicons name="people-outline" size={11} color="#94a3b8" />
-              <Text className="text-xs text-gray-400 ml-1">
+              <Ionicons name="people-outline" size={11} color="#8998B3" />
+              <Text className="text-xs text-secondary-400 ml-1">
                 {plan.className}
                 {plan.sectionName ? ` · ${plan.sectionName}` : ''}
               </Text>
@@ -115,8 +115,8 @@ function LessonCard({ plan }: { plan: LessonPlan }) {
           )}
           {plan.objectives && plan.objectives.length > 0 && (
             <View className="flex-row items-center">
-              <Ionicons name="list-outline" size={11} color="#94a3b8" />
-              <Text className="text-xs text-gray-400 ml-1">{plan.objectives.length} steps</Text>
+              <Ionicons name="list-outline" size={11} color="#8998B3" />
+              <Text className="text-xs text-secondary-400 ml-1">{plan.objectives.length} steps</Text>
             </View>
           )}
         </View>
@@ -124,7 +124,7 @@ function LessonCard({ plan }: { plan: LessonPlan }) {
         {/* Footer: date, duration, teaching status, quick action */}
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
-            <Text className="text-[11px] text-gray-400">
+            <Text className="text-[11px] text-secondary-400">
               {new Date(plan.date).toLocaleDateString('en-IN', {
                 day: 'numeric',
                 month: 'short',
@@ -132,7 +132,7 @@ function LessonCard({ plan }: { plan: LessonPlan }) {
               })}
             </Text>
             {plan.duration && (
-              <Text className="text-[11px] text-gray-300 ml-2">· {plan.duration} min</Text>
+              <Text className="text-[11px] text-secondary-300 ml-2">· {plan.duration} min</Text>
             )}
           </View>
           <View className="flex-row items-center">
@@ -145,12 +145,12 @@ function LessonCard({ plan }: { plan: LessonPlan }) {
               <TouchableOpacity
                 onPress={() => startMutation.mutate()}
                 disabled={startMutation.isPending}
-                className="bg-indigo-50 px-2 py-1 rounded"
+                className="bg-primary-50 px-2 py-1 rounded"
               >
                 {startMutation.isPending ? (
-                  <ActivityIndicator size={10} color="#4f46e5" />
+                  <ActivityIndicator size={10} color="#053495" />
                 ) : (
-                  <Ionicons name="play" size={12} color="#4f46e5" />
+                  <Ionicons name="play" size={12} color="#053495" />
                 )}
               </TouchableOpacity>
             )}
@@ -173,10 +173,10 @@ function FilterChip({
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} className="mr-2">
       <View
-        className={`px-3 py-1.5 rounded-lg ${active ? '' : 'border border-gray-200'}`}
-        style={active ? { backgroundColor: '#4f46e5' } : { backgroundColor: '#fff' }}
+        className={`px-3 py-1.5 rounded-lg ${active ? '' : 'border border-secondary-200'}`}
+        style={active ? { backgroundColor: '#053495' } : { backgroundColor: '#fff' }}
       >
-        <Text className={`text-xs font-semibold ${active ? 'text-white' : 'text-gray-500'}`}>
+        <Text className={`text-xs font-semibold ${active ? 'text-white' : 'text-secondary-500'}`}>
           {label}
         </Text>
       </View>
@@ -208,9 +208,9 @@ export default function LessonPlansScreen() {
   const plans = data?.data || [];
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-secondary-50">
       {/* Filters */}
-      <View className="bg-white px-4 pt-3 pb-2 border-b border-gray-100">
+      <View className="bg-white px-4 pt-3 pb-2 border-b border-secondary-100">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-2">
           {STATUS_FILTERS.map((f) => (
             <FilterChip
@@ -220,7 +220,7 @@ export default function LessonPlansScreen() {
               onPress={() => setStatusFilter(f.key)}
             />
           ))}
-          <View className="w-px bg-gray-200 mx-1 my-1" />
+          <View className="w-px bg-secondary-200 mx-1 my-1" />
           {TEACHING_FILTERS.map((f) => (
             <FilterChip
               key={f.key}
@@ -234,7 +234,7 @@ export default function LessonPlansScreen() {
 
       {/* Count */}
       <View className="px-4 pt-3 pb-1">
-        <Text className="text-xs text-gray-400 font-medium">
+        <Text className="text-xs text-secondary-400 font-medium">
           {data?.meta?.total ?? plans.length} lesson plan{plans.length !== 1 ? 's' : ''}
         </Text>
       </View>
@@ -242,21 +242,21 @@ export default function LessonPlansScreen() {
       <ScrollView
         className="flex-1 px-4"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4f46e5" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#053495" />
         }
         showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
           <View className="items-center py-16">
-            <ActivityIndicator size="large" color="#4f46e5" />
+            <ActivityIndicator size="large" color="#053495" />
           </View>
         ) : plans.length === 0 ? (
           <View className="bg-white rounded-2xl p-10 items-center mt-4" style={{ elevation: 1 }}>
-            <View className="w-16 h-16 bg-indigo-50 rounded-full items-center justify-center mb-3">
-              <Ionicons name="document-text-outline" size={28} color="#4f46e5" />
+            <View className="w-16 h-16 bg-primary-50 rounded-full items-center justify-center mb-3">
+              <Ionicons name="document-text-outline" size={28} color="#053495" />
             </View>
-            <Text className="text-gray-900 font-semibold">No Lesson Plans</Text>
-            <Text className="text-gray-400 text-sm mt-1 text-center">
+            <Text className="text-secondary-800 font-semibold">No Lesson Plans</Text>
+            <Text className="text-secondary-400 text-sm mt-1 text-center">
               {statusFilter !== 'all' || teachingFilter !== 'all'
                 ? 'No plans match your filters'
                 : 'Create your first lesson plan'}
@@ -282,11 +282,11 @@ export default function LessonPlansScreen() {
           zIndex: 999,
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: '#4f46e5',
+          backgroundColor: '#053495',
           paddingHorizontal: 18,
           paddingVertical: 14,
           borderRadius: 16,
-          shadowColor: '#4f46e5',
+          shadowColor: '#053495',
           shadowOffset: { width: 0, height: 6 },
           shadowOpacity: 0.35,
           shadowRadius: 12,

@@ -20,7 +20,7 @@ export function LiveClassPollPanel({ socket, isHost }: { socket: Socket; isHost:
   if (isHost) return <Launcher socket={socket} />;
   return (
     <View style={s.empty}>
-      <Ionicons name="bar-chart-outline" size={36} color="#cbd5e1" />
+      <Ionicons name="bar-chart-outline" size={36} color="#D3DAE4" />
       <Text style={s.emptyText}>Waiting for the host to launch a poll</Text>
     </View>
   );
@@ -74,7 +74,7 @@ function Launcher({ socket }: { socket: Socket }) {
         value={question}
         onChangeText={setQuestion}
         placeholder="e.g. What's 2 + 2?"
-        placeholderTextColor="#9ca3af"
+        placeholderTextColor="#8998B3"
       />
       <Text style={[s.label, { marginTop: 14 }]}>Options (toggle correct answers)</Text>
       {options.map((o, i) => (
@@ -82,14 +82,14 @@ function Launcher({ socket }: { socket: Socket }) {
           <Switch
             value={o.isCorrect}
             onValueChange={(v) => update(i, { isCorrect: v })}
-            trackColor={{ true: '#10b981', false: '#e5e7eb' }}
+            trackColor={{ true: '#10b981', false: '#DAE0E7' }}
           />
           <TextInput
             style={[s.input, { flex: 1, marginLeft: 8 }]}
             value={o.text}
             onChangeText={(v) => update(i, { text: v })}
             placeholder={`Option ${i + 1}`}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#8998B3"
           />
           {options.length > 2 && (
             <TouchableOpacity
@@ -106,8 +106,8 @@ function Launcher({ socket }: { socket: Socket }) {
           style={s.addBtn}
           onPress={() => setOptions((o) => [...o, { text: '', isCorrect: false }])}
         >
-          <Ionicons name="add" size={18} color="#4f46e5" />
-          <Text style={{ color: '#4f46e5', fontWeight: '600' }}>Add option</Text>
+          <Ionicons name="add" size={18} color="#053495" />
+          <Text style={{ color: '#053495', fontWeight: '600' }}>Add option</Text>
         </TouchableOpacity>
       )}
 
@@ -163,7 +163,7 @@ function ActivePoll({ socket, isHost }: { socket: Socket; isHost: boolean }) {
       <View style={s.timerRow}>
         <Text style={s.liveTag}>LIVE POLL</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Ionicons name="timer-outline" size={14} color="#374151" />
+          <Ionicons name="timer-outline" size={14} color="#2E4470" />
           <Text style={{ fontVariant: ['tabular-nums'], fontWeight: '600' }}>{remaining}s</Text>
         </View>
       </View>
@@ -175,7 +175,7 @@ function ActivePoll({ socket, isHost }: { socket: Socket; isHost: boolean }) {
             key={i}
             style={[
               s.optBox,
-              isPicked && { borderColor: '#4f46e5', backgroundColor: '#eef2ff' },
+              isPicked && { borderColor: '#053495', backgroundColor: '#F0F5FE' },
               (submitted || remaining === 0 || isHost) && { opacity: 0.5 },
             ]}
             onPress={() => toggle(i)}
@@ -203,7 +203,7 @@ function ActivePoll({ socket, isHost }: { socket: Socket; isHost: boolean }) {
         </TouchableOpacity>
       )}
       {submitted && (
-        <Text style={{ textAlign: 'center', color: '#9ca3af', marginTop: 12, fontSize: 12 }}>
+        <Text style={{ textAlign: 'center', color: '#8998B3', marginTop: 12, fontSize: 12 }}>
           Answer submitted. Results show when the poll closes.
         </Text>
       )}
@@ -229,13 +229,13 @@ function Results({ socket }: { socket: Socket; isHost: boolean }) {
               <Text style={[s.optText, o.isCorrect && { color: '#16a34a', fontWeight: '700' }]}>
                 {o.text} {o.isCorrect ? '✓' : ''}
               </Text>
-              <Text style={{ color: '#6b7280' }}>{o.count}</Text>
+              <Text style={{ color: '#526C98' }}>{o.count}</Text>
             </View>
             <View style={s.bar}>
               <View
                 style={[
                   s.barFill,
-                  { width: `${pct}%`, backgroundColor: o.isCorrect ? '#10b981' : '#4f46e5' },
+                  { width: `${pct}%`, backgroundColor: o.isCorrect ? '#10b981' : '#053495' },
                 ]}
               />
             </View>
@@ -248,16 +248,16 @@ function Results({ socket }: { socket: Socket; isHost: boolean }) {
 
 const s = StyleSheet.create({
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 30 },
-  emptyText: { color: '#6b7280', marginTop: 12, fontSize: 13, textAlign: 'center' },
-  label: { fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 },
+  emptyText: { color: '#526C98', marginTop: 12, fontSize: 13, textAlign: 'center' },
+  label: { fontSize: 12, fontWeight: '600', color: '#2E4470', marginBottom: 6 },
   input: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#111827',
+    color: '#042A6C',
     backgroundColor: '#fff',
   },
   optRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
@@ -269,12 +269,12 @@ const s = StyleSheet.create({
     padding: 8,
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
     borderRadius: 10,
     borderStyle: 'dashed',
   },
   launchBtn: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     paddingVertical: 13,
     borderRadius: 12,
     alignItems: 'center',
@@ -282,25 +282,25 @@ const s = StyleSheet.create({
   },
   launchText: { color: '#fff', fontWeight: '700', fontSize: 14 },
   timerRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  liveTag: { fontSize: 11, fontWeight: '800', color: '#4f46e5', letterSpacing: 1 },
-  question: { fontSize: 17, fontWeight: '700', color: '#111827', marginBottom: 14 },
+  liveTag: { fontSize: 11, fontWeight: '800', color: '#053495', letterSpacing: 1 },
+  question: { fontSize: 17, fontWeight: '700', color: '#042A6C', marginBottom: 14 },
   optBox: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
     borderRadius: 12,
     padding: 14,
     marginBottom: 8,
     backgroundColor: '#fff',
   },
-  optText: { fontSize: 14, color: '#1f2937' },
+  optText: { fontSize: 14, color: '#042A6C' },
   resultsHead: {
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1,
-    color: '#6b7280',
+    color: '#526C98',
     textTransform: 'uppercase',
     marginBottom: 12,
   },
-  bar: { height: 8, backgroundColor: '#f3f4f6', borderRadius: 4, overflow: 'hidden' },
+  bar: { height: 8, backgroundColor: '#EDF0F3', borderRadius: 4, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 4 },
 });

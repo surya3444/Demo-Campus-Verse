@@ -87,7 +87,7 @@ export default function Checkin() {
           variant={phase === 'in' ? 'ink' : 'paper'}
           rounded="md"
           padded={18}
-          style={{ borderColor: phase === 'in' ? 'rgba(245,240,230,0.18)' : color.rule }}
+          style={{ borderColor: phase === 'in' ? 'rgba(255,255,255,0.18)' : color.rule }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View
@@ -181,7 +181,7 @@ export default function Checkin() {
               alignItems: 'center',
               paddingVertical: 12,
               borderBottomWidth: 1,
-              borderBottomColor: phase === 'in' ? 'rgba(245,240,230,0.12)' : color.rule,
+              borderBottomColor: phase === 'in' ? 'rgba(255,255,255,0.12)' : color.rule,
             }}
           >
             <Text

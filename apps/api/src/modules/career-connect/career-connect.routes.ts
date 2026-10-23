@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { studentParamGuard } from '../teaching/scope';
 import { authenticate } from '../../middleware/auth';
-import { requireBranch, requirePermission } from '../../middleware/rbac';
+import { requireBranch, requirePermission, requireAnyPermission } from '../../middleware/rbac';
 import { requireModule } from '../../middleware/moduleGating';
 import { validateBody, validateQuery } from '../../middleware/validate';
 import { requireInstitutionType } from './middleware/institutionTypeGuard';
@@ -401,7 +401,10 @@ router.get(
 router.get(
   '/student-profiles/my',
   requireInstitutionType('placement'),
-  requirePermission('careerConnect.studentProfiles', 'view'),
+  requireAnyPermission([
+    { module: 'careerConnect.studentProfiles', action: 'view' },
+    { module: 'careerConnect.myProfile', action: 'view' },
+  ]),
   studentProfileController.getMyProfile
 );
 

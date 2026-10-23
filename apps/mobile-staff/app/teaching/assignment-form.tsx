@@ -114,27 +114,27 @@ export default function AssignmentFormScreen() {
           headerRight: () => (
             <TouchableOpacity onPress={handleSubmit} disabled={isSaving} className="mr-2">
               {isSaving ? (
-                <ActivityIndicator color="#4f46e5" />
+                <ActivityIndicator color="#053495" />
               ) : (
-                <Text className="text-indigo-600 font-bold text-base">Save</Text>
+                <Text className="text-primary-600 font-bold text-base">Save</Text>
               )}
             </TouchableOpacity>
           ),
         }}
       />
       <ScrollView
-        className="flex-1 bg-gray-50"
+        className="flex-1 bg-secondary-50"
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-5 pt-4 pb-8">
           {/* Title */}
           <View className="mb-4">
-            <Text className="text-sm font-semibold text-gray-700 mb-1.5">Title *</Text>
+            <Text className="text-sm font-semibold text-secondary-700 mb-1.5">Title *</Text>
             <TextInput
-              className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-900"
+              className="bg-white border border-secondary-200 rounded-xl px-4 py-3 text-base text-secondary-800"
               placeholder="Enter assignment title"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#8998B3"
               value={title}
               onChangeText={setTitle}
             />
@@ -142,12 +142,12 @@ export default function AssignmentFormScreen() {
 
           {/* Section Picker */}
           <View className="mb-4">
-            <Text className="text-sm font-semibold text-gray-700 mb-1.5">Class *</Text>
+            <Text className="text-sm font-semibold text-secondary-700 mb-1.5">Class *</Text>
             <TouchableOpacity
               onPress={() => setShowSectionPicker(!showSectionPicker)}
-              className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex-row items-center justify-between"
+              className="bg-white border border-secondary-200 rounded-xl px-4 py-3 flex-row items-center justify-between"
             >
-              <Text className={selectedSectionId ? 'text-gray-900' : 'text-gray-400'}>
+              <Text className={selectedSectionId ? 'text-secondary-800' : 'text-secondary-400'}>
                 {selectedClass
                   ? `${selectedClass.className} - ${selectedClass.sectionName}`
                   : 'Select class'}
@@ -155,11 +155,11 @@ export default function AssignmentFormScreen() {
               <Ionicons
                 name={showSectionPicker ? 'chevron-up' : 'chevron-down'}
                 size={18}
-                color="#9ca3af"
+                color="#8998B3"
               />
             </TouchableOpacity>
             {showSectionPicker && (
-              <View className="bg-white border border-gray-200 rounded-xl mt-1 overflow-hidden">
+              <View className="bg-white border border-secondary-200 rounded-xl mt-1 overflow-hidden">
                 {classes?.map((cls: TeachingClass) => (
                   <TouchableOpacity
                     key={cls.sectionId}
@@ -168,13 +168,13 @@ export default function AssignmentFormScreen() {
                       setSelectedSubjectId('');
                       setShowSectionPicker(false);
                     }}
-                    className={`px-4 py-3 border-b border-gray-50 ${cls.sectionId === selectedSectionId ? 'bg-indigo-50' : ''}`}
+                    className={`px-4 py-3 border-b border-secondary-50 ${cls.sectionId === selectedSectionId ? 'bg-primary-50' : ''}`}
                   >
                     <Text
                       className={
                         cls.sectionId === selectedSectionId
-                          ? 'text-indigo-600 font-medium'
-                          : 'text-gray-900'
+                          ? 'text-primary-600 font-medium'
+                          : 'text-secondary-800'
                       }
                     >
                       {cls.className} - {cls.sectionName}
@@ -187,23 +187,23 @@ export default function AssignmentFormScreen() {
 
           {/* Subject Picker */}
           <View className="mb-4">
-            <Text className="text-sm font-semibold text-gray-700 mb-1.5">Subject *</Text>
+            <Text className="text-sm font-semibold text-secondary-700 mb-1.5">Subject *</Text>
             <TouchableOpacity
               onPress={() => selectedSectionId && setShowSubjectPicker(!showSubjectPicker)}
-              className={`bg-white border border-gray-200 rounded-xl px-4 py-3 flex-row items-center justify-between ${!selectedSectionId ? 'opacity-50' : ''}`}
+              className={`bg-white border border-secondary-200 rounded-xl px-4 py-3 flex-row items-center justify-between ${!selectedSectionId ? 'opacity-50' : ''}`}
             >
-              <Text className={selectedSubjectId ? 'text-gray-900' : 'text-gray-400'}>
+              <Text className={selectedSubjectId ? 'text-secondary-800' : 'text-secondary-400'}>
                 {subjects.find((s) => s.subjectId === selectedSubjectId)?.subjectName ||
                   'Select subject'}
               </Text>
               <Ionicons
                 name={showSubjectPicker ? 'chevron-up' : 'chevron-down'}
                 size={18}
-                color="#9ca3af"
+                color="#8998B3"
               />
             </TouchableOpacity>
             {showSubjectPicker && subjects.length > 0 && (
-              <View className="bg-white border border-gray-200 rounded-xl mt-1 overflow-hidden">
+              <View className="bg-white border border-secondary-200 rounded-xl mt-1 overflow-hidden">
                 {subjects.map((sub) => (
                   <TouchableOpacity
                     key={sub.subjectId}
@@ -211,13 +211,13 @@ export default function AssignmentFormScreen() {
                       setSelectedSubjectId(sub.subjectId);
                       setShowSubjectPicker(false);
                     }}
-                    className={`px-4 py-3 border-b border-gray-50 ${sub.subjectId === selectedSubjectId ? 'bg-indigo-50' : ''}`}
+                    className={`px-4 py-3 border-b border-secondary-50 ${sub.subjectId === selectedSubjectId ? 'bg-primary-50' : ''}`}
                   >
                     <Text
                       className={
                         sub.subjectId === selectedSubjectId
-                          ? 'text-indigo-600 font-medium'
-                          : 'text-gray-900'
+                          ? 'text-primary-600 font-medium'
+                          : 'text-secondary-800'
                       }
                     >
                       {sub.subjectName}
@@ -231,21 +231,21 @@ export default function AssignmentFormScreen() {
           {/* Due Date & Total Marks Row */}
           <View className="flex-row mb-4">
             <View className="flex-1 mr-2">
-              <Text className="text-sm font-semibold text-gray-700 mb-1.5">Due Date *</Text>
+              <Text className="text-sm font-semibold text-secondary-700 mb-1.5">Due Date *</Text>
               <TextInput
-                className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-900"
+                className="bg-white border border-secondary-200 rounded-xl px-4 py-3 text-base text-secondary-800"
                 placeholder="YYYY-MM-DD"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#8998B3"
                 value={dueDate}
                 onChangeText={setDueDate}
               />
             </View>
             <View className="flex-1 ml-2">
-              <Text className="text-sm font-semibold text-gray-700 mb-1.5">Total Marks *</Text>
+              <Text className="text-sm font-semibold text-secondary-700 mb-1.5">Total Marks *</Text>
               <TextInput
-                className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-900"
+                className="bg-white border border-secondary-200 rounded-xl px-4 py-3 text-base text-secondary-800"
                 placeholder="e.g. 100"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#8998B3"
                 value={totalMarks}
                 onChangeText={setTotalMarks}
                 keyboardType="numeric"
@@ -255,11 +255,11 @@ export default function AssignmentFormScreen() {
 
           {/* Description */}
           <View className="mb-6">
-            <Text className="text-sm font-semibold text-gray-700 mb-1.5">Description</Text>
+            <Text className="text-sm font-semibold text-secondary-700 mb-1.5">Description</Text>
             <TextInput
-              className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-900"
+              className="bg-white border border-secondary-200 rounded-xl px-4 py-3 text-base text-secondary-800"
               placeholder="Assignment instructions or description"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#8998B3"
               value={description}
               onChangeText={setDescription}
               multiline
@@ -272,10 +272,10 @@ export default function AssignmentFormScreen() {
           {/* Submit Button */}
           <TouchableOpacity onPress={handleSubmit} disabled={isSaving} activeOpacity={0.8}>
             <View
-              className="bg-indigo-600 rounded-xl py-4 items-center"
+              className="bg-primary-600 rounded-xl py-4 items-center"
               style={{
                 elevation: 3,
-                shadowColor: '#4f46e5',
+                shadowColor: '#053495',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.3,
                 shadowRadius: 8,

@@ -285,7 +285,7 @@ function RoomContents({
           <View style={s.modalHeader}>
             <Text style={s.modalTitle}>{drawer === 'chat' ? 'Chat' : 'Polls'}</Text>
             <TouchableOpacity onPress={() => setDrawer(null)}>
-              <Ionicons name="close" size={22} color="#6b7280" />
+              <Ionicons name="close" size={22} color="#526C98" />
             </TouchableOpacity>
           </View>
           <View style={{ flex: 1 }}>
@@ -345,7 +345,7 @@ function VideoGrid() {
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0a0a0a' },
+  root: { flex: 1, backgroundColor: '#02173B' },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -456,7 +456,7 @@ const s = StyleSheet.create({
   modalHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#d1d5db',
+    backgroundColor: '#D3DAE4',
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 8,
@@ -468,9 +468,9 @@ const s = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: '#DAE0E7',
   },
-  modalTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
+  modalTitle: { fontSize: 16, fontWeight: '700', color: '#042A6C' },
   hostRow: {
     flexDirection: 'row',
     justifyContent: 'center',

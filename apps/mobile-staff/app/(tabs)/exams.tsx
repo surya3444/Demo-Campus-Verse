@@ -22,8 +22,8 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_COLOR: Record<string, string> = {
-  draft: '#64748b',
-  scheduled: '#2563eb',
+  draft: '#526C98',
+  scheduled: '#053495',
   ongoing: '#d97706',
   completed: '#7c3aed',
   results_published: '#059669',
@@ -45,12 +45,12 @@ function ExamCard({ exam, onPress }: { exam: Exam; onPress: () => void }) {
       >
         <View className="flex-row items-start justify-between">
           <View className="flex-1 mr-3">
-            <Text className="font-semibold text-base text-slate-900">{exam.name}</Text>
-            <Text className="text-xs text-slate-500 mt-0.5">
+            <Text className="font-semibold text-base text-secondary-800">{exam.name}</Text>
+            <Text className="text-xs text-secondary-500 mt-0.5">
               {exam.termName} · {exam.papers.length} paper(s)
             </Text>
             {exam.startDate && (
-              <Text className="text-xs text-slate-500 mt-1">
+              <Text className="text-xs text-secondary-500 mt-1">
                 {new Date(exam.startDate).toLocaleDateString()}
                 {exam.endDate ? ` → ${new Date(exam.endDate).toLocaleDateString()}` : ''}
               </Text>
@@ -91,20 +91,20 @@ export default function ExamsTabScreen() {
   const exams = (data as Exam[] | undefined) || [];
 
   return (
-    <View className="flex-1 bg-slate-50">
+    <View className="flex-1 bg-secondary-50">
       <ScrollView
         contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {isLoading ? (
           <View className="items-center justify-center py-12">
-            <ActivityIndicator color="#4f46e5" />
+            <ActivityIndicator color="#053495" />
           </View>
         ) : exams.length === 0 ? (
           <View className="items-center justify-center py-16">
-            <Ionicons name="document-text-outline" size={48} color="#cbd5e1" />
-            <Text className="text-base font-medium text-slate-700 mt-3">No exams</Text>
-            <Text className="text-sm text-slate-500 mt-1 text-center max-w-xs">
+            <Ionicons name="document-text-outline" size={48} color="#D3DAE4" />
+            <Text className="text-base font-medium text-secondary-700 mt-3">No exams</Text>
+            <Text className="text-sm text-secondary-500 mt-1 text-center max-w-xs">
               Once an admin schedules an exam, it will appear here.
             </Text>
           </View>

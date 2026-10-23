@@ -25,13 +25,13 @@ import { studentApi } from '@/api/student';
 const C = {
   bg: '#0A0612',
   surface: '#FFFFFF',
-  surfaceAlt: '#F7F8FA',
-  border: '#E5E7EB',
-  navy: '#0F172A',
-  textMuted: '#64748B',
-  textFaint: '#94A3B8',
-  brand: '#4338CA',
-  brandSoft: '#EEF2FF',
+  surfaceAlt: '#F9F8F5',
+  border: '#DAE0E7',
+  navy: '#042A6C',
+  textMuted: '#526C98',
+  textFaint: '#8998B3',
+  brand: '#042A6C',
+  brandSoft: '#F0F5FE',
   emerald: '#10B981',
 };
 

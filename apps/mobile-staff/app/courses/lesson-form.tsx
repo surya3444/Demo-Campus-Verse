@@ -70,7 +70,7 @@ export default function LessonFormScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#F9F8F5' }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
@@ -80,7 +80,7 @@ export default function LessonFormScreen() {
           value={title}
           onChangeText={setTitle}
           placeholder="Chapter 1: Introduction"
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
           autoFocus
         />
 
@@ -96,12 +96,12 @@ export default function LessonFormScreen() {
               <Ionicons
                 name={t.icon}
                 size={22}
-                color={contentType === t.key ? '#4338ca' : '#64748b'}
+                color={contentType === t.key ? '#042A6C' : '#526C98'}
               />
               <Text
                 style={[
                   s.typeLabel,
-                  contentType === t.key && { color: '#4338ca', fontWeight: '700' },
+                  contentType === t.key && { color: '#042A6C', fontWeight: '700' },
                 ]}
               >
                 {t.label}
@@ -118,7 +118,7 @@ export default function LessonFormScreen() {
               value={contentBody}
               onChangeText={setContentBody}
               placeholder="Type or paste your lesson content..."
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor="#8998B3"
               multiline
               textAlignVertical="top"
             />
@@ -133,7 +133,7 @@ export default function LessonFormScreen() {
               value={contentUrl}
               onChangeText={setContentUrl}
               placeholder="https://..."
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor="#8998B3"
               autoCapitalize="none"
               keyboardType="url"
             />
@@ -146,7 +146,7 @@ export default function LessonFormScreen() {
           value={description}
           onChangeText={setDescription}
           placeholder="Short description"
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
           multiline
           textAlignVertical="top"
         />
@@ -157,7 +157,7 @@ export default function LessonFormScreen() {
           value={duration}
           onChangeText={setDuration}
           placeholder="e.g. 15"
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
           keyboardType="numeric"
         />
 
@@ -182,7 +182,7 @@ const s = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#526C98',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 14,
@@ -194,18 +194,18 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
-    color: '#1e293b',
+    color: '#042A6C',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
   },
   textarea: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 14,
     fontSize: 14,
-    color: '#1e293b',
+    color: '#042A6C',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
     minHeight: 150,
   },
   textareaSmall: {
@@ -213,9 +213,9 @@ const s = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     fontSize: 14,
-    color: '#1e293b',
+    color: '#042A6C',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
     minHeight: 70,
   },
   typeRow: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -4 },
@@ -227,12 +227,12 @@ const s = StyleSheet.create({
     padding: 14,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
   },
-  typeCardActive: { borderColor: '#4f46e5', backgroundColor: '#eef2ff' },
-  typeLabel: { fontSize: 11, fontWeight: '600', color: '#64748b', marginTop: 6 },
+  typeCardActive: { borderColor: '#053495', backgroundColor: '#F0F5FE' },
+  typeLabel: { fontSize: 11, fontWeight: '600', color: '#526C98', marginTop: 6 },
   submitBtn: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',

@@ -43,7 +43,7 @@ export default function LiveClassRoomScreen() {
     return (
       <View style={s.loader}>
         <Stack.Screen options={{ headerShown: false }} />
-        <ActivityIndicator color="#3b82f6" size="large" />
+        <ActivityIndicator color="#0749BB" size="large" />
         <Text style={s.loaderText}>Joining live class…</Text>
       </View>
     );
@@ -65,7 +65,7 @@ export default function LiveClassRoomScreen() {
 const s = StyleSheet.create({
   loader: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: '#02173B',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 12,

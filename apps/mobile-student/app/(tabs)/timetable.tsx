@@ -14,7 +14,7 @@ import { useAuthStore, useIsParent } from '@campus-verse/mobile-shared/store/aut
 import { studentApi } from '@/api/student';
 import type { TimetableEntry } from '@campus-verse/mobile-shared/api/types';
 
-const _FC = '#f8fafc';
+const _FC = '#F9F8F5';
 const _STEPS = 40;
 function BottomFade() {
   return (
@@ -41,8 +41,8 @@ const DAYS = [
 ];
 
 const PERIOD_COLORS = [
-  { bg: '#eff6ff', accent: '#3b82f6', text: '#1e3a8a' },
-  { bg: '#ecfeff', accent: '#0891b2', text: '#164e63' },
+  { bg: '#F0F5FE', accent: '#0749BB', text: '#1e3a8a' },
+  { bg: '#EBFAFF', accent: '#008AB8', text: '#006B8F' },
   { bg: '#f0fdf4', accent: '#16a34a', text: '#14532d' },
   { bg: '#fef3c7', accent: '#d97706', text: '#78350f' },
   { bg: '#fce7f3', accent: '#db2777', text: '#831843' },
@@ -66,21 +66,21 @@ function PeriodCard({
   if (isBreak) {
     return (
       <View className="flex-row items-center my-1.5 px-1">
-        <View className="flex-1 h-px bg-gray-200" />
-        <View className="flex-row items-center mx-3 bg-gray-50 px-3 py-1.5 rounded-full">
+        <View className="flex-1 h-px bg-secondary-200" />
+        <View className="flex-row items-center mx-3 bg-secondary-50 px-3 py-1.5 rounded-full">
           <Ionicons
             name={entry.type === 'lunch' ? 'restaurant-outline' : 'cafe-outline'}
             size={12}
-            color="#94a3b8"
+            color="#8998B3"
           />
-          <Text className="text-gray-400 text-[11px] font-medium ml-1.5">
+          <Text className="text-secondary-400 text-[11px] font-medium ml-1.5">
             {entry.slotName || (entry.type === 'lunch' ? 'Lunch' : 'Break')}
           </Text>
-          <Text className="text-gray-300 text-[11px] ml-1.5">
+          <Text className="text-secondary-300 text-[11px] ml-1.5">
             {entry.startTime}-{entry.endTime}
           </Text>
         </View>
-        <View className="flex-1 h-px bg-gray-200" />
+        <View className="flex-1 h-px bg-secondary-200" />
       </View>
     );
   }
@@ -92,7 +92,7 @@ function PeriodCard({
         style={{
           backgroundColor: isNow ? colors.bg : '#ffffff',
           borderWidth: isNow ? 1.5 : 1,
-          borderColor: isNow ? colors.accent : '#f1f5f9',
+          borderColor: isNow ? colors.accent : '#EDF0F3',
           elevation: isNow ? 3 : 1,
           shadowColor: isNow ? colors.accent : '#000',
           shadowOffset: { width: 0, height: isNow ? 3 : 1 },
@@ -121,14 +121,14 @@ function PeriodCard({
           </Text>
           {entry.teacherName ? (
             <View className="flex-row items-center mt-1">
-              <Ionicons name="person-outline" size={12} color="#94a3b8" />
-              <Text className="text-xs text-gray-500 ml-1 font-medium">{entry.teacherName}</Text>
+              <Ionicons name="person-outline" size={12} color="#8998B3" />
+              <Text className="text-xs text-secondary-500 ml-1 font-medium">{entry.teacherName}</Text>
             </View>
           ) : null}
           {entry.roomNumber ? (
             <View className="flex-row items-center mt-0.5">
-              <Ionicons name="location-outline" size={12} color="#94a3b8" />
-              <Text className="text-xs text-gray-400 ml-1">Room {entry.roomNumber}</Text>
+              <Ionicons name="location-outline" size={12} color="#8998B3" />
+              <Text className="text-xs text-secondary-400 ml-1">Room {entry.roomNumber}</Text>
             </View>
           ) : null}
         </View>
@@ -223,9 +223,9 @@ export default function StudentTimetableScreen() {
   );
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-secondary-50">
       {/* Day selector */}
-      <View className="bg-white px-2 py-3 flex-row justify-evenly border-b border-gray-100">
+      <View className="bg-white px-2 py-3 flex-row justify-evenly border-b border-secondary-100">
         {DAYS.map((day) => {
           const isSelected = day.key === selectedDay;
           const isToday = day.key === currentDayOfWeek;
@@ -242,26 +242,26 @@ export default function StudentTimetableScreen() {
                 style={
                   isSelected
                     ? {
-                        backgroundColor: '#3b82f6',
+                        backgroundColor: '#0749BB',
                         elevation: 4,
-                        shadowColor: '#3b82f6',
+                        shadowColor: '#0749BB',
                         shadowOffset: { width: 0, height: 3 },
                         shadowOpacity: 0.3,
                         shadowRadius: 6,
                       }
-                    : { backgroundColor: isToday ? '#eff6ff' : 'transparent' }
+                    : { backgroundColor: isToday ? '#F0F5FE' : 'transparent' }
                 }
               >
                 <Text
                   className={`text-[10px] font-semibold ${
-                    isSelected ? 'text-blue-200' : isToday ? 'text-blue-500' : 'text-gray-400'
+                    isSelected ? 'text-primary-200' : isToday ? 'text-primary-500' : 'text-secondary-400'
                   }`}
                 >
                   {day.short}
                 </Text>
                 <Text
                   className={`text-base font-bold ${
-                    isSelected ? 'text-white' : isToday ? 'text-blue-600' : 'text-gray-700'
+                    isSelected ? 'text-white' : isToday ? 'text-primary-600' : 'text-secondary-700'
                   }`}
                 >
                   {count}
@@ -274,7 +274,7 @@ export default function StudentTimetableScreen() {
 
       {/* Day header */}
       <View className="px-4 pt-4 pb-2 flex-row items-center justify-between">
-        <Text className="text-sm font-semibold text-gray-500">
+        <Text className="text-sm font-semibold text-secondary-500">
           {DAYS.find((d) => d.key === selectedDay)?.full} · {classEntries.length}{' '}
           {classEntries.length === 1 ? 'class' : 'classes'}
         </Text>
@@ -289,21 +289,21 @@ export default function StudentTimetableScreen() {
       <ScrollView
         className="flex-1 px-4"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0749BB" />
         }
         showsVerticalScrollIndicator={false}
       >
         {isLoading || !sectionId ? (
           <View className="items-center py-16">
-            <ActivityIndicator size="large" color="#3b82f6" />
+            <ActivityIndicator size="large" color="#0749BB" />
           </View>
         ) : dayEntries.length === 0 ? (
           <View className="bg-white rounded-2xl p-10 items-center mt-4" style={{ elevation: 1 }}>
-            <View className="w-16 h-16 bg-gray-50 rounded-full items-center justify-center mb-3">
-              <Ionicons name="sunny-outline" size={28} color="#94a3b8" />
+            <View className="w-16 h-16 bg-secondary-50 rounded-full items-center justify-center mb-3">
+              <Ionicons name="sunny-outline" size={28} color="#8998B3" />
             </View>
-            <Text className="text-gray-900 font-semibold">No Classes</Text>
-            <Text className="text-gray-400 text-sm mt-1">
+            <Text className="text-secondary-800 font-semibold">No Classes</Text>
+            <Text className="text-secondary-400 text-sm mt-1">
               {DAYS.find((d) => d.key === selectedDay)?.full || ''} is free
             </Text>
           </View>

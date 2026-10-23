@@ -1,44 +1,57 @@
 /**
- * Almanac font map for expo-font.
+ * CampusVerse font map for expo-font: Plus Jakarta Sans (headings, figures) and
+ * DM Sans (text), the web app's pair, plus JetBrains Mono for codes.
  *
- * Apps import `almanacFontMap` and merge into their `useFonts` call.
+ * Older screens still name the previous families (Fraunces, JetBrains Mono for
+ * labels); those names are registered as aliases of the new fonts, so every
+ * screen renders in CampusVerse type without editing each one.
  *
- * Required peer packages (install in each app):
- *   @expo-google-fonts/fraunces
+ * Required packages (install in each app):
+ *   @expo-google-fonts/plus-jakarta-sans
  *   @expo-google-fonts/dm-sans
  *   @expo-google-fonts/jetbrains-mono
  */
 
-// These imports resolve at app build time from the host app's node_modules.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FontMap = Record<string, any>;
 
-/** Apps call this in their `_layout.tsx` with the imported font modules. */
-export function buildAlmanacFontMap(modules: {
-  // Fraunces
-  Fraunces_500Medium: unknown;
-  Fraunces_500Medium_Italic: unknown;
-  Fraunces_700Bold: unknown;
-  Fraunces_700Bold_Italic: unknown;
-  // DM Sans
+export interface CampusFontModules {
+  PlusJakartaSans_500Medium: unknown;
+  PlusJakartaSans_600SemiBold: unknown;
+  PlusJakartaSans_700Bold: unknown;
+  PlusJakartaSans_800ExtraBold: unknown;
   DMSans_400Regular: unknown;
   DMSans_500Medium: unknown;
   DMSans_700Bold: unknown;
-  // JetBrains Mono
   JetBrainsMono_400Regular: unknown;
   JetBrainsMono_500Medium: unknown;
   JetBrainsMono_700Bold: unknown;
-}): FontMap {
+}
+
+export function buildCampusFontMap(m: CampusFontModules): FontMap {
   return {
-    Fraunces_500Medium: modules.Fraunces_500Medium,
-    Fraunces_500Medium_Italic: modules.Fraunces_500Medium_Italic,
-    Fraunces_700Bold: modules.Fraunces_700Bold,
-    Fraunces_700Bold_Italic: modules.Fraunces_700Bold_Italic,
-    DMSans_400Regular: modules.DMSans_400Regular,
-    DMSans_500Medium: modules.DMSans_500Medium,
-    DMSans_700Bold: modules.DMSans_700Bold,
-    JetBrainsMono_400Regular: modules.JetBrainsMono_400Regular,
-    JetBrainsMono_500Medium: modules.JetBrainsMono_500Medium,
-    JetBrainsMono_700Bold: modules.JetBrainsMono_700Bold,
+    PlusJakartaSans_500Medium: m.PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold: m.PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold: m.PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold: m.PlusJakartaSans_800ExtraBold,
+    DMSans_400Regular: m.DMSans_400Regular,
+    DMSans_500Medium: m.DMSans_500Medium,
+    DMSans_700Bold: m.DMSans_700Bold,
+    // Real monospace, for codes only.
+    CVMono_400Regular: m.JetBrainsMono_400Regular,
+    CVMono_500Medium: m.JetBrainsMono_500Medium,
+    CVMono_700Bold: m.JetBrainsMono_700Bold,
+
+    // Legacy names → CampusVerse type.
+    Fraunces_500Medium: m.PlusJakartaSans_700Bold,
+    Fraunces_500Medium_Italic: m.PlusJakartaSans_700Bold,
+    Fraunces_700Bold: m.PlusJakartaSans_800ExtraBold,
+    Fraunces_700Bold_Italic: m.PlusJakartaSans_800ExtraBold,
+    JetBrainsMono_400Regular: m.DMSans_500Medium,
+    JetBrainsMono_500Medium: m.PlusJakartaSans_600SemiBold,
+    JetBrainsMono_700Bold: m.PlusJakartaSans_800ExtraBold,
   };
 }
+
+/** @deprecated kept for older imports; use buildCampusFontMap. */
+export const buildAlmanacFontMap = buildCampusFontMap;

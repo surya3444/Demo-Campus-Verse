@@ -17,7 +17,7 @@ import { coursesApi, Course, useAuthStore } from '@campus-verse/mobile-shared';
 const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
   draft: { bg: '#fef3c7', fg: '#92400e' },
   published: { bg: '#dcfce7', fg: '#166534' },
-  archived: { bg: '#f1f5f9', fg: '#64748b' },
+  archived: { bg: '#EDF0F3', fg: '#526C98' },
 };
 
 export default function CoursesScreen() {
@@ -39,16 +39,16 @@ export default function CoursesScreen() {
   const courses = data?.data || [];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       <ScrollView
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {isLoading ? (
-          <ActivityIndicator color="#4f46e5" style={{ marginVertical: 40 }} />
+          <ActivityIndicator color="#053495" style={{ marginVertical: 40 }} />
         ) : error ? (
           <View style={s.emptyCard}>
-            <Ionicons name="cloud-offline-outline" size={32} color="#cbd5e1" />
+            <Ionicons name="cloud-offline-outline" size={32} color="#D3DAE4" />
             <Text style={s.emptyTitle}>Courses unavailable</Text>
             <Text style={s.emptyDesc}>
               The Online Courses module may not be enabled for your institution.
@@ -56,7 +56,7 @@ export default function CoursesScreen() {
           </View>
         ) : courses.length === 0 ? (
           <View style={s.emptyCard}>
-            <Ionicons name="library-outline" size={32} color="#cbd5e1" />
+            <Ionicons name="library-outline" size={32} color="#D3DAE4" />
             <Text style={s.emptyTitle}>No courses yet</Text>
             <Text style={s.emptyDesc}>Create your first online course to get started.</Text>
           </View>
@@ -74,7 +74,7 @@ export default function CoursesScreen() {
                   <Image source={{ uri: c.thumbnail }} style={s.thumb} />
                 ) : (
                   <View style={[s.thumb, s.thumbFallback]}>
-                    <Ionicons name="book" size={24} color="#4f46e5" />
+                    <Ionicons name="book" size={24} color="#053495" />
                   </View>
                 )}
                 <View style={{ flex: 1, marginLeft: 12 }}>
@@ -116,7 +116,7 @@ export default function CoursesScreen() {
 function Meta({ icon, text }: { icon: keyof typeof Ionicons.glyphMap; text: string }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12 }}>
-      <Ionicons name={icon} size={12} color="#94a3b8" />
+      <Ionicons name={icon} size={12} color="#8998B3" />
       <Text style={s.metaText}>{text}</Text>
     </View>
   );
@@ -130,16 +130,16 @@ const s = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  thumb: { width: 70, height: 70, borderRadius: 10, backgroundColor: '#f1f5f9' },
-  thumbFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#eef2ff' },
-  title: { flex: 1, fontSize: 15, fontWeight: '700', color: '#1e293b' },
-  subject: { fontSize: 12, color: '#64748b', marginTop: 3 },
+  thumb: { width: 70, height: 70, borderRadius: 10, backgroundColor: '#EDF0F3' },
+  thumbFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#F0F5FE' },
+  title: { flex: 1, fontSize: 15, fontWeight: '700', color: '#042A6C' },
+  subject: { fontSize: 12, color: '#526C98', marginTop: 3 },
   pill: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 5 },
   pillText: { fontSize: 9, fontWeight: '800' },
   metaRow: { flexDirection: 'row', marginTop: 8 },
-  metaText: { fontSize: 11, color: '#94a3b8', marginLeft: 4, fontWeight: '600' },
+  metaText: { fontSize: 11, color: '#8998B3', marginLeft: 4, fontWeight: '600' },
   fab: {
     position: 'absolute',
     right: 20,
@@ -147,10 +147,10 @@ const s = StyleSheet.create({
     width: 54,
     height: 54,
     borderRadius: 27,
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#4f46e5',
+    shadowColor: '#053495',
     shadowOpacity: 0.35,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 6 },
@@ -162,8 +162,8 @@ const s = StyleSheet.create({
     padding: 40,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eef0f4',
+    borderColor: '#EDF0F3',
   },
-  emptyTitle: { fontSize: 15, fontWeight: '700', color: '#64748b', marginTop: 10 },
-  emptyDesc: { fontSize: 12, color: '#94a3b8', marginTop: 4, textAlign: 'center' },
+  emptyTitle: { fontSize: 15, fontWeight: '700', color: '#526C98', marginTop: 10 },
+  emptyDesc: { fontSize: 12, color: '#8998B3', marginTop: 4, textAlign: 'center' },
 });

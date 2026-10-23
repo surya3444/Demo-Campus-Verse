@@ -15,7 +15,7 @@ import type { QuestionItem } from '@/api/student';
 
 function scoreColor(pct: number): string {
   if (pct >= 80) return '#059669';
-  if (pct >= 60) return '#3b82f6';
+  if (pct >= 60) return '#0749BB';
   if (pct >= 40) return '#d97706';
   return '#dc2626';
 }
@@ -83,17 +83,17 @@ export default function GradeDetailScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50">
-        <ActivityIndicator size="large" color="#3b82f6" />
+      <View className="flex-1 items-center justify-center bg-secondary-50">
+        <ActivityIndicator size="large" color="#0749BB" />
       </View>
     );
   }
 
   if (!detail) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50">
-        <Ionicons name="alert-circle-outline" size={48} color="#d1d5db" />
-        <Text className="text-gray-400 mt-3">Assignment not found</Text>
+      <View className="flex-1 items-center justify-center bg-secondary-50">
+        <Ionicons name="alert-circle-outline" size={48} color="#D3DAE4" />
+        <Text className="text-secondary-400 mt-3">Assignment not found</Text>
       </View>
     );
   }
@@ -107,11 +107,11 @@ export default function GradeDetailScreen() {
   const resultMap = new Map((submission?.questionResults || []).map((r) => [r.questionId, r]));
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-secondary-50">
       <ScrollView
         className="flex-1"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0749BB" />
         }
         showsVerticalScrollIndicator={false}
       >
@@ -129,9 +129,9 @@ export default function GradeDetailScreen() {
           >
             <Text className="text-white text-sm font-semibold">{scoreLabel(pct)}</Text>
           </View>
-          <Text className="text-blue-200 text-sm mt-2">{detail.title}</Text>
+          <Text className="text-primary-200 text-sm mt-2">{detail.title}</Text>
           {detail.subjectName ? (
-            <Text className="text-blue-300 text-xs mt-1">{detail.subjectName}</Text>
+            <Text className="text-primary-300 text-xs mt-1">{detail.subjectName}</Text>
           ) : null}
         </View>
 
@@ -139,14 +139,14 @@ export default function GradeDetailScreen() {
         {submission?.reviewerRemarks ? (
           <View className="mx-4 mt-4">
             <View
-              className="bg-blue-50 rounded-2xl p-4"
-              style={{ borderWidth: 1, borderColor: '#dbeafe' }}
+              className="bg-primary-50 rounded-2xl p-4"
+              style={{ borderWidth: 1, borderColor: '#E1ECFE' }}
             >
               <View className="flex-row items-center mb-2">
-                <Ionicons name="chatbubble-outline" size={14} color="#3b82f6" />
-                <Text className="text-blue-600 text-xs font-bold ml-1.5">Teacher Remarks</Text>
+                <Ionicons name="chatbubble-outline" size={14} color="#0749BB" />
+                <Text className="text-primary-600 text-xs font-bold ml-1.5">Teacher Remarks</Text>
               </View>
-              <Text className="text-sm text-blue-800 leading-5">{submission.reviewerRemarks}</Text>
+              <Text className="text-sm text-primary-800 leading-5">{submission.reviewerRemarks}</Text>
             </View>
           </View>
         ) : null}
@@ -154,7 +154,7 @@ export default function GradeDetailScreen() {
         {/* Question-by-question breakdown */}
         {questions.length > 0 && (
           <View className="px-4 pt-4">
-            <Text className="text-base font-bold text-gray-900 mb-3">Question Breakdown</Text>
+            <Text className="text-base font-bold text-secondary-800 mb-3">Question Breakdown</Text>
             {questions.map((q, i) => {
               const studentAnswer = answerMap.get(q._id) || 'Not answered';
               const result = resultMap.get(q._id);
@@ -168,7 +168,7 @@ export default function GradeDetailScreen() {
                   style={{
                     borderWidth: 1,
                     borderColor:
-                      isCorrect === true ? '#d1fae5' : isCorrect === false ? '#fecaca' : '#f1f5f9',
+                      isCorrect === true ? '#d1fae5' : isCorrect === false ? '#fecaca' : '#EDF0F3',
                   }}
                 >
                   {/* Question header */}
@@ -182,7 +182,7 @@ export default function GradeDetailScreen() {
                               ? '#f0fdf4'
                               : isCorrect === false
                                 ? '#fef2f2'
-                                : '#f8fafc',
+                                : '#F9F8F5',
                         }}
                       >
                         <Text
@@ -193,14 +193,14 @@ export default function GradeDetailScreen() {
                                 ? '#059669'
                                 : isCorrect === false
                                   ? '#dc2626'
-                                  : '#94a3b8',
+                                  : '#8998B3',
                           }}
                         >
                           {i + 1}
                         </Text>
                       </View>
-                      <View className="px-2 py-0.5 rounded bg-gray-100">
-                        <Text className="text-[10px] font-bold text-gray-400">
+                      <View className="px-2 py-0.5 rounded bg-secondary-100">
+                        <Text className="text-[10px] font-bold text-secondary-400">
                           {q.questionType === 'mcq'
                             ? 'MCQ'
                             : q.questionType === 'true_false'
@@ -218,7 +218,7 @@ export default function GradeDetailScreen() {
                           style={{ marginRight: 4 }}
                         />
                       )}
-                      <Text className="text-xs font-bold text-gray-400">
+                      <Text className="text-xs font-bold text-secondary-400">
                         {marksAwarded}/{q.marks}
                       </Text>
                     </View>
@@ -226,23 +226,23 @@ export default function GradeDetailScreen() {
 
                   {/* Question text */}
                   <View className="px-4 pb-2">
-                    <Text className="text-sm font-semibold text-gray-900">{q.questionText}</Text>
+                    <Text className="text-sm font-semibold text-secondary-800">{q.questionText}</Text>
                   </View>
 
                   {/* Answer comparison */}
                   <View className="px-4 pb-3 gap-2">
                     <View className="flex-row items-start">
-                      <Text className="text-xs text-gray-400 w-20">Your answer:</Text>
+                      <Text className="text-xs text-secondary-400 w-20">Your answer:</Text>
                       <Text
                         className="flex-1 text-sm font-medium"
-                        style={{ color: isCorrect === false ? '#dc2626' : '#374151' }}
+                        style={{ color: isCorrect === false ? '#dc2626' : '#2E4470' }}
                       >
                         {studentAnswer}
                       </Text>
                     </View>
                     {q.correctAnswer && isCorrect === false && (
                       <View className="flex-row items-start">
-                        <Text className="text-xs text-gray-400 w-20">Correct:</Text>
+                        <Text className="text-xs text-secondary-400 w-20">Correct:</Text>
                         <Text className="flex-1 text-sm font-medium text-green-700">
                           {q.correctAnswer}
                         </Text>
@@ -263,7 +263,7 @@ export default function GradeDetailScreen() {
 
 const s = StyleSheet.create({
   hero: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#053495',
     paddingHorizontal: 20,
     paddingTop: 24,
     paddingBottom: 28,

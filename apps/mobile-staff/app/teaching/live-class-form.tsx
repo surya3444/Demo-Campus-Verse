@@ -114,7 +114,7 @@ export default function LiveClassFormScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 8 }}>
-          <Ionicons name="chevron-back" size={26} color="#111827" />
+          <Ionicons name="chevron-back" size={26} color="#042A6C" />
         </TouchableOpacity>
         <Text style={s.headerTitle}>Schedule live class</Text>
       </View>
@@ -125,7 +125,7 @@ export default function LiveClassFormScreen() {
             value={title}
             onChangeText={setTitle}
             placeholder="e.g. Algebra recap"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#8998B3"
             style={s.input}
           />
         </Field>
@@ -135,7 +135,7 @@ export default function LiveClassFormScreen() {
             value={description}
             onChangeText={setDescription}
             placeholder="Agenda or notes"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#8998B3"
             multiline
             style={[s.input, { minHeight: 70 }]}
           />
@@ -144,7 +144,7 @@ export default function LiveClassFormScreen() {
         <Field label="Section *">
           <View style={s.sectionList}>
             {classes.length === 0 ? (
-              <Text style={{ color: '#9ca3af', fontSize: 12, padding: 8 }}>
+              <Text style={{ color: '#8998B3', fontSize: 12, padding: 8 }}>
                 No sections available
               </Text>
             ) : (
@@ -192,7 +192,7 @@ export default function LiveClassFormScreen() {
             value={start}
             onChangeText={setStart}
             placeholder="YYYY-MM-DD HH:MM"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#8998B3"
             style={s.input}
             autoCapitalize="none"
             autoCorrect={false}
@@ -205,7 +205,7 @@ export default function LiveClassFormScreen() {
             value={end}
             onChangeText={setEnd}
             placeholder="YYYY-MM-DD HH:MM"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#8998B3"
             style={s.input}
             autoCapitalize="none"
             autoCorrect={false}
@@ -312,14 +312,14 @@ function ToggleRow({
       <Switch
         value={value}
         onValueChange={onChange}
-        trackColor={{ true: '#4f46e5', false: '#e5e7eb' }}
+        trackColor={{ true: '#053495', false: '#DAE0E7' }}
       />
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#f9fafb' },
+  root: { flex: 1, backgroundColor: '#F9F8F5' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -327,16 +327,16 @@ const s = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 10,
   },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: '#111827' },
-  label: { fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6 },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: '#042A6C' },
+  label: { fontSize: 12, fontWeight: '700', color: '#2E4470', marginBottom: 6 },
   input: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#111827',
+    color: '#042A6C',
     backgroundColor: '#fff',
   },
   sectionList: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
@@ -346,10 +346,10 @@ const s = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#DAE0E7',
   },
-  sectionPillActive: { backgroundColor: '#4f46e5', borderColor: '#4f46e5' },
-  sectionPillText: { fontSize: 12, color: '#374151', fontWeight: '600' },
+  sectionPillActive: { backgroundColor: '#053495', borderColor: '#053495' },
+  sectionPillText: { fontSize: 12, color: '#2E4470', fontWeight: '600' },
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -358,12 +358,12 @@ const s = StyleSheet.create({
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#EDF0F3',
   },
-  toggleLabel: { fontSize: 13, fontWeight: '600', color: '#111827' },
-  toggleDesc: { fontSize: 11, color: '#6b7280', marginTop: 2 },
+  toggleLabel: { fontSize: 13, fontWeight: '600', color: '#042A6C' },
+  toggleDesc: { fontSize: 11, color: '#526C98', marginTop: 2 },
   submitBtn: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',

@@ -1,5 +1,5 @@
 import { View, type ViewStyle, type ViewProps } from 'react-native';
-import { color, radius } from '../tokens';
+import { color, elevation, radius } from '../tokens';
 
 interface CardProps extends ViewProps {
   variant?: 'paper' | 'ink' | 'sink' | 'plain';
@@ -33,10 +33,11 @@ export function Card({
       backgroundColor: bg,
       borderRadius: radius[rounded],
       borderWidth: bordered ? 1 : 0,
-      borderColor: variant === 'ink' ? 'rgba(245,240,230,0.10)' : color.rule,
+      borderColor: variant === 'ink' ? 'rgba(255,255,255,0.10)' : color.rule,
       padding: padded === true ? 16 : typeof padded === 'number' ? padded : 0,
       overflow: 'hidden',
     },
+    variant === 'paper' ? (elevation.soft as ViewStyle) : {},
     Array.isArray(style) ? Object.assign({}, ...style) : (style as ViewStyle),
   ];
 

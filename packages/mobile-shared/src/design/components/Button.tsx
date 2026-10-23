@@ -45,7 +45,7 @@ export function Button({
         : variant === 'outline'
           ? 'transparent'
           : 'transparent';
-  const fg = variant === 'ink' ? color.onInk : variant === 'marigold' ? '#FFF7E8' : color.ink;
+  const fg = variant === 'ink' ? color.onInk : variant === 'marigold' ? '#FFFFFF' : color.ink;
   const borderWidth = variant === 'outline' ? 1.5 : 0;
   const borderColor = color.ink;
 
@@ -60,7 +60,7 @@ export function Button({
           height: h,
           paddingHorizontal: px,
           backgroundColor: bg,
-          borderRadius: radius.pill,
+          borderRadius: radius.md + 4,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
@@ -79,7 +79,7 @@ export function Button({
           {leading ? <View style={{ marginRight: 8 }}>{leading}</View> : null}
           <Text
             style={{
-              fontFamily: 'DMSans_700Bold',
+              fontFamily: 'PlusJakartaSans_700Bold',
               fontSize,
               letterSpacing: variant === 'ink' || variant === 'marigold' ? 0.2 : 0,
               color: fg,

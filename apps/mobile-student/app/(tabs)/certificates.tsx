@@ -18,10 +18,10 @@ import { certificatesApi, CertificateType, CertificateRequest } from '@/api/cert
 
 const STATUS_MAP: Record<string, { color: string; bg: string; icon: string }> = {
   pending: { color: '#f59e0b', bg: '#fef3c7', icon: 'time-outline' },
-  approved: { color: '#3b82f6', bg: '#eff6ff', icon: 'checkmark-circle-outline' },
+  approved: { color: '#0749BB', bg: '#F0F5FE', icon: 'checkmark-circle-outline' },
   rejected: { color: '#ef4444', bg: '#fef2f2', icon: 'close-circle-outline' },
   issued: { color: '#10b981', bg: '#f0fdf4', icon: 'ribbon-outline' },
-  cancelled: { color: '#94a3b8', bg: '#f1f5f9', icon: 'ban-outline' },
+  cancelled: { color: '#8998B3', bg: '#EDF0F3', icon: 'ban-outline' },
 };
 
 export default function CertificatesScreen() {
@@ -82,7 +82,7 @@ export default function CertificatesScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       {/* Header */}
       <View
         style={{
@@ -91,7 +91,7 @@ export default function CertificatesScreen() {
           paddingHorizontal: 20,
           paddingBottom: 14,
           borderBottomWidth: 1,
-          borderBottomColor: '#f1f5f9',
+          borderBottomColor: '#EDF0F3',
         }}
       >
         <View
@@ -104,18 +104,18 @@ export default function CertificatesScreen() {
         >
           <View>
             <Text
-              style={{ fontSize: 22, fontWeight: '800', color: '#0f172a', letterSpacing: -0.3 }}
+              style={{ fontSize: 22, fontWeight: '800', color: '#042A6C', letterSpacing: -0.3 }}
             >
               Certificates
             </Text>
-            <Text style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>Request & Track</Text>
+            <Text style={{ fontSize: 13, color: '#8998B3', marginTop: 2 }}>Request & Track</Text>
           </View>
           {studentTypes.length > 0 && (
             <TouchableOpacity
               onPress={() => setShowModal(true)}
               activeOpacity={0.7}
               style={{
-                backgroundColor: '#3b82f6',
+                backgroundColor: '#0749BB',
                 paddingHorizontal: 14,
                 paddingVertical: 8,
                 borderRadius: 12,
@@ -137,13 +137,13 @@ export default function CertificatesScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 100 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0749BB" />
         }
         showsVerticalScrollIndicator={false}
       >
         {loadingRequests ? (
           <View style={{ alignItems: 'center', paddingTop: 60 }}>
-            <ActivityIndicator size="large" color="#3b82f6" />
+            <ActivityIndicator size="large" color="#0749BB" />
           </View>
         ) : !requests || requests.length === 0 ? (
           <EmptyState onRequest={studentTypes.length > 0 ? () => setShowModal(true) : undefined} />
@@ -170,10 +170,10 @@ export default function CertificatesScreen() {
                 alignItems: 'center',
                 padding: 20,
                 borderBottomWidth: 1,
-                borderBottomColor: '#f1f5f9',
+                borderBottomColor: '#EDF0F3',
               }}
             >
-              <Text style={{ fontSize: 18, fontWeight: '700', color: '#0f172a' }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', color: '#042A6C' }}>
                 Request Certificate
               </Text>
               <TouchableOpacity
@@ -183,12 +183,12 @@ export default function CertificatesScreen() {
                   setPurpose('');
                 }}
               >
-                <Ionicons name="close" size={24} color="#64748b" />
+                <Ionicons name="close" size={24} color="#526C98" />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={{ maxHeight: 400, padding: 20 }}>
-              <Text style={{ fontSize: 13, fontWeight: '600', color: '#64748b', marginBottom: 10 }}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: '#526C98', marginBottom: 10 }}>
                 SELECT TYPE
               </Text>
               {studentTypes.map((type) => (
@@ -202,21 +202,21 @@ export default function CertificatesScreen() {
                     padding: 14,
                     borderRadius: 12,
                     marginBottom: 8,
-                    backgroundColor: selectedType?._id === type._id ? '#eff6ff' : '#f8fafc',
+                    backgroundColor: selectedType?._id === type._id ? '#F0F5FE' : '#F9F8F5',
                     borderWidth: 1.5,
-                    borderColor: selectedType?._id === type._id ? '#3b82f6' : '#f1f5f9',
+                    borderColor: selectedType?._id === type._id ? '#0749BB' : '#EDF0F3',
                   }}
                 >
                   <Ionicons
                     name="ribbon-outline"
                     size={20}
-                    color={selectedType?._id === type._id ? '#3b82f6' : '#94a3b8'}
+                    color={selectedType?._id === type._id ? '#0749BB' : '#8998B3'}
                   />
                   <Text
                     style={{
                       fontSize: 14,
                       fontWeight: '600',
-                      color: '#0f172a',
+                      color: '#042A6C',
                       marginLeft: 10,
                       flex: 1,
                     }}
@@ -224,7 +224,7 @@ export default function CertificatesScreen() {
                     {type.name}
                   </Text>
                   {selectedType?._id === type._id && (
-                    <Ionicons name="checkmark-circle" size={20} color="#3b82f6" />
+                    <Ionicons name="checkmark-circle" size={20} color="#0749BB" />
                   )}
                 </TouchableOpacity>
               ))}
@@ -232,7 +232,7 @@ export default function CertificatesScreen() {
               {selectedType && (
                 <View style={{ marginTop: 16 }}>
                   <Text
-                    style={{ fontSize: 13, fontWeight: '600', color: '#64748b', marginBottom: 8 }}
+                    style={{ fontSize: 13, fontWeight: '600', color: '#526C98', marginBottom: 8 }}
                   >
                     PURPOSE (OPTIONAL)
                   </Text>
@@ -243,17 +243,17 @@ export default function CertificatesScreen() {
                     multiline
                     numberOfLines={3}
                     style={{
-                      backgroundColor: '#f8fafc',
+                      backgroundColor: '#F9F8F5',
                       borderRadius: 12,
                       padding: 14,
                       fontSize: 14,
-                      color: '#0f172a',
+                      color: '#042A6C',
                       borderWidth: 1,
-                      borderColor: '#e2e8f0',
+                      borderColor: '#DAE0E7',
                       minHeight: 80,
                       textAlignVertical: 'top',
                     }}
-                    placeholderTextColor="#94a3b8"
+                    placeholderTextColor="#8998B3"
                   />
                 </View>
               )}
@@ -265,7 +265,7 @@ export default function CertificatesScreen() {
                 disabled={!selectedType || createMutation.isPending}
                 activeOpacity={0.7}
                 style={{
-                  backgroundColor: selectedType ? '#3b82f6' : '#cbd5e1',
+                  backgroundColor: selectedType ? '#0749BB' : '#D3DAE4',
                   borderRadius: 14,
                   paddingVertical: 14,
                   alignItems: 'center',
@@ -304,7 +304,7 @@ function RequestCard({ request }: { request: CertificateRequest }) {
         borderRadius: 16,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: '#f1f5f9',
+        borderColor: '#EDF0F3',
         overflow: 'hidden',
       }}
     >
@@ -318,11 +318,11 @@ function RequestCard({ request }: { request: CertificateRequest }) {
           }}
         >
           <View style={{ flex: 1, marginRight: 10 }}>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: '#0f172a' }}>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: '#042A6C' }}>
               {request.certificateTypeName || 'Certificate'}
             </Text>
             {request.certificateNumber && (
-              <Text style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+              <Text style={{ fontSize: 12, color: '#526C98', marginTop: 2 }}>
                 #{request.certificateNumber}
               </Text>
             )}
@@ -345,14 +345,14 @@ function RequestCard({ request }: { request: CertificateRequest }) {
         </View>
 
         {request.purpose && (
-          <Text style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }} numberOfLines={2}>
+          <Text style={{ fontSize: 13, color: '#526C98', marginBottom: 8 }} numberOfLines={2}>
             {request.purpose}
           </Text>
         )}
 
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="calendar-outline" size={13} color="#94a3b8" />
-          <Text style={{ fontSize: 12, color: '#94a3b8', marginLeft: 4 }}>
+          <Ionicons name="calendar-outline" size={13} color="#8998B3" />
+          <Text style={{ fontSize: 12, color: '#8998B3', marginLeft: 4 }}>
             Requested{' '}
             {new Date(request.createdAt).toLocaleDateString('en-IN', {
               day: 'numeric',
@@ -405,21 +405,21 @@ function EmptyState({ onRequest }: { onRequest?: () => void }) {
           width: 80,
           height: 80,
           borderRadius: 40,
-          backgroundColor: '#e0f2fe',
+          backgroundColor: '#EBFAFF',
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 16,
         }}
       >
-        <Ionicons name="ribbon-outline" size={36} color="#0891b2" />
+        <Ionicons name="ribbon-outline" size={36} color="#008AB8" />
       </View>
-      <Text style={{ fontSize: 17, fontWeight: '700', color: '#0f172a', marginBottom: 6 }}>
+      <Text style={{ fontSize: 17, fontWeight: '700', color: '#042A6C', marginBottom: 6 }}>
         No Certificates
       </Text>
       <Text
         style={{
           fontSize: 13,
-          color: '#94a3b8',
+          color: '#8998B3',
           textAlign: 'center',
           paddingHorizontal: 40,
           lineHeight: 20,
@@ -433,7 +433,7 @@ function EmptyState({ onRequest }: { onRequest?: () => void }) {
           activeOpacity={0.7}
           style={{
             marginTop: 20,
-            backgroundColor: '#3b82f6',
+            backgroundColor: '#0749BB',
             paddingHorizontal: 20,
             paddingVertical: 12,
             borderRadius: 12,

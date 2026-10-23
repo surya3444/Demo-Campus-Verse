@@ -18,16 +18,16 @@ import { teachingApi, StudentInSection, LessonPlan } from '@/api/teaching';
 type TabKey = 'students' | 'lessons';
 
 const TEACHING_STATUS: Record<string, { color: string; bg: string; label: string }> = {
-  not_started: { color: '#94a3b8', bg: '#f1f5f9', label: 'Not Started' },
-  ongoing: { color: '#2563eb', bg: '#dbeafe', label: 'In Progress' },
-  delivered: { color: '#4f46e5', bg: '#eef2ff', label: 'Delivered' },
+  not_started: { color: '#8998B3', bg: '#EDF0F3', label: 'Not Started' },
+  ongoing: { color: '#053495', bg: '#E1ECFE', label: 'In Progress' },
+  delivered: { color: '#053495', bg: '#F0F5FE', label: 'Delivered' },
   completed_with_assignment: { color: '#d97706', bg: '#fef3c7', label: 'Done + HW' },
   completed: { color: '#16a34a', bg: '#dcfce7', label: 'Completed' },
 };
 
 const AVATAR_COLORS = [
-  '#4f46e5',
-  '#0891b2',
+  '#053495',
+  '#008AB8',
   '#059669',
   '#d97706',
   '#dc2626',
@@ -75,7 +75,7 @@ function LessonRow({ plan }: { plan: LessonPlan }) {
           <View
             style={[
               s.lessonDot,
-              { backgroundColor: plan.status === 'published' ? '#4f46e5' : '#cbd5e1' },
+              { backgroundColor: plan.status === 'published' ? '#053495' : '#D3DAE4' },
             ]}
           />
         </View>
@@ -85,7 +85,7 @@ function LessonRow({ plan }: { plan: LessonPlan }) {
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
             {plan.subjectName && <Text style={s.lessonMeta}>{plan.subjectName}</Text>}
-            <Text style={[s.lessonMeta, { color: '#cbd5e1', marginHorizontal: 6 }]}>·</Text>
+            <Text style={[s.lessonMeta, { color: '#D3DAE4', marginHorizontal: 6 }]}>·</Text>
             <Text style={s.lessonMeta}>
               {new Date(plan.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
             </Text>
@@ -151,7 +151,7 @@ export default function ClassDetailScreen() {
           headerShown: false,
         }}
       />
-      <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
         {/* Hero header */}
         <View style={s.hero}>
           {/* Decorative circle */}
@@ -198,7 +198,7 @@ export default function ClassDetailScreen() {
                           : 'document-text-outline'
                     }
                     size={15}
-                    color={active ? '#4f46e5' : '#94a3b8'}
+                    color={active ? '#053495' : '#8998B3'}
                   />
                   <Text style={[s.tabText, active && s.tabTextActive]}>
                     {tab === 'students'
@@ -213,11 +213,11 @@ export default function ClassDetailScreen() {
           {/* Search bar — students only */}
           {activeTab === 'students' && (
             <View style={s.searchWrap}>
-              <Ionicons name="search" size={16} color="#94a3b8" />
+              <Ionicons name="search" size={16} color="#8998B3" />
               <TextInput
                 style={s.searchInput}
                 placeholder="Search by name or admission no..."
-                placeholderTextColor="#cbd5e1"
+                placeholderTextColor="#D3DAE4"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoCapitalize="none"
@@ -227,7 +227,7 @@ export default function ClassDetailScreen() {
                   onPress={() => setSearchQuery('')}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
-                  <Ionicons name="close-circle" size={16} color="#cbd5e1" />
+                  <Ionicons name="close-circle" size={16} color="#D3DAE4" />
                 </TouchableOpacity>
               )}
             </View>
@@ -237,14 +237,14 @@ export default function ClassDetailScreen() {
           <ScrollView
             style={{ flex: 1 }}
             refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4f46e5" />
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#053495" />
             }
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 32 }}
           >
             {isLoading ? (
               <View style={{ alignItems: 'center', paddingVertical: 48 }}>
-                <ActivityIndicator size="large" color="#4f46e5" />
+                <ActivityIndicator size="large" color="#053495" />
               </View>
             ) : activeTab === 'students' ? (
               students.length === 0 ? (
@@ -310,16 +310,16 @@ function EmptyState({
           width: 64,
           height: 64,
           borderRadius: 32,
-          backgroundColor: '#eef2ff',
+          backgroundColor: '#F0F5FE',
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 12,
         }}
       >
-        <Ionicons name={icon} size={28} color="#4f46e5" />
+        <Ionicons name={icon} size={28} color="#053495" />
       </View>
-      <Text style={{ color: '#1e293b', fontWeight: '600', fontSize: 15 }}>{title}</Text>
-      <Text style={{ color: '#94a3b8', fontSize: 13, marginTop: 4, textAlign: 'center' }}>
+      <Text style={{ color: '#042A6C', fontWeight: '600', fontSize: 15 }}>{title}</Text>
+      <Text style={{ color: '#8998B3', fontSize: 13, marginTop: 4, textAlign: 'center' }}>
         {subtitle}
       </Text>
       {actionLabel && onAction && (
@@ -328,7 +328,7 @@ function EmptyState({
           activeOpacity={0.7}
           style={{
             marginTop: 16,
-            backgroundColor: '#4f46e5',
+            backgroundColor: '#053495',
             paddingHorizontal: 20,
             paddingVertical: 10,
             borderRadius: 10,
@@ -343,7 +343,7 @@ function EmptyState({
 
 const s = StyleSheet.create({
   hero: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     overflow: 'hidden',
   },
   heroCircle: {
@@ -404,19 +404,19 @@ const s = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 12,
     marginHorizontal: 4,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
   },
   tabBtnActive: {
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
   },
   tabText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#94a3b8',
+    color: '#8998B3',
     marginLeft: 6,
   },
   tabTextActive: {
-    color: '#4f46e5',
+    color: '#053495',
     fontWeight: '700',
   },
 
@@ -426,18 +426,18 @@ const s = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 16,
     marginBottom: 8,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F9F8F5',
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 42,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#EDF0F3',
   },
   searchInput: {
     flex: 1,
     marginLeft: 8,
     fontSize: 14,
-    color: '#1e293b',
+    color: '#042A6C',
   },
 
   // Students
@@ -447,7 +447,7 @@ const s = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f8fafc',
+    borderBottomColor: '#F9F8F5',
   },
   avatar: {
     width: 40,
@@ -464,11 +464,11 @@ const s = StyleSheet.create({
   studentName: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#042A6C',
   },
   studentAdm: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#8998B3',
     marginTop: 1,
   },
   statusDot: {
@@ -484,7 +484,7 @@ const s = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f8fafc',
+    borderBottomColor: '#F9F8F5',
   },
   lessonLeft: {
     width: 24,
@@ -499,11 +499,11 @@ const s = StyleSheet.create({
   lessonTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#042A6C',
   },
   lessonMeta: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#8998B3',
   },
   tsBadge: {
     paddingHorizontal: 8,
@@ -523,11 +523,11 @@ const s = StyleSheet.create({
     right: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     paddingHorizontal: 18,
     paddingVertical: 14,
     borderRadius: 16,
-    shadowColor: '#4f46e5',
+    shadowColor: '#053495',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 12,

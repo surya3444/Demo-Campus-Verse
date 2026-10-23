@@ -25,7 +25,7 @@ export function EmptyState({
         alignItems: 'flex-start',
         borderTopWidth: 1,
         borderBottomWidth: 1,
-        borderColor: tone === 'onInk' ? 'rgba(245,240,230,0.12)' : color.rule,
+        borderColor: tone === 'onInk' ? 'rgba(255,255,255,0.12)' : color.rule,
       }}
     >
       {eyebrow && (

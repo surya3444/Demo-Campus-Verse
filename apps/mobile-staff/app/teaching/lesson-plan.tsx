@@ -20,7 +20,7 @@ const TEACHING_STATUS_FLOW: Record<
   string,
   { next: string; label: string; icon: keyof typeof Ionicons.glyphMap; color: string }[]
 > = {
-  not_started: [{ next: 'ongoing', label: 'Start Teaching', icon: 'play', color: '#3b82f6' }],
+  not_started: [{ next: 'ongoing', label: 'Start Teaching', icon: 'play', color: '#0749BB' }],
   ongoing: [
     { next: 'completed', label: 'Mark Complete', icon: 'checkmark-circle', color: '#16a34a' },
     {
@@ -38,11 +38,11 @@ const TEACHING_STATUS_FLOW: Record<
 };
 
 const STATUS_CFG: Record<string, { color: string; bg: string; label: string }> = {
-  draft: { color: '#64748b', bg: '#f1f5f9', label: 'Draft' },
-  published: { color: '#2563eb', bg: '#dbeafe', label: 'Published' },
-  not_started: { color: '#94a3b8', bg: '#f1f5f9', label: 'Not Started' },
-  ongoing: { color: '#2563eb', bg: '#dbeafe', label: 'In Progress' },
-  delivered: { color: '#4f46e5', bg: '#eef2ff', label: 'Delivered' },
+  draft: { color: '#526C98', bg: '#EDF0F3', label: 'Draft' },
+  published: { color: '#053495', bg: '#E1ECFE', label: 'Published' },
+  not_started: { color: '#8998B3', bg: '#EDF0F3', label: 'Not Started' },
+  ongoing: { color: '#053495', bg: '#E1ECFE', label: 'In Progress' },
+  delivered: { color: '#053495', bg: '#F0F5FE', label: 'Delivered' },
   completed_with_assignment: { color: '#d97706', bg: '#fef3c7', label: 'Done + HW' },
   completed: { color: '#16a34a', bg: '#dcfce7', label: 'Completed' },
 };
@@ -97,12 +97,12 @@ export default function LessonPlanDetailScreen() {
         <View
           style={{
             flex: 1,
-            backgroundColor: '#f8fafc',
+            backgroundColor: '#F9F8F5',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <ActivityIndicator size="large" color="#4f46e5" />
+          <ActivityIndicator size="large" color="#053495" />
         </View>
       </>
     );
@@ -115,13 +115,13 @@ export default function LessonPlanDetailScreen() {
         <View
           style={{
             flex: 1,
-            backgroundColor: '#f8fafc',
+            backgroundColor: '#F9F8F5',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Ionicons name="document-text-outline" size={48} color="#94a3b8" />
-          <Text style={{ color: '#94a3b8', marginTop: 8 }}>Lesson plan not found</Text>
+          <Ionicons name="document-text-outline" size={48} color="#8998B3" />
+          <Text style={{ color: '#8998B3', marginTop: 8 }}>Lesson plan not found</Text>
         </View>
       </>
     );
@@ -134,7 +134,7 @@ export default function LessonPlanDetailScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
         {/* Hero */}
         <View style={st.hero}>
           <View style={st.heroCircle} />
@@ -184,12 +184,12 @@ export default function LessonPlanDetailScreen() {
           {/* Meta info */}
           <View style={st.section}>
             {plan.subjectName && (
-              <MetaRow icon="book" color="#4f46e5" label="Subject" value={plan.subjectName} />
+              <MetaRow icon="book" color="#053495" label="Subject" value={plan.subjectName} />
             )}
             {plan.className && (
               <MetaRow
                 icon="people"
-                color="#0891b2"
+                color="#008AB8"
                 label="Class"
                 value={`${plan.className}${plan.sectionName ? ` - ${plan.sectionName}` : ''}`}
               />
@@ -222,7 +222,7 @@ export default function LessonPlanDetailScreen() {
               {plan.objectives.map((obj, i) => (
                 <View key={i} style={st.objRow}>
                   <View style={st.objNum}>
-                    <Text style={{ color: '#4f46e5', fontSize: 11, fontWeight: '800' }}>
+                    <Text style={{ color: '#053495', fontSize: 11, fontWeight: '800' }}>
                       {i + 1}
                     </Text>
                   </View>
@@ -249,7 +249,7 @@ export default function LessonPlanDetailScreen() {
                   key={i}
                   style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}
                 >
-                  <Ionicons name="document-attach" size={14} color="#94a3b8" />
+                  <Ionicons name="document-attach" size={14} color="#8998B3" />
                   <Text style={[st.bodyText, { marginLeft: 8 }]}>{res}</Text>
                 </View>
               ))}
@@ -263,7 +263,7 @@ export default function LessonPlanDetailScreen() {
                 style={{
                   fontSize: 11,
                   fontWeight: '700',
-                  color: '#94a3b8',
+                  color: '#8998B3',
                   textTransform: 'uppercase',
                   letterSpacing: 0.8,
                   marginBottom: 10,
@@ -317,7 +317,7 @@ export default function LessonPlanDetailScreen() {
               <Pressable onPress={(e) => e.stopPropagation()}>
                 <View style={st.menuCard}>
                   <TouchableOpacity onPress={handleEdit} style={st.menuItem} activeOpacity={0.6}>
-                    <Ionicons name="create-outline" size={20} color="#4f46e5" />
+                    <Ionicons name="create-outline" size={20} color="#053495" />
                     <Text style={st.menuItemText}>Edit Lesson Plan</Text>
                   </TouchableOpacity>
                   <View style={st.menuDivider} />
@@ -362,8 +362,8 @@ function MetaRow({
         <Ionicons name={icon} size={16} color={color} />
       </View>
       <View>
-        <Text style={{ fontSize: 11, color: '#94a3b8', fontWeight: '500' }}>{label}</Text>
-        <Text style={{ fontSize: 14, color: '#1e293b', fontWeight: '600', marginTop: 1 }}>
+        <Text style={{ fontSize: 11, color: '#8998B3', fontWeight: '500' }}>{label}</Text>
+        <Text style={{ fontSize: 14, color: '#042A6C', fontWeight: '600', marginTop: 1 }}>
           {value}
         </Text>
       </View>
@@ -374,8 +374,8 @@ function MetaRow({
 function SectionTitle({ icon, title }: { icon: keyof typeof Ionicons.glyphMap; title: string }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-      <Ionicons name={icon} size={16} color="#4f46e5" />
-      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1e293b', marginLeft: 8 }}>
+      <Ionicons name={icon} size={16} color="#053495" />
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#042A6C', marginLeft: 8 }}>
         {title}
       </Text>
     </View>
@@ -383,7 +383,7 @@ function SectionTitle({ icon, title }: { icon: keyof typeof Ionicons.glyphMap; t
 }
 
 const st = StyleSheet.create({
-  hero: { backgroundColor: '#4f46e5', overflow: 'hidden' },
+  hero: { backgroundColor: '#053495', overflow: 'hidden' },
   heroCircle: {
     position: 'absolute',
     width: 160,
@@ -418,14 +418,14 @@ const st = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#F0F5FE',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
     marginTop: 1,
   },
-  objText: { flex: 1, fontSize: 14, color: '#475569', lineHeight: 20 },
-  bodyText: { fontSize: 14, color: '#475569', lineHeight: 20 },
+  objText: { flex: 1, fontSize: 14, color: '#3E5683', lineHeight: 20 },
+  bodyText: { fontSize: 14, color: '#3E5683', lineHeight: 20 },
 
   actionBtn: {
     flexDirection: 'row',
@@ -456,6 +456,6 @@ const st = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
   },
-  menuItemText: { fontSize: 15, fontWeight: '600', color: '#1e293b', marginLeft: 12 },
-  menuDivider: { height: 1, backgroundColor: '#f1f5f9', marginHorizontal: 16 },
+  menuItemText: { fontSize: 15, fontWeight: '600', color: '#042A6C', marginLeft: 12 },
+  menuDivider: { height: 1, backgroundColor: '#EDF0F3', marginHorizontal: 16 },
 });

@@ -19,14 +19,14 @@ import { authApi, useAuthStore } from '@campus-verse/mobile-shared';
 /* ─────────────────────────── Tokens (mirrors login) ─────────────────────────── */
 
 const C = {
-  navy: '#1e1b4b',
-  cyan: '#06b6d4',
-  bg: '#f8fafc',
+  navy: '#031F4F',
+  cyan: '#00A8E0',
+  bg: '#F9F8F5',
   card: '#ffffff',
-  border: '#e2e8f0',
-  text: '#0f172a',
-  textMuted: '#64748b',
-  textFaint: '#94a3b8',
+  border: '#DAE0E7',
+  text: '#042A6C',
+  textMuted: '#526C98',
+  textFaint: '#8998B3',
   rose: '#e11d48',
   emerald: '#10b981',
 };
@@ -181,7 +181,7 @@ export default function ChangePasswordScreen() {
               style={[
                 $.inputWrap,
                 {
-                  backgroundColor: focused === 'current' ? '#fafafe' : C.bg,
+                  backgroundColor: focused === 'current' ? '#F9F8F5' : C.bg,
                   borderColor: errors.current ? C.rose : focused === 'current' ? C.navy : C.border,
                 },
               ]}
@@ -230,7 +230,7 @@ export default function ChangePasswordScreen() {
               style={[
                 $.inputWrap,
                 {
-                  backgroundColor: focused === 'next' ? '#fafafe' : C.bg,
+                  backgroundColor: focused === 'next' ? '#F9F8F5' : C.bg,
                   borderColor: errors.next ? C.rose : focused === 'next' ? C.navy : C.border,
                 },
               ]}
@@ -303,7 +303,7 @@ export default function ChangePasswordScreen() {
               style={[
                 $.inputWrap,
                 {
-                  backgroundColor: focused === 'confirm' ? '#fafafe' : C.bg,
+                  backgroundColor: focused === 'confirm' ? '#F9F8F5' : C.bg,
                   borderColor: errors.confirm ? C.rose : focused === 'confirm' ? C.navy : C.border,
                 },
               ]}

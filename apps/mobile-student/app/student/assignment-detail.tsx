@@ -78,10 +78,10 @@ export default function AssignmentDetailScreen() {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#f9fafb',
+          backgroundColor: '#F9F8F5',
         }}
       >
-        <ActivityIndicator size="large" color="#3b82f6" />
+        <ActivityIndicator size="large" color="#0749BB" />
       </View>
     );
   }
@@ -93,11 +93,11 @@ export default function AssignmentDetailScreen() {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#f9fafb',
+          backgroundColor: '#F9F8F5',
         }}
       >
-        <Ionicons name="alert-circle-outline" size={48} color="#d1d5db" />
-        <Text style={{ color: '#9ca3af', marginTop: 12 }}>Assignment not found</Text>
+        <Ionicons name="alert-circle-outline" size={48} color="#D3DAE4" />
+        <Text style={{ color: '#8998B3', marginTop: 12 }}>Assignment not found</Text>
       </View>
     );
   }
@@ -107,17 +107,17 @@ export default function AssignmentDetailScreen() {
   const hasQuestions = isQuiz || detail?.hasQuestions;
   const questions = detail?.questions;
 
-  const statusColor = isReviewed ? '#059669' : hasSubmission ? '#3b82f6' : '#f59e0b';
+  const statusColor = isReviewed ? '#059669' : hasSubmission ? '#0749BB' : '#f59e0b';
   const statusLabel = isReviewed ? 'Graded' : hasSubmission ? 'Submitted' : 'Not Submitted';
 
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F8F5' }}>
       <ScrollView
         style={{ flex: 1 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0749BB" />
         }
         showsVerticalScrollIndicator={false}
       >
@@ -191,19 +191,19 @@ export default function AssignmentDetailScreen() {
         </View>
 
         {/* Tabs */}
-        <View className="flex-row bg-white border-b border-gray-100 px-4">
+        <View className="flex-row bg-white border-b border-secondary-100 px-4">
           {TABS.map((tab) => (
             <TouchableOpacity
               key={tab}
               onPress={() => setActiveTab(tab)}
               className="mr-6 py-3"
               style={
-                activeTab === tab ? { borderBottomWidth: 2, borderBottomColor: '#3b82f6' } : {}
+                activeTab === tab ? { borderBottomWidth: 2, borderBottomColor: '#0749BB' } : {}
               }
             >
               <Text
                 className="text-sm font-semibold"
-                style={{ color: activeTab === tab ? '#3b82f6' : '#94a3b8' }}
+                style={{ color: activeTab === tab ? '#0749BB' : '#8998B3' }}
               >
                 {tab}
               </Text>
@@ -221,38 +221,38 @@ export default function AssignmentDetailScreen() {
                 padding: 16,
                 marginBottom: 12,
                 borderWidth: 1,
-                borderColor: '#f1f5f9',
+                borderColor: '#EDF0F3',
               }}
             >
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#0f172a', marginBottom: 10 }}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#042A6C', marginBottom: 10 }}>
                 Overview
               </Text>
               <View style={{ flexDirection: 'row', marginBottom: 8 }}>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>Type</Text>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155' }}>
+                  <Text style={{ fontSize: 11, color: '#8998B3', marginBottom: 2 }}>Type</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#2E4470' }}>
                     {isQuiz ? 'Quiz' : 'Assignment'}
                   </Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>Subject</Text>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155' }}>
+                  <Text style={{ fontSize: 11, color: '#8998B3', marginBottom: 2 }}>Subject</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#2E4470' }}>
                     {detail.subjectName || 'General'}
                   </Text>
                 </View>
               </View>
               <View style={{ flexDirection: 'row', marginBottom: 8 }}>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>
+                  <Text style={{ fontSize: 11, color: '#8998B3', marginBottom: 2 }}>
                     Total Marks
                   </Text>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155' }}>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#2E4470' }}>
                     {detail.totalMarks}
                   </Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>Due Date</Text>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155' }}>
+                  <Text style={{ fontSize: 11, color: '#8998B3', marginBottom: 2 }}>Due Date</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#2E4470' }}>
                     {detail.dueDate
                       ? new Date(detail.dueDate).toLocaleDateString('en-IN', {
                           day: 'numeric',
@@ -266,10 +266,10 @@ export default function AssignmentDetailScreen() {
               {detail.teacherName ? (
                 <View style={{ flexDirection: 'row', marginTop: 4 }}>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>
+                    <Text style={{ fontSize: 11, color: '#8998B3', marginBottom: 2 }}>
                       Assigned by
                     </Text>
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155' }}>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#2E4470' }}>
                       {detail.teacherName}
                     </Text>
                   </View>
@@ -286,15 +286,15 @@ export default function AssignmentDetailScreen() {
                   padding: 16,
                   marginBottom: 12,
                   borderWidth: 1,
-                  borderColor: '#f1f5f9',
+                  borderColor: '#EDF0F3',
                 }}
               >
                 <Text
-                  style={{ fontSize: 13, fontWeight: '700', color: '#0f172a', marginBottom: 8 }}
+                  style={{ fontSize: 13, fontWeight: '700', color: '#042A6C', marginBottom: 8 }}
                 >
                   Description
                 </Text>
-                <Text style={{ fontSize: 13, color: '#475569', lineHeight: 20 }}>
+                <Text style={{ fontSize: 13, color: '#3E5683', lineHeight: 20 }}>
                   {detail.description}
                 </Text>
               </View>
@@ -320,15 +320,15 @@ export default function AssignmentDetailScreen() {
           <View className="p-4">
             {subLoading ? (
               <View className="items-center py-10">
-                <ActivityIndicator size="large" color="#3b82f6" />
+                <ActivityIndicator size="large" color="#0749BB" />
               </View>
             ) : !hasSubmission ? (
               <View
                 className="bg-white rounded-2xl p-8 items-center"
-                style={{ borderWidth: 1, borderColor: '#f1f5f9' }}
+                style={{ borderWidth: 1, borderColor: '#EDF0F3' }}
               >
-                <Ionicons name="document-outline" size={40} color="#d1d5db" />
-                <Text className="text-gray-500 font-semibold mt-3">Not submitted yet</Text>
+                <Ionicons name="document-outline" size={40} color="#D3DAE4" />
+                <Text className="text-secondary-500 font-semibold mt-3">Not submitted yet</Text>
                 {hasQuestions && questions && questions.length > 0 && (
                   <TouchableOpacity
                     activeOpacity={0.8}
@@ -336,7 +336,7 @@ export default function AssignmentDetailScreen() {
                       router.push(`/student/assignment-submit?id=${id}&kind=${kind}` as never)
                     }
                     className="mt-4 px-6 py-3 rounded-xl"
-                    style={{ backgroundColor: '#3b82f6' }}
+                    style={{ backgroundColor: '#0749BB' }}
                   >
                     <Text className="text-white font-bold">Submit Now</Text>
                   </TouchableOpacity>
@@ -366,7 +366,7 @@ export default function AssignmentDetailScreen() {
                     >
                       {submission.marksObtained}/{submission.totalMarks || detail.totalMarks}
                     </Text>
-                    <Text className="text-sm font-semibold text-gray-500 mt-1">
+                    <Text className="text-sm font-semibold text-secondary-500 mt-1">
                       {Math.round(
                         (submission.marksObtained / (submission.totalMarks || detail.totalMarks)) *
                           100
@@ -381,12 +381,12 @@ export default function AssignmentDetailScreen() {
                   <View
                     key={ans.questionId || i}
                     className="bg-white rounded-2xl p-4 mb-3"
-                    style={{ borderWidth: 1, borderColor: '#f1f5f9' }}
+                    style={{ borderWidth: 1, borderColor: '#EDF0F3' }}
                   >
-                    <Text className="text-xs text-gray-400 font-semibold mb-1">
+                    <Text className="text-xs text-secondary-400 font-semibold mb-1">
                       Question {i + 1}
                     </Text>
-                    <Text className="text-sm text-gray-700 font-medium">
+                    <Text className="text-sm text-secondary-700 font-medium">
                       Your answer: {ans.answer}
                     </Text>
                     {submission.questionResults?.[i] && (
@@ -417,17 +417,17 @@ export default function AssignmentDetailScreen() {
 
                 {submission.reviewerRemarks ? (
                   <View
-                    className="bg-blue-50 rounded-2xl p-4 mt-2"
-                    style={{ borderWidth: 1, borderColor: '#dbeafe' }}
+                    className="bg-primary-50 rounded-2xl p-4 mt-2"
+                    style={{ borderWidth: 1, borderColor: '#E1ECFE' }}
                   >
-                    <Text className="text-xs text-blue-400 font-semibold mb-1">
+                    <Text className="text-xs text-primary-400 font-semibold mb-1">
                       Teacher Remarks
                     </Text>
-                    <Text className="text-sm text-blue-800">{submission.reviewerRemarks}</Text>
+                    <Text className="text-sm text-primary-800">{submission.reviewerRemarks}</Text>
                   </View>
                 ) : null}
 
-                <Text className="text-xs text-gray-400 text-center mt-4">
+                <Text className="text-xs text-secondary-400 text-center mt-4">
                   Submitted on{' '}
                   {new Date(submission.submittedAt).toLocaleDateString('en-IN', {
                     day: 'numeric',
@@ -461,7 +461,7 @@ function MetaPill({ icon, text }: { icon: keyof typeof Ionicons.glyphMap; text: 
 function scoreColorFn(obtained: number, total: number): string {
   const pct = total > 0 ? (obtained / total) * 100 : 0;
   if (pct >= 80) return '#059669';
-  if (pct >= 60) return '#3b82f6';
+  if (pct >= 60) return '#0749BB';
   if (pct >= 40) return '#d97706';
   return '#dc2626';
 }
@@ -469,25 +469,25 @@ function scoreColorFn(obtained: number, total: number): string {
 function scoreBg(obtained: number, total: number): string {
   const pct = total > 0 ? (obtained / total) * 100 : 0;
   if (pct >= 80) return '#f0fdf4';
-  if (pct >= 60) return '#eff6ff';
+  if (pct >= 60) return '#F0F5FE';
   if (pct >= 40) return '#fef3c7';
   return '#fef2f2';
 }
 
 const s = StyleSheet.create({
   hero: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#053495',
     paddingHorizontal: 20,
     paddingBottom: 20,
   },
   submitBtn: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#0749BB',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 14,
     borderRadius: 14,
-    shadowColor: '#3b82f6',
+    shadowColor: '#0749BB',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

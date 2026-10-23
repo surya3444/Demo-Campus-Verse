@@ -10,7 +10,8 @@ interface RuleProps {
 }
 
 export function Rule({ axis = 'h', tone = 'rule', inset = 0, style }: RuleProps) {
-  const bg = tone === 'ink' ? color.ink : tone === 'ruleStrong' ? color.ruleStrong : color.rule;
+  // Dividers stay light, as on the web; the old heavy ink rule is now just a stronger hairline.
+  const bg = tone === 'rule' ? color.rule : color.ruleStrong;
   if (axis === 'v') {
     return (
       <View

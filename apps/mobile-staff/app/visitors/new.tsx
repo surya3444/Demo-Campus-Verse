@@ -1,324 +1,123 @@
 import { useState } from 'react';
-import { View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
-import { Text, Pill, Button, Card, color } from '@campus-verse/mobile-shared/design';
+import * as Haptics from 'expo-haptics';
+import { BadgeCheck, LogIn } from 'lucide-react-native';
+import { Text, ScreenHeader, Surface, brand, color } from '@campus-verse/mobile-shared/design';
+import { apiClient } from '@campus-verse/mobile-shared/api/client';
+import { Field } from '@/components/Field';
 
-/**
- * Visitor — new registration.
- *
- * The form is laid out like a fountain-pen ledger: each field is a
- * full-width row with a kicker label, a hairline under-rule, and the input
- * set in italic body type when filled. Final card is a confirmation receipt.
- */
+const errorText = (e: unknown) =>
+  (e as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message ?? 'Couldn’t register the visitor. Try again.';
 
-const PURPOSES = [
-  'Parent meeting',
-  'Admission',
-  'Delivery',
-  'Maintenance',
-  'Interview',
-  'Vendor',
-  'Other',
-];
-
+/** Walk-in registration: saves the visitor and checks them in, issuing a pass code. */
 export default function NewVisitor() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const qc = useQueryClient();
+  const [f, setF] = useState({ name: '', phone: '', purpose: '', hostName: '', hostDepartment: '', company: '', numberOfVisitors: '1', vehicleNumber: '' });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [pass, setPass] = useState<string | null>(null);
+  const set = (k: keyof typeof f) => (v: string) => setF((p) => ({ ...p, [k]: v }));
 
-  const [step, setStep] = useState<'form' | 'photo' | 'done'>('form');
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [host, setHost] = useState('');
-  const [purpose, setPurpose] = useState<string>('Parent meeting');
-  const [idType, setIdType] = useState<'Aadhaar' | 'DL' | 'Other'>('Aadhaar');
+  const save = useMutation({
+    mutationFn: async () => {
+      const body = {
+        name: f.name.trim(),
+        phone: f.phone.trim(),
+        purpose: f.purpose.trim(),
+        hostName: f.hostName.trim(),
+        hostDepartment: f.hostDepartment.trim() || undefined,
+        company: f.company.trim() || undefined,
+        vehicleNumber: f.vehicleNumber.trim() || undefined,
+        numberOfVisitors: Math.max(1, parseInt(f.numberOfVisitors, 10) || 1),
+        type: 'walk_in',
+      };
+      const created = (await apiClient.post('/visitors', body)).data.data as { _id: string; passCode?: string };
+      const inRes = (await apiClient.put(`/visitors/${created._id}/check-in`)).data.data as { passCode?: string } | undefined;
+      return inRes?.passCode ?? created.passCode ?? '';
+    },
+    onSuccess: (code) => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
+      qc.invalidateQueries({ queryKey: ['visitors'] });
+      setPass(code || 'issued');
+    },
+  });
 
-  const valid = name.length > 2 && phone.length >= 10 && host.length > 1;
+  const submit = () => {
+    const e: Record<string, string> = {};
+    if (!f.name.trim()) e.name = 'Name is required';
+    if (!f.phone.trim()) e.phone = 'Phone is required';
+    if (!f.purpose.trim()) e.purpose = 'Purpose is required';
+    if (!f.hostName.trim()) e.hostName = 'Who are they meeting?';
+    setErrors(e);
+    if (!Object.keys(e).length) save.mutate();
+  };
 
-  if (step === 'photo') {
+  if (pass) {
     return (
-      <View style={{ flex: 1, backgroundColor: color.ink }}>
-        <StatusBar style="light" />
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 22 }}>
-          <View
-            style={{
-              width: 280,
-              height: 380,
-              borderRadius: 8,
-              borderWidth: 2,
-              borderColor: color.marigold,
-              borderStyle: 'dashed',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text variant="eyebrow" tone="marigold">
-              Camera preview
-            </Text>
-            <View style={{ height: 8 }} />
-            <Text variant="h2" tone="onInk" italic>
-              Snap their photo
-            </Text>
-            <Text
-              variant="caption"
-              tone="onInkMute"
-              style={{ marginTop: 8, textAlign: 'center', maxWidth: 220 }}
-            >
-              Hold the device at eye-level and tap the shutter when ready.
-            </Text>
-          </View>
-          <View style={{ height: 30 }} />
-          <View style={{ flexDirection: 'row', gap: 14 }}>
-            <Button label="Skip" variant="outline" onPress={() => setStep('done')} />
-            <Button label="Capture & continue" variant="marigold" onPress={() => setStep('done')} />
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  if (step === 'done') {
-    return (
-      <View style={{ flex: 1, backgroundColor: color.paper }}>
+      <View style={{ flex: 1, backgroundColor: color.paper, padding: 24, paddingTop: insets.top + 80, alignItems: 'center' }}>
         <StatusBar style="dark" />
-        <View
-          style={{
-            flex: 1,
-            paddingTop: insets.top + 50,
-            paddingHorizontal: 22,
-            alignItems: 'center',
-          }}
-        >
-          <Text variant="eyebrow" tone="marigold">
-            Issued · 11:42
+        <BadgeCheck size={56} color={brand.success} />
+        <Text variant="display" tone="ink" align="center" style={{ marginTop: 16 }}>
+          {f.name} is checked in
+        </Text>
+        <Surface style={{ marginTop: 22, alignItems: 'center', alignSelf: 'stretch' }}>
+          <Text variant="eyebrow" tone="inkMute">
+            Pass code
           </Text>
-          <View style={{ height: 10 }} />
-          <Text variant="hero" tone="ink" italic align="center">
-            Pass ready.
+          <Text variant="numLarge" tone="navy" style={{ marginTop: 6, fontFamily: 'CVMono_700Bold', letterSpacing: 3 }}>
+            {pass}
           </Text>
-          <View style={{ height: 30 }} />
-
-          <Card variant="ink" rounded="md" padded={26} style={{ width: '100%' }}>
-            <Text variant="eyebrow" tone="marigold">
-              Visitor pass · CV-2025-
-              {Math.floor(Math.random() * 999)
-                .toString()
-                .padStart(3, '0')}
+        </Surface>
+        <Pressable onPress={() => router.back()} style={{ alignSelf: 'stretch', marginTop: 22 }}>
+          <View style={{ height: 52, borderRadius: 16, backgroundColor: brand.navy800, alignItems: 'center', justifyContent: 'center' }}>
+            <Text variant="h3" tone="onInk">
+              Done
             </Text>
-            <View style={{ height: 14 }} />
-            <Text variant="display" tone="onInk" italic>
-              {name}
-            </Text>
-            <Text variant="caption" tone="onInkMute" style={{ marginTop: 6 }}>
-              Visiting {host} · {purpose}
-            </Text>
-            <View style={{ height: 18 }} />
-            <View style={{ height: 1, backgroundColor: 'rgba(245,240,230,0.18)' }} />
-            <View style={{ height: 14 }} />
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <View>
-                <Text variant="eyebrow" tone="onInkFaint">
-                  Issued
-                </Text>
-                <Text variant="numMid" tone="onInk">
-                  {new Date().toLocaleTimeString('en-IN', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false,
-                  })}
-                </Text>
-              </View>
-              <View>
-                <Text variant="eyebrow" tone="onInkFaint">
-                  Valid until
-                </Text>
-                <Text variant="numMid" tone="onInk">
-                  18:00
-                </Text>
-              </View>
-              <View>
-                <Text variant="eyebrow" tone="onInkFaint">
-                  Gate
-                </Text>
-                <Text variant="numMid" tone="onInk">
-                  01
-                </Text>
-              </View>
-            </View>
-          </Card>
-
-          <View style={{ height: 22 }} />
-          <Pill label="Host has been notified" tone="sage" size="md" />
-
-          <View style={{ height: 30 }} />
-          <Button
-            label="Done · back to register"
-            variant="ink"
-            size="lg"
-            full
-            onPress={() => router.replace('/visitors' as never)}
-          />
-        </View>
+          </View>
+        </Pressable>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: color.paper }}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: color.paper }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <StatusBar style="dark" />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: insets.top + 14,
-          paddingBottom: 140,
-          paddingHorizontal: 22,
-        }}
-      >
-        <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
-          <Text variant="micro" tone="inkMute">
-            ← Cancel
-          </Text>
-        </TouchableOpacity>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: insets.bottom + 30 }} keyboardShouldPersistTaps="handled">
+        <ScreenHeader eyebrow="Front desk" title="Register a visitor" subtitle="Saves the visitor and checks them in with a pass." />
         <View style={{ height: 18 }} />
-        <Text variant="eyebrow" tone="marigold">
-          New entry · Form V-1
-        </Text>
-        <View style={{ height: 10 }} />
-        <Text variant="hero" tone="ink">
-          Sign
-        </Text>
-        <Text variant="hero" tone="ink" italic>
-          them in.
-        </Text>
-        <View style={{ height: 26 }} />
-
-        <Field label="Full name" value={name} onChange={setName} placeholder="Mr. R. Krishnan" />
-        <Field
-          label="Phone"
-          value={phone}
-          onChange={setPhone}
-          placeholder="+91"
-          keyboardType="phone-pad"
-        />
-        <Field
-          label="Visiting"
-          value={host}
-          onChange={setHost}
-          placeholder="Ms. Mehta · Class IX-B"
-        />
-
-        {/* Purpose */}
-        <View style={{ marginTop: 22 }}>
-          <Text variant="eyebrow" tone="inkFaint">
-            Purpose
-          </Text>
-          <View style={{ height: 10 }} />
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {PURPOSES.map((p) => {
-              const sel = purpose === p;
-              return (
-                <TouchableOpacity
-                  key={p}
-                  activeOpacity={0.7}
-                  onPress={() => setPurpose(p)}
-                  style={{
-                    paddingHorizontal: 14,
-                    paddingVertical: 10,
-                    borderRadius: 999,
-                    backgroundColor: sel ? color.ink : 'transparent',
-                    borderWidth: 1.5,
-                    borderColor: sel ? color.ink : color.ruleStrong,
-                  }}
-                >
-                  <Text variant="micro" tone={sel ? 'onInk' : 'ink'}>
-                    {p}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+        <Field label="Full name" required value={f.name} onChangeText={set('name')} error={errors.name} />
+        <Field label="Phone" required value={f.phone} onChangeText={set('phone')} keyboardType="phone-pad" error={errors.phone} />
+        <Field label="Purpose of visit" required value={f.purpose} onChangeText={set('purpose')} placeholder="e.g. Parent meeting, delivery" error={errors.purpose} />
+        <Field label="Meeting" required value={f.hostName} onChangeText={set('hostName')} placeholder="Staff member's name" error={errors.hostName} />
+        <Field label="Department" value={f.hostDepartment} onChangeText={set('hostDepartment')} />
+        <Field label="Company" value={f.company} onChangeText={set('company')} />
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <View style={{ flex: 1 }}>
+            <Field label="People" value={f.numberOfVisitors} onChangeText={set('numberOfVisitors')} keyboardType="number-pad" />
+          </View>
+          <View style={{ flex: 2 }}>
+            <Field label="Vehicle number" value={f.vehicleNumber} onChangeText={set('vehicleNumber')} autoCapitalize="characters" />
           </View>
         </View>
-
-        {/* ID type */}
-        <View style={{ marginTop: 26 }}>
-          <Text variant="eyebrow" tone="inkFaint">
-            ID shown
+        {save.isError ? (
+          <Text variant="caption" style={{ color: brand.danger, marginBottom: 10 }}>
+            {errorText(save.error)}
           </Text>
-          <View style={{ height: 10 }} />
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            {(['Aadhaar', 'DL', 'Other'] as const).map((t) => {
-              const sel = idType === t;
-              return (
-                <TouchableOpacity
-                  key={t}
-                  activeOpacity={0.7}
-                  onPress={() => setIdType(t)}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 14,
-                    alignItems: 'center',
-                    borderWidth: 1.5,
-                    borderColor: sel ? color.ink : color.rule,
-                    backgroundColor: sel ? color.ink : 'transparent',
-                    borderRadius: 8,
-                  }}
-                >
-                  <Text variant="h3" tone={sel ? 'onInk' : 'ink'} italic={sel}>
-                    {t}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+        ) : null}
+        <Pressable onPress={submit} disabled={save.isPending}>
+          <View style={{ height: 54, borderRadius: 18, backgroundColor: brand.navy800, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', opacity: save.isPending ? 0.7 : 1 }}>
+            {save.isPending ? <ActivityIndicator color="#fff" /> : <LogIn size={19} color="#fff" />}
+            <Text variant="h3" tone="onInk" style={{ marginLeft: 8 }}>
+              Check in visitor
+            </Text>
           </View>
-        </View>
-
-        <View style={{ height: 30 }} />
-        <Button
-          label="Continue → photo"
-          variant={valid ? 'marigold' : 'ink'}
-          size="lg"
-          full
-          disabled={!valid}
-          onPress={() => setStep('photo')}
-        />
+        </Pressable>
       </ScrollView>
-    </View>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  placeholder,
-  keyboardType,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  keyboardType?: 'phone-pad' | 'default';
-}) {
-  return (
-    <View style={{ marginTop: 22 }}>
-      <Text variant="eyebrow" tone="inkFaint">
-        {label}
-      </Text>
-      <TextInput
-        value={value}
-        onChangeText={onChange}
-        placeholder={placeholder}
-        placeholderTextColor={color.inkFaint}
-        keyboardType={keyboardType}
-        style={{
-          fontFamily: value ? 'Fraunces_500Medium_Italic' : 'DMSans_400Regular',
-          fontSize: 22,
-          color: color.ink,
-          paddingVertical: 10,
-        }}
-      />
-      <View style={{ height: 1, backgroundColor: color.ruleStrong }} />
-    </View>
+    </KeyboardAvoidingView>
   );
 }

@@ -36,7 +36,7 @@ export default function NewPostScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#F9F8F5' }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
@@ -45,7 +45,7 @@ export default function NewPostScreen() {
           value={content}
           onChangeText={setContent}
           placeholder="Share something with your campus..."
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#8998B3"
           multiline
           numberOfLines={10}
           textAlignVertical="top"
@@ -77,14 +77,14 @@ const s = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#DAE0E7',
     fontSize: 15,
-    color: '#1e293b',
+    color: '#042A6C',
     minHeight: 200,
   },
-  counter: { fontSize: 11, color: '#94a3b8', textAlign: 'right', marginTop: 4 },
+  counter: { fontSize: 11, color: '#8998B3', textAlign: 'right', marginTop: 4 },
   submitBtn: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#053495',
     borderRadius: 14,
     paddingVertical: 16,
     marginTop: 20,

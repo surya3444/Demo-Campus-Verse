@@ -1,43 +1,75 @@
 /**
- * Almanac design tokens.
- *
- * The visual language is an editorial-magazine take on an Indian school
- * almanac: warm parchment paper, ink-black text, hairline rules, and
- * a single marigold-ochre accent used sparingly.
+ * CampusVerse design tokens for the mobile apps — the web app's palette and
+ * type (navy + CampusVerse cyan, Plus Jakarta Sans + DM Sans), so the apps
+ * feel like the same product.
  */
 
+/** CampusVerse brand scale — the same values as the web app and the logo. */
+export const brand = {
+  navy950: '#02173B',
+  navy900: '#031F4F',
+  navy800: '#042A6C', // primary + text (web --primary / --foreground)
+  navy700: '#053495', // logo navy
+  navy600: '#0749BB',
+  navy500: '#095CEC',
+  navy400: '#3A80F8',
+  navy300: '#84AFFB',
+  navy200: '#C4D9FD',
+  navy100: '#E1ECFE',
+  navy50: '#F0F5FE',
+  cyan700: '#006B8F',
+  cyan600: '#008AB8',
+  cyan500: '#00A8E0',
+  cyan400: '#0AC5FF', // logo cyan (web --brand-cyan)
+  cyan300: '#47D1FF',
+  cyan200: '#99E6FF',
+  cyan100: '#D6F5FF',
+  cyan50: '#EBFAFF',
+  success: '#16A34A',
+  successWash: '#DCFCE7',
+  warning: '#D97706',
+  warningWash: '#FEF3C7',
+  danger: '#DC2626',
+  dangerWash: '#FEE2E2',
+} as const;
+
+/**
+ * Semantic colours. The keys are the original names every screen already uses
+ * (paper, ink, marigold…); the values are now CampusVerse brand colours, so the
+ * whole app follows the brand without touching each screen.
+ */
 export const color = {
   /* Surfaces */
-  paper: '#F5F0E6',
-  paperDeep: '#EFE8DA',
-  paperWarm: '#FBF6EC',
-  card: '#FFFCF6',
-  cardSink: '#F1ECDF',
+  paper: '#F9F8F5', // web --background
+  paperDeep: '#EDF0F3',
+  paperWarm: '#F4F7FC',
+  card: '#FFFFFF',
+  cardSink: '#F1F4F8',
 
-  /* Ink */
-  ink: '#1B1714',
-  inkSoft: '#3A322C',
-  inkMute: '#5C5249',
-  inkFaint: '#8E8478',
-  inkGhost: '#B9B0A2',
-  rule: 'rgba(27,23,20,0.10)',
-  ruleStrong: 'rgba(27,23,20,0.16)',
+  /* Text (navy, like the web) */
+  ink: brand.navy800,
+  inkSoft: '#2E4470',
+  inkMute: '#526C98', // web --muted-foreground
+  inkFaint: '#8998B3',
+  inkGhost: '#B3BCCC',
+  rule: 'rgba(4,42,108,0.10)',
+  ruleStrong: 'rgba(4,42,108,0.16)',
 
   /* Accents */
-  marigold: '#C8651A',
-  marigoldDeep: '#8E4313',
-  marigoldWash: 'rgba(200,101,26,0.10)',
-  indigo: '#27395A',
-  indigoWash: 'rgba(39,57,90,0.10)',
-  sage: '#6B7F5A',
-  sageWash: 'rgba(107,127,90,0.14)',
-  brick: '#A03A2C',
-  brickWash: 'rgba(160,58,44,0.10)',
+  marigold: brand.cyan600, // the one accent: CampusVerse cyan
+  marigoldDeep: brand.cyan700,
+  marigoldWash: 'rgba(10,197,255,0.12)',
+  indigo: brand.navy700,
+  indigoWash: 'rgba(5,52,149,0.08)',
+  sage: brand.success,
+  sageWash: 'rgba(22,163,74,0.12)',
+  brick: brand.danger,
+  brickWash: 'rgba(220,38,38,0.10)',
 
-  /* On-ink (when ink is the surface) */
-  onInk: '#F5F0E6',
-  onInkMute: 'rgba(245,240,230,0.65)',
-  onInkFaint: 'rgba(245,240,230,0.42)',
+  /* On dark (navy) surfaces */
+  onInk: '#FFFFFF',
+  onInkMute: 'rgba(255,255,255,0.72)',
+  onInkFaint: 'rgba(255,255,255,0.48)',
 } as const;
 
 export const space = {
@@ -63,68 +95,84 @@ export const space = {
 
 export const radius = {
   none: 0,
-  xs: 2,
-  sm: 6,
-  md: 10,
-  lg: 14,
-  xl: 20,
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 22,
+  xxl: 28,
   pill: 999,
 } as const;
 
 export const font = {
-  /* Loaded via @expo-google-fonts; see useAlmanacFonts(). */
-  display: 'Fraunces_500Medium',
-  displayItalic: 'Fraunces_500Medium_Italic',
-  displayBold: 'Fraunces_700Bold',
-  displayBoldItalic: 'Fraunces_700Bold_Italic',
+  /* Plus Jakarta Sans for headings and figures, DM Sans for text (as on the web). */
+  display: 'PlusJakartaSans_700Bold',
+  displayItalic: 'PlusJakartaSans_700Bold',
+  displayBold: 'PlusJakartaSans_800ExtraBold',
+  displayBoldItalic: 'PlusJakartaSans_800ExtraBold',
+  displaySemi: 'PlusJakartaSans_600SemiBold',
   body: 'DMSans_400Regular',
   bodyMed: 'DMSans_500Medium',
   bodyBold: 'DMSans_700Bold',
-  mono: 'JetBrainsMono_400Regular',
-  monoMed: 'JetBrainsMono_500Medium',
-  monoBold: 'JetBrainsMono_700Bold',
+  mono: 'CVMono_400Regular',
+  monoMed: 'CVMono_500Medium',
+  monoBold: 'CVMono_700Bold',
 } as const;
 
 export const text = {
-  /* Display — Fraunces, used sparingly for hero & section openers */
-  hero: { fontFamily: font.displayBold, fontSize: 44, lineHeight: 46, letterSpacing: -1.2 },
-  display: { fontFamily: font.displayBold, fontSize: 32, lineHeight: 34, letterSpacing: -0.8 },
-  h1: { fontFamily: font.displayBold, fontSize: 26, lineHeight: 30, letterSpacing: -0.5 },
-  h2: { fontFamily: font.display, fontSize: 22, lineHeight: 26, letterSpacing: -0.3 },
-  h3: { fontFamily: font.bodyBold, fontSize: 17, lineHeight: 22, letterSpacing: -0.1 },
+  /* Headings — Plus Jakarta Sans, tight tracking like the web's font-display */
+  hero: { fontFamily: font.displayBold, fontSize: 38, lineHeight: 42, letterSpacing: -1.1 },
+  display: { fontFamily: font.displayBold, fontSize: 30, lineHeight: 34, letterSpacing: -0.8 },
+  h1: { fontFamily: font.displayBold, fontSize: 24, lineHeight: 29, letterSpacing: -0.5 },
+  h2: { fontFamily: font.display, fontSize: 20, lineHeight: 25, letterSpacing: -0.3 },
+  h3: { fontFamily: font.display, fontSize: 16.5, lineHeight: 22, letterSpacing: -0.15 },
 
-  /* Body */
+  /* Body — DM Sans */
   body: { fontFamily: font.body, fontSize: 14.5, lineHeight: 21 },
   bodyStrong: { fontFamily: font.bodyMed, fontSize: 14.5, lineHeight: 21 },
   caption: { fontFamily: font.body, fontSize: 12.5, lineHeight: 17 },
   micro: { fontFamily: font.bodyMed, fontSize: 11, lineHeight: 14 },
 
-  /* Eyebrow / Kicker — mono, all caps, wide-tracked */
+  /* Eyebrow — the web's uppercase, wide-tracked label */
   eyebrow: {
-    fontFamily: font.monoMed,
-    fontSize: 10,
-    letterSpacing: 2.4,
+    fontFamily: font.bodyBold,
+    fontSize: 10.5,
+    letterSpacing: 1.9,
     textTransform: 'uppercase' as const,
   },
   kicker: {
-    fontFamily: font.monoBold,
+    fontFamily: font.bodyBold,
     fontSize: 11.5,
-    letterSpacing: 1.8,
+    letterSpacing: 1.4,
     textTransform: 'uppercase' as const,
   },
 
-  /* Numerals — JetBrains Mono, tabular by nature */
-  numLarge: { fontFamily: font.monoBold, fontSize: 38, letterSpacing: -1, lineHeight: 42 },
-  numMid: { fontFamily: font.monoBold, fontSize: 22, letterSpacing: -0.4, lineHeight: 26 },
-  numSmall: { fontFamily: font.monoMed, fontSize: 14, letterSpacing: -0.1, lineHeight: 18 },
+  /* Figures — Plus Jakarta Sans, tabular */
+  numLarge: { fontFamily: font.displayBold, fontSize: 34, letterSpacing: -1, lineHeight: 40, fontVariant: ['tabular-nums' as const] },
+  numMid: { fontFamily: font.displayBold, fontSize: 21, letterSpacing: -0.4, lineHeight: 26, fontVariant: ['tabular-nums' as const] },
+  numSmall: { fontFamily: font.displaySemi, fontSize: 14, letterSpacing: -0.1, lineHeight: 18, fontVariant: ['tabular-nums' as const] },
 } as const;
 
-/** Reusable shadow-less elevation: subtle ink-tinted offset for raised tiles. */
+/** Elevation: a soft navy-tinted shadow, like the web's shadow-soft. */
 export const elevation = {
   flat: {},
   hairline: {
     borderWidth: 1,
     borderColor: color.rule,
+  },
+  soft: {
+    shadowColor: brand.navy800,
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
+  },
+  lifted: {
+    shadowColor: brand.navy800,
+    shadowOpacity: 0.16,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 6,
   },
 } as const;
 
