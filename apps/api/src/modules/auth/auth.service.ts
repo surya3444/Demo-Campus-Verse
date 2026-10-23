@@ -543,6 +543,9 @@ class AuthService {
       email: user.email,
       phone: user.phone,
       profile: user.profile,
+      // Same as /auth/me: the mobile apps key every student screen off this.
+      studentId: (user as { studentId?: ObjectId }).studentId?.toString(),
+      staffId: (user as { staffId?: ObjectId }).staffId?.toString(),
       roleCode: role.code,
       roleLevel: role.level,
       permissions: resolvePermissions(role),
@@ -824,6 +827,9 @@ class AuthService {
       email: user.email,
       phone: user.phone,
       profile: user.profile,
+      // Same as /auth/me: the mobile apps key every student screen off this.
+      studentId: (user as { studentId?: ObjectId }).studentId?.toString(),
+      staffId: (user as { staffId?: ObjectId }).staffId?.toString(),
       roleCode: role.code,
       roleLevel: role.level,
       permissions: resolvePermissions(role),

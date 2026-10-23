@@ -1,0 +1,34 @@
+# Mobile cloud builds upload only what the two apps need. The API, web apps,
+# docs, infrastructure, caches and every .env stay on this machine.
+/apps/api/
+/apps/web/
+/apps/superadmin-web/
+/apps/.web-share/
+/infrastructure/
+/docs/
+/plan/
+/scripts/
+/copyright-filing/
+/.github/
+/.husky/
+/.claude/
+/.turbo/
+/*.md
+/deploy.sh
+/docker-compose*.yml
+/.dockerignore
+
+node_modules/
+.env
+.env.*
+!.env.example
+**/.next/
+**/dist/
+**/build/
+*.rdb
+.expo/
+
+# Native build caches
+**/.gradle/
+**/.cxx/
+.git/

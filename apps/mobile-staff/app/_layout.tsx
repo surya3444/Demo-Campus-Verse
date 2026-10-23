@@ -72,7 +72,7 @@ function useStaffProtectedRoute() {
 
   useEffect(() => {
     const inAuthGroup = segments[0] === '(auth)';
-    const onChangePassword = inAuthGroup && (segments[1] as string) === 'change-password';
+    const onChangePassword = inAuthGroup && (segments as string[])[1] === 'change-password';
 
     if (!isAuthenticated && !inAuthGroup) {
       router.replace('/(auth)/login');

@@ -17,6 +17,12 @@
       "channel": "preview",
       "ios": {
         "simulator": false
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.demo.campusverse.app/api/v1"
       }
     },
     "production": {
