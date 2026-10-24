@@ -89,10 +89,17 @@ const ADMIN_FULL_MODULE_PREFIXES = [
 ];
 const ADMIN_CODES: readonly string[] = [...ADMIN_DEFAULT_ONLY, 'INSTITUTION_ADMIN'];
 
+// Every staff role works tasks and raises issues; leaders also hand work down.
+const ASSIGNS_WORK: readonly string[] = [...ADMIN_DEFAULT_ONLY, 'INSTITUTION_ADMIN', 'HOD'];
+
 export function defaultPermissions(code: string): Permissions | null {
   if (FULL_ACCESS.includes(code)) return { ...(ALL_PERMISSIONS as unknown as Permissions) };
   if (!DEFAULTS[code]) return null;
   const base: Permissions = { ...DEFAULTS[code] };
+  if (code !== 'STUDENT') {
+    base['workspace.tasks'] = ASSIGNS_WORK.includes(code) ? ['view', 'assign'] : ['view'];
+    base['workspace.issues'] = ['view', 'raise'];
+  }
   if (ADMIN_CODES.includes(code)) {
     for (const [key, actions] of Object.entries(ALL_PERMISSIONS as unknown as Permissions)) {
       if (ADMIN_FULL_MODULE_PREFIXES.some((p) => key.startsWith(p))) base[key] = [...actions];

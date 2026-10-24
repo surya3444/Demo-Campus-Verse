@@ -210,6 +210,11 @@ export const PERMISSIONS = {
   // exposes the data-query tools a user is already permitted for, so this is a
   // soft on/off switch for the feature rather than the real data gate.
   'ai.assistant': ['use'],
+
+  // My Workspace — work handed down the hierarchy, issues raised up it.
+  // Who can assign to whom comes from role level + scope, not from here.
+  'workspace.tasks': ['view', 'assign'],
+  'workspace.issues': ['view', 'raise'],
 } as const;
 
 /**

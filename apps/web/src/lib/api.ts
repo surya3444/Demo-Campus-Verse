@@ -8060,3 +8060,105 @@ export interface SandboxPayout {
     reason: string | null;
   }>;
 }
+
+// ---------------------------------------------------------------------------
+// My Workspace — tasks handed down the hierarchy, issues raised up it.
+// ---------------------------------------------------------------------------
+
+export interface WorkPerson {
+  userId: string;
+  name: string;
+  roleName: string;
+  roleCode: string;
+  level: number;
+  photo?: string;
+  departmentName?: string;
+}
+export type TaskStatus = 'todo' | 'in_progress' | 'in_review' | 'done' | 'cancelled';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+export interface WorkUpdate {
+  at: string;
+  by?: WorkPerson;
+  kind: string;
+  text?: string;
+  from?: string;
+  to?: string;
+  handler?: WorkPerson;
+}
+export interface WorkTask {
+  _id: string;
+  number: string;
+  groupId?: string;
+  title: string;
+  description?: string;
+  priority: TaskPriority;
+  dueDate?: string;
+  requireReview: boolean;
+  status: TaskStatus;
+  progress: number;
+  checklist: Array<{ id: string; text: string; done: boolean }>;
+  assignedBy: WorkPerson;
+  assignee: WorkPerson;
+  updates: WorkUpdate[];
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+  overdue: boolean;
+  can: { work: boolean; review: boolean; manage: boolean; reopen: boolean };
+}
+export type IssueSeverity = 'low' | 'medium' | 'high' | 'critical';
+export type IssueStatus = 'open' | 'acknowledged' | 'in_progress' | 'resolved' | 'closed';
+export interface WorkIssue {
+  _id: string;
+  number: string;
+  title: string;
+  description: string;
+  category: string;
+  severity: IssueSeverity;
+  status: IssueStatus;
+  raisedBy: WorkPerson;
+  handler: WorkPerson;
+  trail: Array<{ who: WorkPerson; at: string; via: 'raised' | 'escalated' | 'delegated' | 'auto_escalated' }>;
+  slaDueAt: string;
+  resolution?: string;
+  resolvedAt?: string;
+  updates: WorkUpdate[];
+  createdAt: string;
+  updatedAt: string;
+  breached: boolean;
+  nextUp: WorkPerson | null;
+  ahead?: WorkPerson[];
+  delegates?: WorkPerson[];
+  can: { handle: boolean; escalate: boolean; delegate: boolean; close: boolean; reopen: boolean; takeOver: boolean };
+}
+export interface WorkSummary {
+  tasks: { mine: number; overdue: number; toReview: number };
+  issues: { assigned: number; breached: number; raised: number };
+}
+
+const wsData = <T,>(p: Promise<{ data: { data: T } }>) => p.then((r) => r.data.data);
+
+export const workspaceApi = {
+  summary: () => wsData<WorkSummary>(api.get('/workspace/summary')),
+  tasks: (scope: 'mine' | 'assigned' | 'team') => wsData<WorkTask[]>(api.get('/workspace/tasks', { params: { scope } })),
+  task: (id: string) => wsData<WorkTask>(api.get(`/workspace/tasks/${id}`)),
+  assignable: () => wsData<WorkPerson[]>(api.get('/workspace/tasks/assignable')),
+  createTask: (body: {
+    title: string;
+    description?: string;
+    priority: TaskPriority;
+    dueDate?: string;
+    requireReview: boolean;
+    checklist: string[];
+    assigneeIds: string[];
+  }) => wsData<WorkTask[]>(api.post('/workspace/tasks', body)),
+  taskAction: (id: string, action: Record<string, unknown>) =>
+    wsData<WorkTask>(api.post(`/workspace/tasks/${id}/actions`, action)),
+  issues: (scope: 'raised' | 'assigned' | 'team') => wsData<WorkIssue[]>(api.get('/workspace/issues', { params: { scope } })),
+  issue: (id: string) => wsData<WorkIssue>(api.get(`/workspace/issues/${id}`)),
+  route: () => wsData<WorkPerson[]>(api.get('/workspace/issues/route')),
+  raiseIssue: (body: { title: string; description: string; category: string; severity: IssueSeverity; toUserId?: string }) =>
+    wsData<WorkIssue>(api.post('/workspace/issues', body)),
+  issueAction: (id: string, action: Record<string, unknown>) =>
+    wsData<WorkIssue>(api.post(`/workspace/issues/${id}/actions`, action)),
+};

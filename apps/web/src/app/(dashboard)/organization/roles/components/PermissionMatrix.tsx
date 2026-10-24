@@ -44,6 +44,7 @@ type Perms = Record<string, string[]>;
 /** Areas of the app, in sidebar order, with the permission prefixes they cover. */
 const GROUPS: Array<{ id: string; label: string; hint: string }> = [
   { id: 'dashboard', label: 'Dashboard & reports', hint: 'Overview screens and exports' },
+  { id: 'workspace', label: 'Tasks & issues', hint: 'Assign work down, raise issues up' },
   { id: 'organization', label: 'Organization', hint: 'Institutions, users, roles, settings' },
   { id: 'students', label: 'Students', hint: 'Records, profiles, promotion' },
   { id: 'admissions', label: 'Admissions', hint: 'Leads and applications' },
@@ -84,6 +85,8 @@ const LABELS: Record<string, string> = {
   'hr.payroll': 'Payroll',
   'hr.payslips': 'Payslips',
   'ai.assistant': 'Use the assistant',
+  'workspace.tasks': 'Tasks (assign = hand work to people below)',
+  'workspace.issues': 'Issues (raise to people above)',
   'organization.academics': 'Academic structure',
   'teaching.myClasses': 'My classes',
   'teaching.myStudents': 'My students',

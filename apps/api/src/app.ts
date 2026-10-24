@@ -47,6 +47,7 @@ import aiRoutes from './modules/ai/ai.routes';
 import auditRoutes from './modules/audit/audit.routes';
 import centralRoutes from './modules/central/central.routes';
 import clubsRoutes from './modules/clubs/clubs.routes';
+import workspaceRoutes from './modules/workspace/workspace.routes';
 import { auditLog } from './middleware/auditLog';
 import { registerApp } from './modules/ai/ai.catalog';
 
@@ -178,6 +179,7 @@ app.use('/api/v1/audit', auditRoutes);
 // Cross-institution ("All institutions") rollups — deliberately branch-less.
 app.use('/api/v1/central', centralRoutes);
 app.use('/api/v1/clubs', clubsRoutes);
+app.use('/api/v1/workspace', workspaceRoutes);
 
 // 404 handler
 app.use((_req, res) => {

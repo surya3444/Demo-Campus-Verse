@@ -19,7 +19,6 @@ import {
   ChevronDown,
   Building2,
   Check,
-  Sparkles,
   Palette,
   Plus,
   Loader2,
@@ -39,6 +38,7 @@ import { LocationSelector } from '@/components/ui/location-selector';
 import { useSidebarTheme } from '@/contexts/SidebarThemeContext';
 import { ThemeSwitcherModal } from './ThemeSwitcherModal';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
+import { WorkInbox, useWorkSummary } from '@/components/workspace/WorkInbox';
 
 interface TopBarProps {
   onMobileMenuClick: () => void;
@@ -66,6 +66,7 @@ export function TopBar({ onMobileMenuClick }: TopBarProps) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [branchPopoverOpen, setBranchPopoverOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const work = useWorkSummary();
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [createBranchDialogOpen, setCreateBranchDialogOpen] = useState(false);
   const [savingBranch, setSavingBranch] = useState(false);
@@ -329,45 +330,45 @@ export function TopBar({ onMobileMenuClick }: TopBarProps) {
               className="relative p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             >
               <Bell className="h-5 w-5" />
-              {/* Notification Badge */}
-              <span
-                className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-pulse"
-                style={{ backgroundColor: theme.accentHex }}
-              />
+              {work.count > 0 && (
+                <span
+                  className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold leading-[18px] text-white text-center ring-2 ring-white"
+                  style={{ backgroundColor: theme.accentHex }}
+                >
+                  {work.count > 99 ? '99+' : work.count}
+                </span>
+              )}
             </button>
 
             {/* Notifications Dropdown */}
             <div
               className={cn(
-                'absolute top-full right-0 mt-2 w-80 rounded-xl border border-border bg-white shadow-xl transition-all duration-200 origin-top-right',
+                'absolute top-full right-0 mt-2 w-96 rounded-xl border border-border bg-white shadow-xl transition-all duration-200 origin-top-right',
                 notificationsOpen
                   ? 'opacity-100 scale-100 translate-y-0'
                   : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
               )}
             >
               <div className="flex items-center justify-between p-4 border-b border-border">
-                <h3 className="font-semibold text-foreground">Notifications</h3>
-                <button className="text-xs text-accent hover:text-primary font-medium">
-                  Mark all read
-                </button>
+                <h3 className="font-semibold text-foreground">Needs your attention</h3>
               </div>
-              <div className="p-2 max-h-[320px] overflow-y-auto">
-                {/* Empty State */}
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mb-3">
-                    <Sparkles className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm font-medium text-foreground">All caught up!</p>
-                  <p className="text-xs text-muted-foreground mt-1">No new notifications</p>
-                </div>
+              <div className="p-2 max-h-[360px] overflow-y-auto">
+                <WorkInbox items={work.items} onNavigate={() => setNotificationsOpen(false)} />
               </div>
-              <div className="p-2 border-t border-border">
+              <div className="grid grid-cols-2 gap-1 p-2 border-t border-border">
                 <Link
-                  href="/notifications"
+                  href="/work"
                   onClick={() => setNotificationsOpen(false)}
-                  className="block w-full text-center text-sm text-accent hover:text-primary font-medium py-2 rounded-lg hover:bg-muted/50 transition-colors"
+                  className="block text-center text-sm text-accent hover:text-primary font-medium py-2 rounded-lg hover:bg-muted/50 transition-colors"
                 >
-                  View all notifications
+                  Open tasks
+                </Link>
+                <Link
+                  href="/issues"
+                  onClick={() => setNotificationsOpen(false)}
+                  className="block text-center text-sm text-accent hover:text-primary font-medium py-2 rounded-lg hover:bg-muted/50 transition-colors"
+                >
+                  Open issues
                 </Link>
               </div>
             </div>

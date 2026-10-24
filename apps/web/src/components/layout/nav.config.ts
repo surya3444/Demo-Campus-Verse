@@ -176,6 +176,24 @@ export const NAV_SECTIONS: NavSection[] = [
     label: 'My Workspace',
     modules: [
       {
+        // Work handed down the hierarchy (who can reach whom: role level + scope).
+        id: 'tasks',
+        name: 'Tasks',
+        icon: Kanban,
+        href: '/work',
+        alwaysAvailable: true,
+        permission: { module: 'workspace.tasks', action: 'view' },
+      },
+      {
+        // Issues raised up the hierarchy, escalating on their own when ignored.
+        id: 'issues',
+        name: 'Issues',
+        icon: Megaphone,
+        href: '/issues',
+        alwaysAvailable: true,
+        permission: { module: 'workspace.issues', action: 'view' },
+      },
+      {
         id: 'my-payslips',
         name: 'My Payslips',
         icon: Receipt,
